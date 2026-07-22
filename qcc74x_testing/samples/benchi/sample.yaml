@@ -1,0 +1,31 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+tests:
+  qcc7xx.sample.benchi:
+    platform_allow:
+      - qcc744m_evk
+      - qcc748m_evk
+    tags:
+      - net
+      - wifi
+      - benchi
+    timeout: 60
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "CODE_WIFI_ON_MGMR_DONE"
+        - "Booting Zephyr OS"
+        - "LittleFS version"
+        - "uart:~\\$"
+
+  qcc7xx.sample.benchi.build:
+    build_only: true
+    platform_allow:
+      - qcc75xm_evk
+    tags:
+      - net
+      - wifi
+      - benchi

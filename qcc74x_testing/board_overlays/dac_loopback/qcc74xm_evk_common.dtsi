@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	zephyr,user {
+		io-channels = <&dac 0 &adc 0>;
+		io-channel-names = "dac1", "adc1";
+	};
+};
+
+&pinctrl {
+	adc_default: adc_default {
+		group1 {
+			pinmux = <GPIO1_ADC_CH8>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+	dac_default: dac_default {
+		group2 {
+			pinmux = <GPIO3_ADC_CH3>;
+		};
+	};
+};
+
+&dma {
+	status = "disabled";
+};
+
+&adc {
+	status = "okay";
+	pinctrl-0 = <&adc_default>;
+	pinctrl-names = "default";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_8>;
+		zephyr,input-negative = <ADC_CHANNEL_GND>;
+		zephyr,resolution = <14>;
+	};
+};
+
+&dac {
+	status = "okay";
+	pinctrl-0 = <&dac_default>;
+	pinctrl-names = "default";
+	voltage_range = <DAC_VOLTAGE_RANGE_200_1800>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,resolution = <12>;
+	};
+};

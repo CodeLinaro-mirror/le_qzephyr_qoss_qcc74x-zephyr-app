@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/samples/drivers/adc/adc_sequence.
+ * Ported from the v4.1 QCC74x fork's boards/qcc748m_evk.overlay +
+ * qcc74xm_evk_common.dtsi (inlined here). Provides the adc0 alias the
+ * sample's filter requires, a 3-channel ADC config, and the DMA wiring
+ * the Opal ADC sequence path needs. Pair with qcc748m_evk.conf.
+ *
+ * Inject with west (bypasses the sample's non-qcc74x platform_allow):
+ *   west build -p always -b qcc748m_evk/qcc748 -d C:/b \
+ *     zephyr/samples/drivers/adc/adc_sequence \
+ *     -- -DDTC_OVERLAY_FILE=<abs>/board_overlays/adc_sequence/qcc748m_evk.overlay \
+ *        -DEXTRA_CONF_FILE=<abs>/board_overlays/adc_sequence/qcc748m_evk.conf
+ */
+
+/ {
+	zephyr,user {
+		io-channels = <&adc 0>, <&adc 1>, <&adc 2>;
+	};
+	aliases {
+		adc0 = &adc;
+	};
+};
+
+&pinctrl {
+	adc_default: adc_default {
+		group1 {
+			pinmux = <GPIO27_ADC_CH10>,
+				 <GPIO20_ADC_CH0>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+};
+
+&dma {
+	status = "okay";
+};
+
+&adc {
+	status = "okay";
+	pinctrl-0 = <&adc_default>;
+	pinctrl-names = "default";
+	dmas = <&dma 0  DMA_REQUEST_ADC  DMA_ADDR_ADC_RDR>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_GND>;
+	};
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_10>;
+	};
+
+	channel@2 {
+		reg = <2>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_0>;
+	};
+};

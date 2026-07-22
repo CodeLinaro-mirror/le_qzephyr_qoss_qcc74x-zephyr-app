@@ -1,0 +1,18 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+common:
+  tags:
+    - dac
+    - drivers
+    - userspace
+tests:
+  qcc7xx.drivers.dac.dma_api:
+    build_only: true
+    depends_on: 
+    - dac
+    - dma
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk

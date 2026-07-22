@@ -1,0 +1,116 @@
+# Config options for logger sample app
+
+# Copyright (c) 2018 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+mainmenu "Shell module sample application"
+
+menu "Application configuration"
+
+config SHELL_FOREGROUND_CMDS
+	bool "Shell foreground commands example"
+	default y
+
+config SHELL_DYNAMIC_CMDS
+	bool "Shell dynamic commands example"
+	default y
+
+endmenu
+
+
+
+
+
+
+
+
+
+
+# HTTP SAMPLE
+
+config NET_SAMPLE_HTTP_SERVICE
+	bool "Enable http service"
+	default y
+
+config NET_SAMPLE_HTTP_SERVER_SERVICE_PORT
+	int "Port number for http service"
+	default 80
+
+
+
+
+
+# HTTPS SAMPLE
+
+config NET_SOCKETS_SOCKOPT_TLS
+	bool "Enable TLS"
+	default y
+
+config NET_SAMPLE_HTTPS_SERVICE
+	bool "Enable https service"
+	default y
+
+config NET_SAMPLE_HTTPS_SERVER_SERVICE_PORT
+	int "Port number for https service"
+	default 443
+
+
+# WEBSOCKET SAMPLE
+
+config NET_SAMPLE_WEBSOCKET_SERVICE
+	bool "Enable websocket sample"
+	default y
+
+config NET_SAMPLE_WEBSOCKET_STATS_INTERVAL
+	int "Interval in milliseconds to send network stats over websocket"
+	default 200
+
+config NET_SAMPLE_NUM_WEBSOCKET_HANDLERS
+	int "How many websocket connections to serve at the same time"
+	default 1
+
+config POLL
+    bool "Enable polling"
+    default y
+
+config NET_STATISTICS_USER_API
+    bool ""
+    default y
+
+
+# OTHERS
+
+config CONFIG_USB_DEVICE_STACK
+    bool "Enable USB stack"
+    default n
+
+config NET_SAMPLE_HTTPS_USE_ALPN
+	bool "Allow HTTP2 connectivity with web browsers by using ALPN"
+	default y
+
+config NET_SAMPLE_PSK_HEADER_FILE
+	string "Header file containing PSK"
+	default "dummy_psk.h"
+
+config IMG_BLOCK_BUF_SIZE
+	int "Image Block Buffer Size"
+	default 512
+
+config BSHG_IFP_PARALLEL_FLASHING
+	bool "Enable download and flashing in parallel"
+	default y	
+
+config TRACING_BUFFER_SIZE
+        int "Size of tracing buffer"
+        default 2048 if TRACING_ASYNC
+        default TRACING_PACKET_MAX_SIZE if TRACING_SYNC
+        range 32 131072
+
+
+
+
+
+
+
+
+source "Kconfig.zephyr"

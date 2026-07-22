@@ -1,0 +1,18 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+tests:
+  qcc7xx.drivers.i2s.loopback:
+    depends_on:
+      - i2s
+      - gpio
+      - dma
+    tags:
+      - drivers
+      - i2s
+    harness: ztest
+    harness_config:
+      fixture: gpio_loopback
+    platform_allow:
+      - qcc744m_evk
+      - qcc748m_evk

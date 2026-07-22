@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/tests/drivers/gpio/gpio_basic_api
+ * (scenario drivers.gpio.2pin). Ported from the v4.1 QCC74x fork's
+ * boards/qcc748m_evk.overlay + qcc7xxm_evk_common.dtsi (inlined). Provides
+ * the "test-gpio-basic-api" resources node the scenario's filter requires.
+ *
+ * The 2-pin test drives out-gpios and samples in-gpios, so it needs a
+ * physical jumper wire between GPIO20 (out) and GPIO16 (in) to PASS on
+ * hardware (harness_config.fixture: gpio_loopback). Without the wire,
+ * expect a build pass but a runtime failure.
+ *
+ * Inject with west twister (scenario has no platform_allow, only a
+ * devicetree filter, so twister works — no west build needed):
+ *   west twister -p qcc748m_evk/qcc748 \
+ *     -T zephyr/tests/drivers/gpio/gpio_basic_api -s drivers.gpio.2pin \
+ *     -x DTC_OVERLAY_FILE=<abs>/board_overlays/gpio_basic_api/qcc748m_evk.overlay
+ */
+
+/ {
+	resources {
+		compatible = "test-gpio-basic-api";
+		status = "okay";
+		out-gpios = <&gpio0 20 0>; /* GPIO pin 20 */
+		in-gpios = <&gpio0 16 0>;  /* GPIO pin 16 */
+	};
+};

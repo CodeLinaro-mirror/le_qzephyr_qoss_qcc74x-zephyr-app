@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Ported from the v4.1 QCC74x fork's board file for this test. Wires an
+ * external AT24-series I2C EEPROM on i2c1 -- this is board-level wiring
+ * (physical EEPROM chip on the I2C bus), not something the SoC provides
+ * internally. Only the build-only scenario (drivers.eeprom.api.build) is
+ * usable here without a real EEPROM connected: the default
+ * drivers.eeprom.api scenario has a platform_allow list that does not
+ * include qcc74x boards (it intentionally overwrites EEPROM content and
+ * is scoped to a handful of upstream-vetted boards).
+ */
+
+/ {
+	aliases {
+		eeprom0 = &eeprom0;
+		eeprom-0 = &eeprom0;
+	};
+
+	chosen {
+		zephyr,eeprom = &eeprom0;
+	};
+};
+
+
+&pinctrl {
+	status = "okay";
+	i2c1_default: i2c1_default {
+		group1 {
+			pinmux = <GPIO18_I2C1_SCL>,
+				<GPIO19_I2C1_SDA>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+
+	eeprom0: eeprom@50 {
+		compatible = "atmel,at24";
+		reg = <0x50>;
+		status = "okay";
+		size = <32768>;
+		pagesize = <64>;
+		address-width = <16>;
+		timeout = <6>;
+	};
+
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-names = "default";
+};

@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/tests/drivers/uart/uart_elementary.
+ * Ported from the v4.1 QCC74x fork's boards/qcc7xxm_evk_common.dtsi
+ * (inlined). Configures uart1 with hardware flow control as the DUT.
+ *
+ * Test requires a physical loopback on uart1: TX<->RX and RTS<->CTS
+ * (harness_config.fixture: gpio_loopback). Without the wires, expect a
+ * build pass but a runtime failure.
+ *
+ * The base scenario has a non-qcc74x platform_allow allowlist, so
+ * `west twister` static-filters qcc748m_evk out. Inject via west build
+ * (which ignores platform_allow):
+ *   west build -p always -b qcc748m_evk/qcc748 -d C:/b \
+ *     zephyr/tests/drivers/uart/uart_elementary \
+ *     -- -DDTC_OVERLAY_FILE=<abs>/board_overlays/uart_elementary/qcc748m_evk.overlay \
+ *        -DEXTRA_CONF_FILE=<abs>/board_overlays/uart_elementary/qcc748m_evk.conf
+ */
+
+&pinctrl {
+	uart1_default: uart1_default {
+		group1 {
+			pinmux = <GPIO30_UART1_RXD>,
+				<GPIO29_UART1_TXD>,
+				<GPIO28_UART1_CTS>,
+				<GPIO27_UART1_RTS>;
+			bias-pull-up;
+			input-schmitt-enable;
+			input-enable;
+			drive-strength = <1>;
+		};
+	};
+};
+
+/*
+ * The driver binding requires both "default" and "sleep" pinctrl states.
+ * The fork's board file used bias-high-impedance for the sleep state, but
+ * that property is not declared in this SDK's pinctrl binding
+ * (qcc74x_zephyr/dts/bindings/pinctrl/qualcomm,qc7xx-pinctrl.yaml). The
+ * loopback test never actually enters the sleep state, so we point "sleep"
+ * at the same default pin group to satisfy the binding without using the
+ * unsupported property.
+ */
+dut: &uart1 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart1_default>;
+	pinctrl-1 = <&uart1_default>;
+	pinctrl-names = "default", "sleep";
+	hw-flow-control;
+};

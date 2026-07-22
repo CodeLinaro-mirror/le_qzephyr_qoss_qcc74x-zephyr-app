@@ -1,0 +1,13 @@
+# Twister / test run outputs (generated, do not commit)
+reports/
+twister-out/
+twister-out.*/
+build/
+
+# Local design/planning docs (kept on disk for reference, not committed)
+docs/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo

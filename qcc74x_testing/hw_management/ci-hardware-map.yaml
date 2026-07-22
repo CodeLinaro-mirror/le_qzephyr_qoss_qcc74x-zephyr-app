@@ -1,0 +1,53 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+- connected: true
+  fixtures:
+    - i2c_lis2dw12
+    - gpio_loopback
+    - uart_loopback
+    - spi_loopback
+  id: "qcc744m_evk_1_1"
+  platform: qcc744m_evk
+  product: "Qualcomm QCC744m board"
+  runner: qconn_flash
+  runner_params:
+    - --port
+    - /dev/qcc744m_evk_1_1
+  serial: /dev/qcc744m_evk_1_1
+- connected: true
+  fixtures:
+    - gpio_loopback
+    - uart_loopback
+    - spi_loopback
+    - dac_adc_loopback
+  id: "qcc744m_evk_2_1"
+  platform: qcc744m_evk
+  product: "Qualcomm QCC744m board"
+  runner: qconn_flash
+  runner_params:
+    - --port
+    - /dev/qcc744m_evk_2_1
+  serial: /dev/qcc744m_evk_2_1
+- connected: true
+  fixtures:
+    - gpio_loopback
+    - uart_loopback
+    - dac_adc_loopback
+  id: "qcc743m_evk_2_2"
+  platform: qcc743m_evk
+  product: "Qualcomm QCC743m board"
+  runner: qconn_flash
+  runner_params:
+    - --port
+    - /dev/qcc743m_evk_2_2
+  serial: /dev/qcc743m_evk_2_2
+- connected: true
+  id: "qcc748m_evk_1_2"
+  platform: qcc748m_evk
+  product: "Qualcomm QCC748m board"
+  runner: qconn_flash
+  runner_params:
+    - --port
+    - /dev/qcc748m_evk_1_2
+  serial: /dev/qcc748m_evk_1_2

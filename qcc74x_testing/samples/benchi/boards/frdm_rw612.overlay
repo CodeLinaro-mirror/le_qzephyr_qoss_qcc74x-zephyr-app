@@ -1,0 +1,17 @@
+
+/delete-node/ &storage_partition;
+
+&flexspi {
+	w25q512jvfiq: w25q512jvfiq@0 {
+		partitions {
+			storage_partition: partition@623000 {
+				label = "storage";
+				reg = <0x00623000 (DT_SIZE_M(18) - DT_SIZE_K(136))>;
+			};
+			benchmarking_raw: partition@1807400 {
+				label = "benchmarking_raw";
+				reg = <0x01808000 DT_SIZE_M(19)>;
+			};
+		};
+	};
+};

@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	aliases {
+		dac = &dac;
+	};
+};
+
+&pinctrl {
+	dac_default: dac_default {
+		group1 {
+			pinmux = <GPIO3_ADC_CH3>;
+		};
+	};
+};
+
+&dma {
+	status = "okay";
+};
+
+&dac {
+	status = "okay";
+	pinctrl-0 = <&dac_default>;
+	pinctrl-names = "default";
+	dmas = <&dma 0  DMA_REQUEST_DAC  DMA_ADDR_DAC_TDR>;
+	clk_div = <DAC_CLK_DIV_1>;
+	voltage_range = <DAC_VOLTAGE_RANGE_200_1800>;
+};

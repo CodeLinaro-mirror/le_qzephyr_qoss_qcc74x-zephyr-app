@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	aliases {
+		dac-0 = &dac;
+	};
+	zephyr,user {
+		io-channels = <&dac 0>;
+		io-channel-names = "dac1";
+	};
+};
+
+&pinctrl {
+	dac_default: dac_default {
+		group1 {
+			pinmux = <GPIO3_ADC_CH3>;
+		};
+	};
+};
+
+&dac {
+	status = "okay";
+	pinctrl-0 = <&dac_default>;
+	pinctrl-names = "default";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,resolution = <12>;
+	};
+};

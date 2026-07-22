@@ -1,0 +1,25 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+sample:
+  name: Watchdog driver sample for Opal
+common:
+  timeout: 120
+  harness: console
+  harness_config:
+    type: multi_line
+    ordered: true
+    regex:
+      - "Watchdog sample application"
+      - "Feeding watchdog..."
+      - "Waiting for reset..."
+      - "Handled things..ready to reset"
+      - "Watchdog sample application"
+tests:
+  qcc7xx.sample.drivers.watchdog_gpio_clk_src:
+    platform_allow:
+      - qcc744m_evk
+      - qcc743m_evk
+      - qcc75xm_evk
+    extra_configs:
+      - CONFIG_REBOOT=y

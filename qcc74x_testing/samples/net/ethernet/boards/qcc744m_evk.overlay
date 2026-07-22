@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	aliases {
+		ethernet0 = &emac0;
+	};
+};
+
+&emac0 {
+	status = "okay";
+	phy-connection-type = "rmii";
+	ref-clk-output = <0>;
+	rx-clk-invert = <1>;
+	local-mac-address = [ 18 B9 05 12 34 56 ];
+	phy-handle = <&phy0>;
+
+	reset-gpios = <&gpio0 24 GPIO_ACTIVE_LOW>; /* optional */
+	pinctrl-0 = <&emac0_default>;
+	pinctrl-names = "default";
+};
+
+&mdio0 {
+	status = "okay";
+	clk_div = <39>;
+	pinctrl-0 = <&mdio0_default>;
+	pinctrl-names = "default";
+
+	phy0: ethernet-phy@5 {
+	reg = <5>;  /* PHY 5 - AR8032, 1 - LAN8720 */
+	compatible = "ethernet-phy";
+	};
+};
+
+&pinctrl {
+	emac0_default: emac0_default {
+	group1 {
+		pinmux = <GPIO25_RMII_REF_CLK>,
+			<GPIO26_RMII_TXD0>,
+			<GPIO27_RMII_TXD1>,
+			<GPIO28_RMII_RXD0>,
+			<GPIO29_RMII_RXD1>,
+			<GPIO30_RMII_RXERR>,
+			<GPIO31_RMII_TX_EN>,
+			<GPIO32_RMII_RX_DV>;
+			bias-pull-up;
+			input-schmitt-enable;
+			drive-strength = <1>;
+			input-enable;
+		};
+	};
+	mdio0_default: mdio0_default {
+	group1 {
+		pinmux = <GPIO33_RMII_MDC>,
+			<GPIO34_RMII_MDIO>;
+			bias-pull-up;
+			input-schmitt-enable;
+			drive-strength = <1>;
+			input-enable;
+		};
+	};
+};

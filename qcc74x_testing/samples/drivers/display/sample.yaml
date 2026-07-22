@@ -1,0 +1,10 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+tests:
+  qcc7xx.sample.drivers.display:
+    build_only: true
+    platform_allow:
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk

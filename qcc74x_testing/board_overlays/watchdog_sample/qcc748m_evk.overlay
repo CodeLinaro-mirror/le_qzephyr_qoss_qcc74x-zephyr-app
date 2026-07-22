@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/samples/drivers/watchdog. Ported
+ * from the v4.1 QCC74x fork's boards/qcc7xxm_evk_common.dtsi (inlined).
+ * Enables wdt0 so the sample's filter dt_alias_exists("watchdog0")
+ * resolves (the board dts defines the watchdog0 alias but leaves wdt0
+ * disabled by default).
+ *
+ * Inject with west twister (sample uses platform_exclude, not
+ * platform_allow, and qcc748m_evk is not excluded, so twister works):
+ *   west twister -p qcc748m_evk/qcc748 -T zephyr/samples/drivers/watchdog \
+ *     -s sample.drivers.watchdog \
+ *     -x DTC_OVERLAY_FILE=<abs>/board_overlays/watchdog_sample/qcc748m_evk.overlay
+ *
+ * NOTE: on real hardware the watchdog reset path shares the same known
+ * cross-reboot behaviour documented for wdt_basic_api (cold reset clears
+ * SRAM); the sample prints its banner, feeds, then resets.
+ */
+
+&wdt0 {
+	status = "okay";
+};

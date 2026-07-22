@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	aliases {
+		adc = &adc;
+	};
+};
+
+&pinctrl {
+	adc_default: adc_default {
+		group1 {
+			pinmux = <GPIO27_ADC_CH10>,
+				 <GPIO20_ADC_CH0>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+};
+
+&adc {
+	status = "okay";
+	pinctrl-0 = <&adc_default>;
+	pinctrl-names = "default";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+};

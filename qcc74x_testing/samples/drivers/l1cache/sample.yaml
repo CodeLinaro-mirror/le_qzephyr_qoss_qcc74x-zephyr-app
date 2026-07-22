@@ -1,0 +1,20 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+sample:
+  name: L1 cache shell sample for QCC7XX
+common:
+  timeout: 120
+  harness: console
+  harness_config:
+    type: multi_line
+    ordered: true
+    regex:
+      - "Cache test app finished"
+tests:
+  qcc7xx.sample.drivers.l1cache:
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk

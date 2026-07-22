@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	aliases {
+		i2s-node0 = &i2s0;
+	};
+};
+
+&dma {
+	status = "okay";
+};
+
+&i2s0 {
+	status = "okay";
+	dmas = <&dma 0  DMA_REQUEST_I2S_TX  DMA_ADDR_I2S_TDR>,
+	       <&dma 1  DMA_REQUEST_I2S_RX  DMA_ADDR_I2S_RDR>;
+	dma-names = "tx", "rx";
+	pinctrl-0 = <&i2s0_default>;
+	pinctrl-names = "default";
+};

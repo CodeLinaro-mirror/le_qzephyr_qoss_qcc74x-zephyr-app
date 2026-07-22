@@ -1,0 +1,23 @@
+&spi0 {
+    compatible = "zephyr,spi-emul-controller";
+    status = "okay";
+
+};
+
+/delete-node/ &storage_partition;
+
+&flash0 {
+	reg = <0x00000000 DT_SIZE_M(20)>;
+
+	partitions {
+		storage_partition: partition@fc000 {
+		label = "storage";
+		reg = <0x000fc000 DT_SIZE_M(4)>;
+	};
+
+		benchmarking_raw: partition@4fc000 {
+			label = "benchmarking_raw";
+			reg = <0x004fc000 DT_SIZE_M(4)>;
+		};
+	};
+};

@@ -1,0 +1,470 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build (Debug)",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "command": "source .venv/bin/activate && west build -p always -b ${input:board} ${input:sample} -- -DCONFIG_DEBUG=y -DCONFIG_DEBUG_INFO=y -DCONFIG_DEBUG_OPTIMIZATIONS=y -DCONFIG_OUTPUT_SYMBOLS=y -DCONFIG_PRINTK=y -DCONFIG_ASSERT=y -DCONFIG_EXCEPTION_STACK_TRACE=y -DCONFIG_EARLY_CONSOLE=y -DCONFIG_BUILD_OUTPUT_STRIPPED=n -DCONFIG_DEBUG_THREAD_INFO=y",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && west build -p always -b ${input:board} ${input:sample} -- -DCONFIG_DEBUG=y -DCONFIG_DEBUG_INFO=y -DCONFIG_DEBUG_OPTIMIZATIONS=y -DCONFIG_OUTPUT_SYMBOLS=y -DCONFIG_PRINTK=y -DCONFIG_ASSERT=y -DCONFIG_EXCEPTION_STACK_TRACE=y -DCONFIG_EARLY_CONSOLE=y -DCONFIG_BUILD_OUTPUT_STRIPPED=n -DCONFIG_DEBUG_THREAD_INFO=y ",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "command": "source .venv/bin/activate && west build -p always -b ${input:board} ${input:sample}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && west build -p always -b ${input:board} ${input:sample}",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Flash",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "command": "source .venv/bin/activate && west flash --port ${input:linuxFlashPort} --skip-rebuild",
+            "windows": {
+                "command": ".venv\\Scripts\\activate && west flash --port ${input:windowsFlashPort} --skip-rebuild",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Twister",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && HW_MAP=\"${HOME}/.zephyr-twister/hardware-map.yaml\"; if [ -n \"${QCC_CI_MACHINE}\" ]; then HW_MAP=\"qcc7xx_unikie_utils/hw_management/ci-hardware-map.yaml\"; fi; west twister --platform ${input:board} -O twister-out/manual --device-testing --flash-before --hardware-map \"${HW_MAP}\" --quarantine-list qcc7xx_unikie_utils/regression/quarantine.yaml --report-filtered --detailed-skipped-report -vvv --inline-logs --log-level DEBUG --retry-build-errors --retry-failed 1 --retry-interval 2 --timestamps --platform-reports --report-all-options --clobber-output --testsuite-root ${input:sample}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && set \"HW_MAP=%USERPROFILE%\\\\.zephyr-twister\\\\hardware-map.yaml\" && if defined QCC_CI_MACHINE set \"HW_MAP=qcc7xx_unikie_utils\\\\hw_management\\\\ci-hardware-map.yaml\" && west twister --platform ${input:board} --short-build-path -O twister-out/manual --device-testing --flash-before --hardware-map \"%HW_MAP%\" --quarantine-list qcc7xx_unikie_utils/regression/quarantine.yaml --report-filtered --detailed-skipped-report -vvv --inline-logs --log-level DEBUG --retry-build-errors --retry-failed 1 --retry-interval 2 --timestamps --platform-reports --report-all-options --clobber-output --testsuite-root ${input:sample}",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Regression: Smoke (all boards, device)",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && python qcc7xx_unikie_utils/regression/run_regression.py",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && python qcc7xx_unikie_utils\\regression\\run_regression.py",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Regression: Level (all boards)",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && python qcc7xx_unikie_utils/regression/run_regression.py --level ${input:regressionLevel}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && python qcc7xx_unikie_utils\\regression\\run_regression.py --level ${input:regressionLevel}",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Regression: Level (single board)",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && python qcc7xx_unikie_utils/regression/run_regression.py --level ${input:regressionLevel} -p ${input:board}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && python qcc7xx_unikie_utils\\regression\\run_regression.py --level ${input:regressionLevel} -p ${input:board}",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Regression: Level (all boards, build-only)",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && python qcc7xx_unikie_utils/regression/run_regression.py --level ${input:regressionLevel} --build-only",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && python qcc7xx_unikie_utils\\regression\\run_regression.py --level ${input:regressionLevel} --build-only",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Regression: Level (single board, build-only)",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && python qcc7xx_unikie_utils/regression/run_regression.py --level ${input:regressionLevel} --build-only -p ${input:board}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && python qcc7xx_unikie_utils\\regression\\run_regression.py --level ${input:regressionLevel} --build-only -p ${input:board}",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Reports: Generate HTML Report",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "source .venv/bin/activate && python qcc7xx_unikie_utils/reporting/generate_report.py ${input:reportExtraDirs}",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": ".venv\\Scripts\\activate && python qcc7xx_unikie_utils\\reporting\\generate_report.py ${input:reportExtraDirs}",
+                "options": {
+                    "shell": {
+                        "executable": "C:\\WINDOWS\\System32\\cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "label": "Build and Flash",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build",
+                "Flash"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build and Flash (Debug)",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build (Debug)",
+                "Flash"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Launch OpenOCD CH347",
+            "type": "shell",
+            "command": "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}openocd",
+            "args": [
+                "-f",
+                "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}tcl${/}interface${/}ch347.cfg",
+                "-f",
+                "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}tcl${/}target${/}qualcomm_qcc7xx.cfg",
+                "-s",
+                "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}tcl${/}"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^.+$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Open On-Chip Debugger",
+                    "endsPattern": "Info : Listening on port 3333 for gdb connections"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "windows": {
+                "type": "process",
+                "command": "${workspaceFolder}\\qcc7xx_unikie_utils\\tools\\openocd\\openocd.exe"
+            }
+        },
+        {
+            "label": "Launch OpenOCD Olimex ARM-USB-TINY-H",
+            "type": "shell",
+            "command": "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}openocd",
+            "args": [
+                "-f",
+                "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}tcl${/}interface${/}olimex-arm-usb-tiny-h.cfg",
+                "-f",
+                "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}tcl${/}target${/}qualcomm_qcc7xx.cfg",
+                "-s",
+                "${workspaceRoot}${/}qcc7xx_unikie_utils${/}tools${/}openocd${/}tcl${/}"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^.+$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Open On-Chip Debugger",
+                    "endsPattern": "Info : Listening on port 3333 for gdb connections"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "windows": {
+                "type": "process",
+                "command": "${workspaceFolder}\\qcc7xx_unikie_utils\\tools\\openocd\\openocd.exe"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "regressionLevel",
+            "type": "pickString",
+            "description": "Select regression level from run_regression.py config",
+            "options": [
+                "board_check",
+                "smoke",
+                "commit",
+                "commit_build_only",
+                "merge",
+                "merge_build_only",
+                "nightly",
+            ],
+            "default": "smoke"
+        },
+        {
+            "id": "board",
+            "type": "pickString",
+            "description": "Select the target board to build for",
+            "options": [
+                "qcc743m_evk",
+                "qcc744m_evk",
+                "qcc748m_evk",
+                "qcc75xm_evk"
+            ],
+            "default": "qcc744m_evk"
+        },
+        {
+            "id": "sample",
+            "type": "pickString",
+            "description": "Choose test / sample to run",
+            "options": [
+                "qcc7xx_samples/samples/benchi/",
+                "qcc7xx_samples/samples/benchi_qc/",
+                "qcc7xx_samples/samples/drivers/audio/adc_dac_loopback/",
+                "qcc7xx_samples/samples/drivers/comparator/",
+                "qcc7xx_samples/samples/drivers/crypto/",
+                "qcc7xx_samples/samples/drivers/display/",
+                "qcc7xx_samples/samples/drivers/eeprom/",
+                "qcc7xx_samples/samples/drivers/i2s/dac/",
+                "qcc7xx_samples/samples/drivers/i2s/loopback/",
+                "qcc7xx_samples/samples/drivers/l1cache/",
+                "qcc7xx_samples/samples/drivers/memory/",
+                "qcc7xx_samples/samples/drivers/psram/",
+                "qcc7xx_samples/samples/drivers/sdio/",
+                "qcc7xx_samples/samples/drivers/spi/",
+                "qcc7xx_samples/samples/net/ethernet/",
+                "qcc7xx_samples/samples/sensor/lis2dw/i2c/",
+                "qcc7xx_samples/samples/subsys/fs/flash/",
+                "qcc7xx_samples/samples/subsys/fs/sdhc/",
+                "qcc7xx_samples/samples/subsys/fs/sdhc_spi/",
+                "qcc7xx_samples/tests/drivers/uart/uart_dma/",
+                "zephyr/samples/basic/blinky",
+                "zephyr/samples/drivers/uart/async_api/",
+                "zephyr/samples/net/wifi/shell",
+                "zephyr/samples/hello_world",
+                "zephyr/samples/subsys/shell/shell_module",
+                "zephyr/tests/drivers/uart/uart_async_api",
+                "zephyr/tests/drivers/uart/uart_async_rx",
+                "zephyr/tests/drivers/uart/uart_basic_api",
+                "zephyr/tests/drivers/uart/uart_elementary",
+                "zephyr/tests/drivers/uart/uart_errors",
+                "zephyr/tests/drivers/uart/uart_emul",
+                "zephyr/tests/drivers/uart/uart_mix_fifo_poll -T drivers.uart.uart_mix_poll",
+                "zephyr/tests/drivers/uart/uart_mix_fifo_poll -T drivers.uart.uart_mix_poll_fifo",
+                "zephyr/tests/drivers/uart/uart_concurrent",
+            ],
+            "default": "qcc7xx_samples/samples/benchi/"
+        },
+        {
+            "id": "windowsFlashPort",
+            "type": "pickString",
+            "description": "Enter the serial port for flashing",
+            "options": [
+                "COM1",
+                "COM2",
+                "COM3",
+                "COM4",
+                "COM5",
+                "COM6",
+                "COM7",
+                "COM8"
+            ],
+            "default": "COM1"
+        },
+        {
+            "id": "linuxFlashPort",
+            "type": "pickString",
+            "description": "Enter the serial port for flashing",
+            "options": [
+                "/dev/qcc_743",
+                "/dev/qcc_744",
+                "/dev/qcc_748",
+                "/dev/ttyACM0",
+                "/dev/ttyACM1",
+            ],
+            "default": "/dev/qcc_744"
+        },
+        {
+            "id": "reportExtraDirs",
+            "type": "promptString",
+            "description": "Optional: Extra Twister output directories to merge into the report (space-separated, relative to workspace root). Leave empty to use auto-discovered results only. Example: twister-out/merge-device/ /mnt/camera-run/",
+            "default": ""
+        }
+    ]
+}

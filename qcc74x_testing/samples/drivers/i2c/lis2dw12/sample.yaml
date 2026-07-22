@@ -1,0 +1,30 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+tests:
+  qcc7xx.sample.drivers.i2c.lis2dw:
+    build_only: true
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk
+  qcc7xx.sample.drivers.i2c.lis2dw.dma:
+    build_only: true
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk
+    extra_args:
+      - CONFIG_I2C_QCC74X_DMA=y
+      - EXTRA_DTC_OVERLAY_FILE=i2c_dma.overlay
+  qcc7xx.sample.drivers.i2c.lis2dw.async:
+    build_only: true
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk
+    extra_args:
+      - CONFIG_I2C_CALLBACK=y

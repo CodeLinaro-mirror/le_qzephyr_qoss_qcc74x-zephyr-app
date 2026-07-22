@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<style>
+  :root {
+    --pass: #2e7d32;
+    --pass-bg: #e8f5e9;
+    --fail: #c62828;
+    --fail-bg: #ffebee;
+    --warn: #e65100;
+    --warn-bg: #fff3e0;
+    --border: #e0e0e0;
+    --header-bg: #1a237e;
+    --header-fg: #ffffff;
+    --card-bg: #f5f5f5;
+    --mono: monospace;
+    --log-bg: #1e1e1e;
+    --log-fg: #d4d4d4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; font-size: 14px; color: #212121; background: #fafafa; }
+
+  .header { background: var(--header-bg); color: var(--header-fg); padding: 14px 24px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .header h1 { font-size: 18px; font-weight: 600; flex: 1; }
+  .header-meta { font-size: 12px; opacity: 0.75; white-space: nowrap; }
+
+  .view-tabs { display: flex; gap: 12px; padding: 20px 24px 16px;
+               background: white; border-top: 1px solid var(--border);
+               border-bottom: 2px solid var(--border); margin-top: 12px; }
+  .view-tab { padding: 10px 32px; font-size: 15px; font-weight: 700;
+              border: 2px solid var(--border); border-radius: 6px; cursor: pointer;
+              background: var(--card-bg); color: #616161; letter-spacing: .01em;
+              transition: background .15s, border-color .15s, color .15s; }
+  .view-tab:hover { background: #e3f2fd; border-color: var(--header-bg); color: var(--header-bg); }
+  .view-tab.active { background: var(--header-bg); color: white; border-color: var(--header-bg); }
+
+  .summary { display: flex; gap: 20px; padding: 20px 24px; flex-wrap: wrap; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 6px;
+          padding: 14px 20px; min-width: 140px; text-align: center;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.10); }
+  .card .num { font-size: 28px; font-weight: 700; line-height: 1; }
+  .card .lbl { font-size: 11px; color: #757575; margin-top: 4px; text-transform: uppercase;
+               letter-spacing: .05em; }
+  .card.pass .num { color: var(--pass); }
+  .card.fail .num { color: var(--fail); }
+
+  .filter-bar { padding: 8px 24px 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .filter-bar .lbl { font-size: 12px; color: #757575; white-space: nowrap; }
+  .filter-sep { color: #bdbdbd; margin: 0 4px; }
+  .board-btn { border: 1px solid var(--border); background: white; border-radius: 4px;
+               padding: 4px 12px; cursor: pointer; font-size: 12px; color: #424242; }
+  .board-btn:hover { background: #e3f2fd; border-color: #1565c0; }
+  .board-btn.active { background: var(--header-bg); color: white; border-color: var(--header-bg); }
+  .name-search { border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px;
+                 font-size: 12px; width: 240px; outline: none; }
+  .name-search:focus { border-color: #1565c0; box-shadow: 0 0 0 2px #e3f2fd; }
+  .clear-btn { border: 1px solid var(--border); background: white; border-radius: 4px;
+               padding: 4px 8px; cursor: pointer; font-size: 12px; color: #757575; }
+  .clear-btn:hover { background: #ffebee; color: var(--fail); border-color: var(--fail); }
+  .match-count { font-size: 11px; color: #9e9e9e; margin-left: 4px; }
+
+  .table-wrap { padding: 0 24px 40px; }
+  table.main-table { width: 100%; border-collapse: collapse; background: white;
+                     border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .main-table thead tr { background: var(--card-bg); }
+  .main-table th { padding: 10px 12px; text-align: left; font-size: 12px; text-transform: uppercase;
+                   letter-spacing: .04em; color: #616161; border-bottom: 2px solid var(--border); }
+  .main-table th.center, .main-table td.center { text-align: center; }
+  .suite-row { cursor: pointer; border-bottom: 1px solid var(--border); }
+  .suite-row:hover { background: #f5f5f5; }
+  .suite-row td { padding: 9px 12px; }
+  .row-fail { background: var(--fail-bg); }
+  .row-fail:hover { background: #ffcdd2; }
+  .suite-name { font-family: var(--mono); font-size: 12px; word-break: break-all; }
+  .platform-cell { font-size: 12px; white-space: nowrap; color: #546e7a; }
+  .reason-cell { font-size: 11px; color: var(--fail); max-width: 200px; word-break: break-word; }
+  .detail-row td { padding: 0; }
+  .detail-cell { padding: 16px 20px 20px; background: #fafafa; border-bottom: 2px solid var(--border); }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px;
+           font-weight: 700; letter-spacing: .03em; white-space: nowrap; }
+  .badge-passed { background: var(--pass-bg); color: var(--pass); }
+  .badge-failed, .badge-error { background: var(--fail-bg); color: var(--fail); }
+  .badge-type-manual { background: #e8eaf6; color: #283593; }
+  .badge-type-auto   { background: #f5f5f5;  color: #757575; }
+
+  .main-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+  .main-table th.sortable:hover { background: #e8e8e8; color: #212121; }
+  .sort-arrow { font-size: 10px; margin-left: 3px; color: #9e9e9e; }
+
+  table.case-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; }
+  .case-table th { padding: 5px 8px; background: #eeeeee; text-align: left; font-weight: 600; }
+  .case-table td { padding: 4px 8px; border-bottom: 1px solid #e0e0e0; }
+  .tc-name { font-family: var(--mono); word-break: break-all; }
+  .tc-time { white-space: nowrap; color: #757575; }
+  .tc-reason { font-style: italic; }
+  .skip-note { font-size: 11px; color: #9e9e9e; margin-top: 4px; }
+  .no-cases { font-size: 12px; color: #9e9e9e; margin-bottom: 8px; }
+
+  .manual-desc { margin-bottom: 14px; border-left: 3px solid #7986cb; padding-left: 10px; }
+  .manual-desc-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: .05em; color: #283593; margin-bottom: 4px; }
+  .manual-desc-pre { background: #e8eaf6; color: #1a237e; font-family: var(--mono);
+                     font-size: 11px; line-height: 1.6; padding: 10px 12px; border-radius: 4px;
+                     white-space: pre-wrap; word-break: break-word; }
+
+  .log-details { margin-top: 10px; }
+  .log-details summary { cursor: pointer; font-size: 12px; color: #1565c0; padding: 4px 0;
+                          user-select: none; font-weight: 600; }
+  .log-details summary:hover { color: #0d47a1; }
+  pre.log-pre { margin-top: 6px; background: var(--log-bg); color: var(--log-fg);
+                font-family: var(--mono); font-size: 11px; line-height: 1.5;
+                padding: 12px 14px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap;
+                word-break: break-all; max-height: 500px; overflow-y: auto; }
+
+  .coverage-section { padding: 20px 24px 40px; }
+  .cov-summary { display: flex; gap: 20px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .cov-stat { font-size: 13px; }
+  .cov-stat strong { font-size: 20px; font-weight: 700; }
+  .cov-stat.st-covered strong { color: var(--pass); }
+  .cov-stat.st-failing strong { color: var(--warn); }
+  .cov-stat.st-gap    strong { color: var(--fail); }
+  .cov-bar-wrap { flex: 1; min-width: 200px; }
+  .cov-bar-track { height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden; display: flex; }
+  .cov-bar-covered { background: var(--pass); height: 100%; }
+  .cov-bar-failing { background: var(--warn); height: 100%; }
+  .cov-bar-pct { font-size: 12px; color: #616161; margin-top: 3px; }
+
+  table.feature-table { width: 100%; border-collapse: collapse; background: white;
+                         border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .feature-table thead tr { background: var(--card-bg); }
+  .feature-table th { padding: 9px 12px; text-align: left; font-size: 12px; text-transform: uppercase;
+                      letter-spacing: .04em; color: #616161; border-bottom: 2px solid var(--border); }
+  .feature-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .feat-row-covered { background: var(--pass-bg); }
+  .feat-row-failing { background: var(--warn-bg); }
+  .feat-row-gap { background: var(--fail-bg); }
+  .feat-row-covered:hover { background: #c8e6c9; }
+  .feat-row-failing:hover { background: #ffe0b2; }
+  .feat-row-gap:hover { background: #ffcdd2; }
+  .feat-name { font-family: var(--mono); font-weight: 600; }
+  .feat-suites { font-size: 11px; color: #546e7a; font-family: var(--mono); word-break: break-all; }
+  .feat-none { color: #9e9e9e; font-style: italic; font-size: 12px; }
+
+  .cov-badge { display: inline-block; padding: 2px 10px; border-radius: 3px; font-size: 11px;
+               font-weight: 700; letter-spacing: .03em; white-space: nowrap; }
+  .cov-badge-covered { background: var(--pass-bg); color: var(--pass); }
+  .cov-badge-failing  { background: var(--warn-bg); color: var(--warn); }
+  .cov-badge-gap      { background: var(--fail-bg); color: var(--fail); }
+  .feat-row-covered, .feat-row-failing { cursor: pointer; }
+  .feat-link-hint { font-size: 10px; color: #9e9e9e; margin-left: 6px; }
+
+  .feat-row-custom-hdr td { padding: 5px 12px; background: #e8eaf6; font-size: 11px;
+                            font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+                            color: #283593; border-bottom: 1px solid var(--border); }
+  .feat-custom-tag { font-size: 10px; color: #7986cb; margin-left: 6px;
+                     font-weight: 400; font-style: italic; }
+  .feat-row-divider td { padding: 5px 12px; background: #eeeeee; font-size: 11px;
+                         font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+                         color: #757575; border-bottom: 1px solid var(--border); }
+  .feat-row-others { background: #fafafa; }
+  .feat-row-others:hover { background: #f0f0f0; }
+  .no-coverage-notice { padding: 40px; text-align: center; color: #9e9e9e; font-size: 14px; }
+
+  .img-gallery { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+  .img-figure { margin: 0; text-align: center; }
+  .test-img { max-width: 320px; max-height: 240px; border: 1px solid var(--border);
+              border-radius: 4px; cursor: zoom-in; display: block; }
+  .test-img:hover { border-color: #1565c0; }
+  figcaption { font-size: 10px; color: #757575; margin-top: 3px; font-family: var(--mono); }
+
+  #imgModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82);
+              z-index: 9999; align-items: center; justify-content: center; }
+  #imgModal.open { display: flex; }
+  #imgModal img { max-width: 92vw; max-height: 88vh; border-radius: 4px;
+                  box-shadow: 0 4px 32px rgba(0,0,0,0.6); }
+  #imgModalCaption { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+                     color: #eee; font-size: 12px; font-family: monospace;
+                     background: rgba(0,0,0,0.55); padding: 4px 12px; border-radius: 4px; }
+  #imgModalClose { position: fixed; top: 14px; right: 22px; color: white; font-size: 28px;
+                   cursor: pointer; line-height: 1; user-select: none; }
+  #imgModalClose:hover { color: #ef9a9a; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>{{title}}</h1>
+  <div class="header-meta">Zephyr {{zephyr_version}} &nbsp;|&nbsp; Run: {{run_date}}{{sources_info}}</div>
+</div>
+
+<div class="summary">
+  <div class="card"><div class="num">{{total_run}}</div><div class="lbl">Suites Run</div></div>
+  <div class="card pass"><div class="num">{{total_passed}}</div><div class="lbl">Passed</div></div>
+  <div class="card fail"><div class="num">{{total_failed}}</div><div class="lbl">Failed</div></div>
+  <div class="card pass"><div class="num" id="totalTcPassed">0</div><div class="lbl">Test Cases Passed</div></div>
+  <div class="card fail"><div class="num" id="totalTcFailed">0</div><div class="lbl">Test Cases Failed</div></div>
+</div>
+
+<div class="view-tabs" id="viewTabs">
+  <button class="view-tab active" onclick="switchView('results', this)">Test Results</button>
+  <button class="view-tab" onclick="switchView('coverage', this)" id="covViewTab"
+          style="display:none">Feature Coverage</button>
+</div>
+
+<div id="view-results">
+  <div class="filter-bar">
+    <span class="lbl">Board:</span>
+    <span id="boardButtons"></span>
+    <span class="filter-sep">|</span>
+    <span class="lbl">Search:</span>
+    <input type="text" id="nameSearch" class="name-search"
+           placeholder="filter by name, use | for OR: dma | pwm" oninput="onSearchInput()">
+    <button class="clear-btn" onclick="clearSearch()" title="Clear search">&#x2715;</button>
+    <span id="matchCount" class="match-count"></span>
+  </div>
+  <div class="table-wrap">
+    <table class="main-table" id="mainTable">
+      <thead>
+        <tr>
+          <th class="sortable" style="width:70px"  onclick="sortSuites('status')">Status <span class="sort-arrow" id="arr-status"></span></th>
+          <th class="sortable"                     onclick="sortSuites('name')">Test Suite <span class="sort-arrow" id="arr-name"></span></th>
+          <th class="sortable" style="width:160px" onclick="sortSuites('platform')">Platform <span class="sort-arrow" id="arr-platform"></span></th>
+          <th class="sortable center" style="width:80px"  onclick="sortSuites('type')">Type <span class="sort-arrow" id="arr-type"></span></th>
+          <th class="sortable center" style="width:110px" onclick="sortSuites('cases')">Test Cases <span class="sort-arrow" id="arr-cases"></span></th>
+          <th class="sortable center" style="width:90px"  onclick="sortSuites('execution_time')">Exec (s) <span class="sort-arrow" id="arr-execution_time"></span></th>
+          <th class="sortable center" style="width:90px"  onclick="sortSuites('build_time')">Build (s) <span class="sort-arrow" id="arr-build_time"></span></th>
+          <th style="width:200px">Reason</th>
+        </tr>
+      </thead>
+      <tbody id="suiteTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="view-coverage" style="display:none">
+  <div class="coverage-section">
+    <div class="no-coverage-notice" id="noCoverageNotice" style="display:none">
+      Feature coverage data not available.<br>
+      Ensure <code>qcc74xzephyrporting/</code> is present in the workspace root and re-run the report.
+    </div>
+    <div id="coverageContent">
+      <div id="covStats" class="cov-summary"></div>
+      <table class="feature-table">
+        <thead>
+          <tr>
+            <th style="width:180px">Feature</th>
+            <th style="width:110px">Status</th>
+            <th style="width:80px">Tests</th>
+            <th>Matching Test Suites</th>
+          </tr>
+        </thead>
+        <tbody id="featureTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="imgModal" onclick="closeImageModal()">
+  <span id="imgModalClose" title="Close">&times;</span>
+  <img id="imgModalImg" src="" alt="">
+  <div id="imgModalCaption"></div>
+</div>
+
+<script type="application/json" id="_suites">{{suites_data_json}}</script>
+<script type="application/json" id="_coverage">{{coverage_data_json}}</script>
+<script>
+var suitesData   = JSON.parse(document.getElementById('_suites').textContent);
+var coverageData = JSON.parse(document.getElementById('_coverage').textContent);
+var hasCoverage  = !!(coverageData.features && coverageData.features.length) ||
+                   !!(coverageData.custom_features && coverageData.custom_features.length);
+
+var sortState = { col: null, dir: 'asc' };
+var SORT_COLS = ['status', 'name', 'platform', 'type', 'cases', 'execution_time', 'build_time'];
+
+function sortSuites(col) {
+  if (sortState.col === col) {
+    sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortState.col = col;
+    sortState.dir = 'asc';
+  }
+  renderSuiteRows();
+  updateSortArrows();
+}
+
+function updateSortArrows() {
+  SORT_COLS.forEach(function(c) {
+    var el = document.getElementById('arr-' + c);
+    if (el) el.textContent = sortState.col === c ? (sortState.dir === 'asc' ? '▲' : '▼') : '';
+  });
+}
+
+function getSortedSuites() {
+  var arr = suitesData.slice();
+  var col = sortState.col;
+  if (!col) return arr;
+  var dir = sortState.dir === 'asc' ? 1 : -1;
+  arr.sort(function(a, b) {
+    var av, bv;
+    if (col === 'type') {
+      av = a.manual ? 'manual' : 'auto';
+      bv = b.manual ? 'manual' : 'auto';
+    } else if (col === 'cases') {
+      return dir * ((a.cases || []).length - (b.cases || []).length);
+    } else if (col === 'execution_time' || col === 'build_time') {
+      return dir * ((parseFloat(a[col]) || 0) - (parseFloat(b[col]) || 0));
+    } else {
+      av = String(a[col] || '').toLowerCase();
+      bv = String(b[col] || '').toLowerCase();
+    }
+    return dir * av.localeCompare(bv);
+  });
+  return arr;
+}
+
+function buildSuites() {
+  var platforms = [];
+  suitesData.forEach(function(s) {
+    if (platforms.indexOf(s.platform) === -1) platforms.push(s.platform);
+  });
+  platforms.sort();
+  var btnHtml = '<button class="board-btn active" onclick="filterBoard(this,\'all\')">All boards</button>';
+  platforms.forEach(function(p) {
+    var short = p.split('/')[0];
+    btnHtml += ' <button class="board-btn" onclick="filterBoard(this,\'' + escAttr(p) + '\')">' + escHtml(short) + '</button>';
+  });
+  document.getElementById('boardButtons').innerHTML = btnHtml;
+
+  var tcPassed = 0, tcFailed = 0;
+  suitesData.forEach(function(s) {
+    (s.cases || []).forEach(function(tc) {
+      if (tc.status === 'passed') tcPassed++;
+      else if (tc.status === 'failed') tcFailed++;
+    });
+  });
+  document.getElementById('totalTcPassed').textContent = tcPassed;
+  document.getElementById('totalTcFailed').textContent = tcFailed;
+  renderSuiteRows();
+}
+
+function renderSuiteRows() {
+  var rows = [];
+  getSortedSuites().forEach(function(s, idx) {
+    var rowCls = s.status === 'passed' ? 'row-pass' : 'row-fail';
+    var statusBadge = '<span class="badge badge-' + s.status + '">' + s.status.toUpperCase() + '</span>';
+    var typeBadge = s.manual
+      ? '<span class="badge badge-type-manual" title="Manually verified, not run by Twister">MANUAL</span>'
+      : '<span class="badge badge-type-auto">AUTO</span>';
+    var caseCount = (s.cases || []).length;
+    var caseSummary = caseCount + ' test case' + (caseCount !== 1 ? 's' : '');
+    var reasonCell = s.reason ? '<td class="reason-cell">' + escHtml(s.reason) + '</td>' : '<td></td>';
+    rows.push(
+      '<tr class="suite-row ' + rowCls + '" data-idx="' + idx + '"' +
+      ' data-platform="' + escAttr(s.platform) + '" data-name="' + escAttr(s.name) + '"' +
+      ' onclick="toggleDetail(this)">' +
+      '<td>' + statusBadge + '</td>' +
+      '<td class="suite-name">' + escHtml(s.name) + '</td>' +
+      '<td class="platform-cell">' + escHtml(s.platform) + '</td>' +
+      '<td class="center">' + typeBadge + '</td>' +
+      '<td class="center">' + escHtml(caseSummary) + '</td>' +
+      '<td class="center">' + escHtml(String(s.execution_time)) + 's</td>' +
+      '<td class="center">' + escHtml(String(s.build_time)) + 's</td>' +
+      reasonCell + '</tr>'
+    );
+    var detailContent = '';
+    if (s.description) detailContent += descriptionBlock(s.description);
+    detailContent += renderCases(s.cases || [], s.skipped_count || 0, s.manual);
+    if (s.images && s.images.length > 0) detailContent += renderImages(s.images);
+    if (s.handler_log) detailContent += logBlock(s.handler_log, 'handler.log - observed results');
+    if (s.build_log)   detailContent += logBlock(s.build_log,   'build.log - build output');
+    rows.push(
+      '<tr class="detail-row" id="detail-' + idx + '" style="display:none;">' +
+      '<td colspan="8" class="detail-cell">' + detailContent + '</td></tr>'
+    );
+  });
+  document.getElementById('suiteTableBody').innerHTML = rows.join('');
+
+  var countEl = document.getElementById('matchCount');
+  if (countEl) { countEl.textContent = getSortedSuites().length + ' suite(s) shown'; }
+}
+
+function renderCases(cases, skippedCount, isManual) {
+  if (cases.length === 0 && skippedCount === 0) {
+    return '<p class="no-cases">No test cases recorded.</p>';
+  }
+  var rows = cases.map(function(tc) {
+    var badge = '<span class="badge badge-' + tc.status + '">' + tc.status.toUpperCase() + '</span>';
+    var reason = tc.reason ? '<span class="tc-reason">' + escHtml(tc.reason) + '</span>' : '';
+    return '<tr><td>' + badge + '</td>' +
+      '<td class="tc-name">' + escHtml(tc.identifier || '') + '</td>' +
+      '<td class="tc-time">' + escHtml(String(tc.execution_time || '')) + 's</td>' +
+      '<td>' + reason + '</td></tr>';
+  });
+  var skipNote = skippedCount > 0
+    ? '<p class="skip-note">' + skippedCount + ' skipped/blocked case(s) not shown.</p>' : '';
+  var lastCol = isManual ? 'Result' : 'Reason';
+  return '<table class="case-table"><thead><tr>' +
+    '<th>Status</th><th>Test Case</th><th>Time</th><th>' + lastCol + '</th>' +
+    '</tr></thead><tbody>' + rows.join('') + '</tbody></table>' + skipNote;
+}
+
+function renderImages(images) {
+  if (!images || images.length === 0) return '';
+  var figs = images.map(function(img) {
+    return '<figure class="img-figure">' +
+      '<img src="' + img.data + '" alt="' + escHtml(img.filename) + '" class="test-img"' +
+      ' onclick="event.stopPropagation();openImageModal(this,\'' + escAttr(img.filename) + '\')">' +
+      '<figcaption>' + escHtml(img.filename) + '</figcaption>' +
+      '</figure>';
+  });
+  return '<details class="log-details" open><summary>Images (' + images.length + ')</summary>' +
+    '<div class="img-gallery">' + figs.join('') + '</div></details>';
+}
+
+function openImageModal(imgEl, filename) {
+  document.getElementById('imgModalImg').src = imgEl.src;
+  document.getElementById('imgModalCaption').textContent = filename || '';
+  document.getElementById('imgModal').classList.add('open');
+  document.addEventListener('keydown', _modalKeyHandler);
+}
+
+function closeImageModal() {
+  document.getElementById('imgModal').classList.remove('open');
+  document.removeEventListener('keydown', _modalKeyHandler);
+}
+
+function _modalKeyHandler(e) { if (e.key === 'Escape') closeImageModal(); }
+
+function logBlock(content, label) {
+  return '<details class="log-details"><summary>' + escHtml(label) + '</summary>' +
+    '<pre class="log-pre">' + escHtml(content) + '</pre></details>';
+}
+
+function descriptionBlock(text) {
+  return '<div class="manual-desc">' +
+    '<div class="manual-desc-label">Test instructions / description</div>' +
+    '<pre class="manual-desc-pre">' + escHtml(text) + '</pre>' +
+    '</div>';
+}
+
+function switchView(view, btn) {
+  document.querySelectorAll('.view-tab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('view-results').style.display  = (view === 'results')  ? '' : 'none';
+  document.getElementById('view-coverage').style.display = (view === 'coverage') ? '' : 'none';
+}
+
+var activePlatform = 'all';
+var activeFeatureSuites = null;
+
+function toggleDetail(row) {
+  var idx = row.getAttribute('data-idx');
+  var detail = document.getElementById('detail-' + idx);
+  if (detail) {
+    detail.style.display = (detail.style.display === 'none') ? 'table-row' : 'none';
+  }
+}
+
+function filterBoard(btn, platform) {
+  document.querySelectorAll('.board-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  activePlatform = platform;
+  applyFilters();
+}
+
+function applyFilters() {
+  var query = document.getElementById('nameSearch').value.toLowerCase().trim();
+  var suiteRows = document.querySelectorAll('.suite-row');
+  var visibleCount = 0;
+
+  suiteRows.forEach(function(row) {
+    var rowPlatform = row.getAttribute('data-platform');
+    var rowName = row.getAttribute('data-name').toLowerCase();
+    var platformOk = (activePlatform === 'all' || rowPlatform === activePlatform);
+    var nameOk;
+    if (activeFeatureSuites) {
+      nameOk = activeFeatureSuites.has(row.getAttribute('data-name'));
+    } else if (query === '') {
+      nameOk = true;
+    } else {
+      var parts = query.split('|').map(function(p) { return p.trim(); }).filter(function(p) { return p.length > 0; });
+      nameOk = parts.some(function(p) { return rowName.indexOf(p) !== -1; });
+    }
+    var show = platformOk && nameOk;
+    row.style.display = show ? '' : 'none';
+    var idx = row.getAttribute('data-idx');
+    if (idx) {
+      var detailRow = document.getElementById('detail-' + idx);
+      if (detailRow && !show) { detailRow.style.display = 'none'; }
+    }
+    if (show) { visibleCount++; }
+  });
+
+  var countEl = document.getElementById('matchCount');
+  if (countEl) { countEl.textContent = visibleCount + ' suite(s) shown'; }
+}
+
+function onSearchInput() {
+  activeFeatureSuites = null;
+  applyFilters();
+}
+
+function clearSearch() {
+  activeFeatureSuites = null;
+  document.getElementById('nameSearch').value = '';
+  applyFilters();
+}
+
+function buildCoverage() {
+  var data = coverageData;
+  var covPct  = data.total > 0 ? Math.round(data.covered / data.total * 100) : 0;
+  var failPct = data.total > 0 ? Math.round(data.failing / data.total * 100) : 0;
+  var boardsLabel = data.boards ? data.boards.join(', ') : '';
+
+  document.getElementById('covStats').innerHTML =
+    '<div class="cov-stat st-covered"><strong>' + data.covered + '</strong> / ' + data.total + ' Covered</div>' +
+    (data.failing > 0 ? '<div class="cov-stat st-failing"><strong>' + data.failing + '</strong> Failing</div>' : '') +
+    '<div class="cov-stat st-gap"><strong>' + data.gap + '</strong> Gap</div>' +
+    '<div class="cov-bar-wrap">' +
+      '<div class="cov-bar-track">' +
+        '<div class="cov-bar-covered" style="width:' + covPct + '%"></div>' +
+        '<div class="cov-bar-failing" style="width:' + failPct + '%"></div>' +
+      '</div>' +
+      '<div class="cov-bar-pct">' + covPct + '% covered' +
+        (boardsLabel ? ' &nbsp;&mdash;&nbsp; boards: ' + escHtml(boardsLabel) : '') +
+      '</div>' +
+    '</div>';
+
+  var sortFn = function(a, b) {
+    var order = {gap: 0, failing: 1, covered: 2};
+    var diff = (order[a.status] || 0) - (order[b.status] || 0);
+    return diff !== 0 ? diff : a.name.localeCompare(b.name);
+  };
+
+  function featureRow(f, isCustom) {
+    var rowCls = 'feat-row-' + f.status;
+    var badge = '<span class="cov-badge cov-badge-' + f.status + '">' + f.status.toUpperCase() + '</span>';
+    var suiteHtml = f.suites.length > 0
+      ? '<span class="feat-suites">' + f.suites.map(function(s) { return escHtml(s); }).join('<br>') + '</span>'
+      : '<span class="feat-none">no matching test suites</span>';
+    var hint    = f.status !== 'gap' ? '<span class="feat-link-hint">(click to filter test results)</span>' : '';
+    var onclick = f.status !== 'gap' ? ' onclick="filterByFeature(\'' + escAttr(f.name) + '\')"' : '';
+    var nameCell = escHtml(f.name) + (isCustom ? '<span class="feat-custom-tag">custom</span>' : '') + hint;
+    return '<tr class="' + rowCls + '"' + onclick + '>' +
+      '<td class="feat-name">' + nameCell + '</td>' +
+      '<td>' + badge + '</td>' +
+      '<td class="center">' + (f.count > 0 ? f.count : '&mdash;') + '</td>' +
+      '<td>' + suiteHtml + '</td>' +
+      '</tr>';
+  }
+
+  var rows = data.features.slice().sort(sortFn).map(function(f) { return featureRow(f, false); });
+
+  if (data.custom_features && data.custom_features.length > 0) {
+    rows.push('<tr class="feat-row-custom-hdr"><td colspan="4">Custom / Extra drivers not listed in Zephyr </td></tr>');
+    data.custom_features.slice().sort(sortFn).forEach(function(f) { rows.push(featureRow(f, true)); });
+  }
+
+  if (data.others && data.others.length > 0) {
+    rows.push('<tr class="feat-row-divider"><td colspan="4">Others - ran but not mapped to any supported feature</td></tr>');
+    data.others.forEach(function(suiteName) {
+      rows.push(
+        '<tr class="feat-row-others">' +
+        '<td class="feat-name" colspan="2" style="color:#546e7a">(unmatched)</td>' +
+        '<td class="center">—</td>' +
+        '<td><span class="feat-suites">' + escHtml(suiteName) + '</span></td>' +
+        '</tr>'
+      );
+    });
+  }
+
+  document.getElementById('featureTableBody').innerHTML = rows.join('');
+}
+
+function filterByFeature(featureName) {
+  var allFeats = (coverageData.features || []).concat(coverageData.custom_features || []);
+  var feat = allFeats.find(function(f) { return f.name === featureName; }) || null;
+  activeFeatureSuites = new Set(feat && feat.suites ? feat.suites : []);
+  document.getElementById('nameSearch').value = '';
+  switchView('results', document.querySelector('.view-tab'));
+  applyFilters();
+  window.scrollTo(0, 0);
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function escAttr(str) { return String(str).replace(/'/g, "\\'"); }
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildSuites();
+  var hasBoardFeats  = coverageData.features       && coverageData.features.length       > 0;
+  var hasCustomFeats = coverageData.custom_features && coverageData.custom_features.length > 0;
+  if (!hasCoverage || (!hasBoardFeats && !hasCustomFeats)) {
+    document.getElementById('noCoverageNotice').style.display = '';
+    document.getElementById('coverageContent').style.display = 'none';
+    return;
+  }
+  document.getElementById('covViewTab').style.display = '';
+  buildCoverage();
+});
+</script>
+</body>
+</html>

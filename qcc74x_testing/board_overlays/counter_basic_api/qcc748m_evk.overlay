@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&timer0 {
+	status = "okay";
+	clock-div = <39>;
+	start-at-init = <0>;
+};
+
+&timer1 {
+	status = "okay";
+	clock-div = <39>;
+	start-at-init = <0>;
+};

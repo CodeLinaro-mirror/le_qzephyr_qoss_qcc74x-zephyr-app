@@ -1,0 +1,163 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug with OpenOCD and CH347",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "Launch OpenOCD CH347",
+            "program": "${workspaceRoot}${/}${input:elfFilePath}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "riscv64-zephyr-elf-gdb",
+            "windows": {
+                "miDebuggerPath": "${userHome}\\zephyr-sdk-0.17.0\\riscv64-zephyr-elf\\bin\\riscv64-zephyr-elf-gdb.exe"
+            },
+            "linux": {
+                "miDebuggerPath": "${userHome}/zephyr-sdk-0.17.0/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-gdb"
+            },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "set mem inaccessible-by-default off",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "set architecture riscv:rv32",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x21000000 0x21050000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x22FC0000 0x23010000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x61000000 0x61050000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x62FC0000 0x63010000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x88000000 0x88800000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x80000000 0x80800000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x90000000 0x90020000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0xA8000000 0xA8800000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0xA0000000 0xA0400000 ro",
+                    "ignoreFailures": false
+                }
+            ],
+            "logging": {
+                "engineLogging": true
+            },
+            "miDebuggerServerAddress": "localhost:3333"
+        },
+        {
+            "name": "Debug with OpenOCD and Olimex ARM-USB-TINY-H",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "Launch OpenOCD Olimex ARM-USB-TINY-H",
+            "program": "${workspaceRoot}${/}${input:elfFilePath}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "riscv64-zephyr-elf-gdb",
+            "windows": {
+                "miDebuggerPath": "${userHome}\\zephyr-sdk-0.17.0\\riscv64-zephyr-elf\\bin\\riscv64-zephyr-elf-gdb.exe"
+            },
+            "linux": {
+                "miDebuggerPath": "${userHome}/zephyr-sdk-0.17.0/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-gdb"
+            },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "set mem inaccessible-by-default off",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "set architecture riscv:rv32",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x21000000 0x21050000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x22FC0000 0x23010000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x61000000 0x61050000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x62FC0000 0x63010000 rw",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x88000000 0x88800000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x80000000 0x80800000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0x90000000 0x90020000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0xA8000000 0xA8800000 ro",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "mem 0xA0000000 0xA0400000 ro",
+                    "ignoreFailures": false
+                }
+            ],
+            "logging": {
+                "engineLogging": true
+            },
+            "miDebuggerServerAddress": "localhost:3333"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "elfFilePath",
+            "type": "promptString",
+            "description": "Enter the path to the ELF file",
+            "default": "build/zephyr/zephyr.elf"
+        }
+    ]
+}

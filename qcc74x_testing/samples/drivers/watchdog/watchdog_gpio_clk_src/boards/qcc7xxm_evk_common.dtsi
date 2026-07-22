@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	zephyr,user {
+		pwms = <&pwm0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+	};
+};
+
+&pinctrl {
+	clock0_default: clock0_default {
+		group1 {
+			pinmux = <GPIO0_CLKOUT>;
+			bias-pull-down;
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+	
+	pwm0_default: pwm0_default {
+		group1 {
+			pinmux = <GPIO1_PWM0_CH1P>;
+		};
+	};
+};
+
+&wdt0 {
+	clocks = <&clock0 QC7XX_PERIPHERAL_WATCHDOG QC7XX_TIMER_CLK_GPIO>;
+	status = "okay";
+	clock-div = <0>;
+};
+
+&clock0 {
+	status = "okay";
+	pinctrl-0 = <&clock0_default>;
+	pinctrl-names = "default";
+	clk-in-freq = <1000>;
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	divider = <100>;
+	pinctrl-names = "default";
+};

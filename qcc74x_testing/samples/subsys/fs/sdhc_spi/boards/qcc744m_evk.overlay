@@ -1,0 +1,45 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&dma {
+	status = "okay";
+};
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <GPIO33_SPI_SCLK>,
+				<GPIO30_SPI_MISO>,
+				<GPIO31_SPI_MOSI>,
+				<GPIO32_SPI_SS>;
+			bias-pull-up;
+			drive-strength = <2>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+
+	sdhc_spi0: sdhc@0 {
+		compatible = "zephyr,sdhc-spi-slot";
+		reg = <0>;
+		status = "okay";
+		label = "SDHC_SPI0";
+	sdmmc {
+		compatible = "zephyr,sdmmc-disk";
+		status = "okay";
+		label = "SDMMC_0";
+		disk-name = "SD";
+		};
+	spi-max-frequency = <40000000>; /* 40Mhz - Max by spi driver */
+	};
+};

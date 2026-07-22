@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <GPIO17_SPI0_SCLK>,
+				<GPIO18_SPI0_MISO>,
+				<GPIO19_SPI0_MOSI>,
+				<GPIO16_SPI0_SS>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+};

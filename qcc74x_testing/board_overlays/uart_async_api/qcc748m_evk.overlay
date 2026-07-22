@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Requires a physical loopback wire between UART1 TX and UART1 RX to
+ * actually PASS on hardware (harness_config.fixture: gpio_loopback).
+ */
+
+&dma {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+dut: &uart1 {
+	status = "okay";
+};

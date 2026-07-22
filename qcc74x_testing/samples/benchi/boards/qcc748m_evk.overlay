@@ -1,0 +1,68 @@
+/delete-node/ &storage_partition;
+/delete-node/ &scratch_partition;
+/delete-node/ &coredump_partition;
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		storage_partition: partition@3C0000 {
+			label = "storage";
+			reg = <0x3C0000 DT_SIZE_M(2)>;
+		};
+
+		scratch_partition: partition@5C0000 {
+				label = "image-scratch";
+				reg = <0x5C0000 DT_SIZE_K(64)>;
+		};
+
+		coredump_partition: partition@5D0000 {
+			label = "coredump-partition";
+			reg = <0x5D0000 DT_SIZE_K(4)>;
+		};
+
+		benchmarking_raw: partition@5D1000 {
+			label = "benchmarking_raw";
+			reg = <0x5D1000 DT_SIZE_M(2)>;
+		};
+	};
+};
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <GPIO13_SPI_SCLK>,
+				<GPIO10_SPI_MISO>,
+				<GPIO11_SPI_MOSI>,
+				<GPIO12_SPI_SS>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+};
+
+&timer0 {
+	status = "okay";
+	clock-div = <79>;
+	counter-mode = <1>;
+	preload-id = <0>;
+	comp0-val = <1000000>;
+	comp1-val = <10000000>;
+	comp2-val = <0xFFFFFFFF>;
+	preload-val = <0>;
+
+};
+
+&trng0 {
+	status = "okay";
+};
+

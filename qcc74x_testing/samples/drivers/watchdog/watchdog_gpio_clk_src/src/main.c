@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2015 Intel Corporation
+ * Copyright (c) 2018 Nordic Semiconductor
+ * Copyright (c) 2019 Centaur Analytics, Inc
+ * Copyright 2023 NXP
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/watchdog.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/drivers/pwm.h>
+#include <stdbool.h>
+
+#define WDT_FEED_TRIES 5
+
+/*
+ * To use this sample the devicetree's /aliases must have a 'watchdog0' property.
+ */
+#ifndef WDT_ALLOW_CALLBACK
+#define WDT_ALLOW_CALLBACK 1
+#endif
+
+#ifndef WDT_MAX_WINDOW
+#define WDT_MAX_WINDOW  1000U
+#endif
+
+#ifndef WDT_MIN_WINDOW
+#define WDT_MIN_WINDOW  0U
+#endif
+
+#ifndef WDG_FEED_INTERVAL
+#define WDG_FEED_INTERVAL 50U
+#endif
+
+#ifndef WDT_OPT
+#define WDT_OPT WDT_OPT_PAUSE_HALTED_BY_DBG
+#endif
+
+static const struct pwm_dt_spec pwm0_spec = PWM_DT_SPEC_GET(DT_PATH(zephyr_user));
+
+#if WDT_ALLOW_CALLBACK
+static void wdt_callback(const struct device *wdt_dev, int channel_id)
+{
+	static bool handled_event;
+
+	if (handled_event) {
+		return;
+	}
+
+	wdt_feed(wdt_dev, channel_id);
+
+	printk("Handled things..ready to reset\n");
+	handled_event = true;
+}
+#endif /* WDT_ALLOW_CALLBACK */
+
+void start_pwm(void)
+{
+	int ret;
+
+	/* 2. Safety check: is the device ready? */
+	if (!pwm_is_ready_dt(&pwm0_spec)) {
+		printk("Error: PWM device %s is not ready\n", pwm0_spec.dev->name);
+		return;
+	}
+
+	/* 3. Set the PWM: 1kHz frequency (1ms period), 50% duty cycle */
+	/* Period and Pulse are in nanoseconds */
+	ret = pwm_set_dt(&pwm0_spec, PWM_MSEC(1), PWM_MSEC(1) / 2);
+
+	if (ret) {
+		printk("Error %d: failed to set PWM\n", ret);
+	} else {
+		printk("PWM started on GPIO 2 (PWM0_CH2P)\n");
+	}
+}
+
+int main(void)
+{
+	int err;
+	int wdt_channel_id;
+	const struct device *const wdt = DEVICE_DT_GET(DT_ALIAS(watchdog0));
+
+	printk("Watchdog sample application\n");
+
+	if (!device_is_ready(wdt)) {
+		printk("%s: device not ready.\n", wdt->name);
+		return 0;
+	}
+
+	start_pwm();
+
+	struct wdt_timeout_cfg wdt_config = {
+		/* Reset SoC when watchdog timer expires. */
+		.flags = WDT_FLAG_RESET_SOC,
+
+		/* Expire watchdog after max window */
+		.window.min = WDT_MIN_WINDOW,
+		.window.max = WDT_MAX_WINDOW,
+	};
+
+#if WDT_ALLOW_CALLBACK
+	/* Set up watchdog callback. */
+	wdt_config.callback = wdt_callback;
+
+	printk("Attempting to test pre-reset callback\n");
+#else /* WDT_ALLOW_CALLBACK */
+	printk("Callback in RESET_SOC disabled for this platform\n");
+#endif /* WDT_ALLOW_CALLBACK */
+
+	wdt_channel_id = wdt_install_timeout(wdt, &wdt_config);
+	if (wdt_channel_id == -ENOTSUP) {
+		/* IWDG driver for STM32 doesn't support callback */
+		printk("Callback support rejected, continuing anyway\n");
+		wdt_config.callback = NULL;
+		wdt_channel_id = wdt_install_timeout(wdt, &wdt_config);
+	}
+	if (wdt_channel_id < 0) {
+		printk("Watchdog install error\n");
+		return 0;
+	}
+
+	err = wdt_setup(wdt, WDT_OPT);
+	if (err < 0) {
+		printk("Watchdog setup error\n");
+		return 0;
+	}
+
+#if WDT_MIN_WINDOW != 0
+	/* Wait opening window. */
+	k_msleep(WDT_MIN_WINDOW);
+#endif
+	/* Feeding watchdog. */
+	printk("Feeding watchdog %d times\n", WDT_FEED_TRIES);
+	for (int i = 0; i < WDT_FEED_TRIES; ++i) {
+		printk("Feeding watchdog...\n");
+		wdt_feed(wdt, wdt_channel_id);
+		k_sleep(K_MSEC(WDG_FEED_INTERVAL));
+	}
+
+	/* Waiting for the SoC reset. */
+	printk("Waiting for reset...\n");
+	k_msleep(5000);
+	printk("Uh-oh, Where's my reset?\n");
+	while(1) {
+		k_msleep(INT32_MAX);
+	}
+	return 0;
+}

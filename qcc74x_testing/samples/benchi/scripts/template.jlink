@@ -1,0 +1,14 @@
+// Template variables:
+// - DEVICE
+// - TRACING_DATA_FILE
+// - CONFIG_RAM_TRACING_BUFFER_SIZE
+// - ram_tracing
+
+device @@DEVICE@@
+si JTAG
+speed 4000
+connect
+
+SaveBin "@@TRACEBUFFER_BIN@@" @@ram_tracing@@ @@CONFIG_RAM_TRACING_BUFFER_SIZE@@
+
+exit

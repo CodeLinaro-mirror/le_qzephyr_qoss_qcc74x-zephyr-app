@@ -1,0 +1,45 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&pinctrl {
+	status = "okay";
+	audio_adc_default: audio_adc_default {
+		group1 {
+			pinmux = <GPIO27_AUADC_CH4>,
+				 <GPIO30_AUADC_CH7>;
+			input-enable;
+			input-schmitt-enable;
+			drive-strength = <2>;
+		};
+	};
+	audio_dac_default: audio_dac_default {
+		group1 {
+			pinmux = <GPIO22_AUDAC_PWM_P>,
+				 <GPIO23_AUDAC_PWM_N>;
+			input-schmitt-enable;
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+};
+
+&dma {
+	status = "okay";
+};
+
+&audio_adc {
+	status = "okay";
+	pinctrl-0 = <&audio_adc_default>;
+	pinctrl-names = "default";
+	dmas = <&dma 0 DMA_REQUEST_AUADC_RX DMA_ADDR_AUADC_RDR>;
+};
+
+&audio_dac {
+	status = "okay";
+	pinctrl-0 = <&audio_dac_default>;
+	pinctrl-names = "default";
+	dmas = <&dma 1 DMA_REQUEST_AUDAC_TX DMA_ADDR_AUDAC_TDR>;
+};

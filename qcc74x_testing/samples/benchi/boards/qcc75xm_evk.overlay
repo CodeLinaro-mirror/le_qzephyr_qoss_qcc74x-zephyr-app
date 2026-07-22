@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	chosen {
+		zephyr,sram = &psram;
+	};
+};
+
+&psram {
+	status = "okay";
+};
+
+/delete-node/ &storage_partition;
+/delete-node/ &scratch_partition;
+/delete-node/ &coredump_partition;
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		storage_partition: partition@3C0000 {
+			label = "storage";
+			reg = <0x3C0000 DT_SIZE_M(2)>;
+		};
+
+		scratch_partition: partition@5C0000 {
+				label = "image-scratch";
+				reg = <0x5C0000 DT_SIZE_K(64)>;
+		};
+
+		coredump_partition: partition@5D0000 {
+			label = "coredump-partition";
+			reg = <0x5D0000 DT_SIZE_K(4)>;
+		};
+
+		benchmarking_raw: partition@5D1000 {
+			label = "benchmarking_raw";
+			reg = <0x5D1000 DT_SIZE_M(2)>;
+		};
+	};
+};
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <GPIO17_SPI0_SCLK>,
+				<GPIO18_SPI0_MISO>,
+				<GPIO19_SPI0_MOSI>,
+				<GPIO8_SPI0_SS>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+};
+
+&timer0 {
+	status = "okay";
+};
+
+&trng0 {
+	status = "okay";
+};
+

@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	aliases {
+    	spi-flash0 = &w25q128;
+	};
+};
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <GPIO17_SPI0_SCLK>,
+				<GPIO18_SPI0_MISO>,
+				<GPIO19_SPI0_MOSI>,
+				<GPIO16_SPI0_SS>;
+			bias-pull-up;
+			drive-strength = <2>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+
+	w25q128: w25q128@0 {
+		compatible = "winbond,w25q128", "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <12000000>;
+		size = <0x1000000>;		/* w25q128, 16MB (128Mbit) */
+		page-size = <256>;		/* 256-byte write page */
+		jedec-id = [ef 40 18];		/* w25q128 */
+	};
+};

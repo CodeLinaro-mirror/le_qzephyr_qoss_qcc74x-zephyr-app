@@ -1,0 +1,109 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Level definitions for QCC7xx regression testing.
+# Read by run_regression.py only, NOT consumed by Twister directly.
+#
+# Each level defines:
+#   name        - unique level identifier used with --level
+#   description - human-readable summary
+#   dirs        - workspace-relative paths passed as -T (testsuite roots) to Twister
+
+levels:
+  - name: board_check
+    description: >
+      Setup verification: confirms boards are reachable, flashing works, and
+      basic Zephyr boot succeeds. (<=1 min).
+    dirs:
+      - zephyr/samples/hello_world
+
+  - name: smoke
+    description: "Quick health check, SW tests only (<=15 min)"
+    dirs:
+      - zephyr/tests/drivers/adc/adc_api
+      - zephyr/tests/drivers/console/hello_world
+      - zephyr/tests/drivers/counter/counter_seconds
+      - zephyr/tests/drivers/counter/counter_basic_api
+      - zephyr/tests/drivers/dac/dac_api
+      - zephyr/tests/drivers/dac/dac_loopback
+      - zephyr/tests/drivers/eeprom/shell
+      - zephyr/tests/drivers/entropy/api
+      - zephyr/tests/drivers/flash/common
+      - zephyr/tests/drivers/gpio/gpio_get_direction
+      - zephyr/tests/drivers/gpio/gpio_api_1pin
+      - zephyr/tests/drivers/gpio/gpio_basic_api
+      - zephyr/tests/drivers/hwinfo/api
+      - zephyr/tests/drivers/ipm
+      - zephyr/tests/drivers/pinctrl/qcom
+      - zephyr/tests/drivers/pwm/pwm_api
+      - zephyr/tests/drivers/reset/basic_api
+      - zephyr/tests/drivers/rtc/rtc_utils
+      - zephyr/tests/drivers/spi/dt_spec
+      - zephyr/samples/hello_world
+      - qapp/qcc74x/qcc74x_testing/samples/drivers/l1cache
+      - qapp/qcc74x/qcc74x_testing/samples/drivers/crypto
+      - qapp/qcc74x/qcc74x_testing/samples/drivers/memory
+
+  - name: commit
+    description: "Every push to PR branch, shall be executed on HW (<=30 min)"
+    dirs:
+      - zephyr/tests/drivers
+      - zephyr/samples/hello_world
+      - qapp/qcc74x/qcc74x_testing/samples
+      - qapp/qcc74x/qcc74x_testing/tests
+
+  - name: commit_build_only
+    description: "Every push to PR branch, shall be executed on CI, build-only (run with --build-only)"
+    dirs:
+      - zephyr/tests/drivers
+      - zephyr/samples/hello_world
+      - zephyr/samples/basic/blinky
+      - zephyr/samples/drivers
+      - zephyr/samples/net/wifi/shell
+      - zephyr/samples/subsys/nvs
+      - zephyr/samples/subsys/usb
+      - zephyr/samples/bluetooth
+      - qapp/qcc74x/qcc74x_testing/samples
+      - qapp/qcc74x/qcc74x_testing/tests
+
+  - name: merge
+    description: "Every merge to main/dev branch, shall be executed on HW (<=45 min)"
+    dirs:
+      - zephyr/tests/drivers
+      - zephyr/samples/hello_world
+      - zephyr/samples/basic
+      - zephyr/samples/net/wifi/shell
+      - zephyr/samples/drivers
+      - zephyr/samples/bluetooth
+      - zephyr/samples/subsys/nvs
+      - zephyr/samples/subsys/usb
+      - zephyr/tests/subsys/usb
+      - zephyr/tests/subsys/sd
+      - qapp/qcc74x/qcc74x_testing/samples
+      - qapp/qcc74x/qcc74x_testing/tests
+
+  - name: merge_build_only
+    description: "Every merge to main/dev branch, shall be executed on CI, build-only (run with --build-only)"
+    dirs:
+      - zephyr/tests/drivers
+      - zephyr/samples/hello_world
+      - zephyr/samples/basic
+      - zephyr/samples/net/wifi/shell
+      - zephyr/samples/drivers
+      - zephyr/samples/bluetooth
+      - zephyr/tests/integration
+      - zephyr/tests/bluetooth
+      - zephyr/samples/net
+      - zephyr/samples/subsys/nvs
+      - zephyr/samples/subsys/usb
+      - zephyr/tests/subsys/usb
+      - zephyr/tests/subsys/sd
+      - qapp/qcc74x/qcc74x_testing/samples
+      - qapp/qcc74x/qcc74x_testing/tests
+
+  - name: nightly
+    description: "Full regression, shall be executed on HW, scheduled weekly on Saturday/Sunday (<=4h)"
+    dirs:
+      - zephyr/tests
+      - zephyr/samples
+      - qcc74x_testing

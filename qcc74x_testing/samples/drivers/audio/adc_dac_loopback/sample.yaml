@@ -1,0 +1,25 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+sample:
+  name: Audio ADC/DAC driver sample for Opal
+common:
+  timeout: 120
+  harness: console
+  harness_config:
+    type: multi_line
+    ordered: true
+    regex:
+      - "Start loopback"
+      - "Stop loopback"
+      - "Start loopback"
+      - "Stop loopback"
+tests:
+  qcc7xx.sample.drivers.audio.adc_dac_loopback:
+    tags: 
+      - audio 
+      - adc 
+      - dac
+    platform_allow:
+      - qcc744m_evk
+      - qcc748m_evk

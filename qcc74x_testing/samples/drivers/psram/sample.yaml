@@ -1,0 +1,19 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+sample:
+  description: Application to test memory allocation from PSRAM
+  name: psram_test
+tests:
+  qcc7xx.sample.drivers.psram:
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk
+    tags: qcc744m
+    harness: console
+    harness_config:
+      type: multi_line
+      regex:
+        - "PSRAM mem test pass"

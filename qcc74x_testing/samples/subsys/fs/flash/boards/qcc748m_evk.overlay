@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
+ * qcc748m_evk flash layout (8MB - 8KB total):
+ *   @000000  boot         64KB
+ *   @010000  slot0        1344KB   ends @15FFFF
+ *   @1F0000  slot1        1344KB   ends @33FFFF
+ *   @3C0000  storage      128KB   (deleted below, re-created at larger address)
+ *   @3E0000  scratch      64KB
+ *   @3F0000  coredump     4KB
+ *   @3F1000  ----FREE---- ~4MB
+ *
+ * This sample uses the free region above @400000 so as not to conflict
+ * with the MCUboot image slots or scratch partition.
+ * storage_partition @400000 2MB  – LittleFS test area
+ * benchmarking_raw  @600000 1MB  – raw flash benchmark area
+ */
+
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		storage_partition: partition@400000 {
+			label = "storage";
+			reg = <0x00400000 DT_SIZE_M(2)>;
+		};
+		benchmarking_raw: partition@600000 {
+			label = "benchmarking_raw";
+			reg = <0x00600000 DT_SIZE_M(1)>;
+		};
+	};
+};

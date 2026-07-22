@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+&pinctrl {
+	status = "okay";
+	sdio_default: sdio_default {
+		group1 {
+			pinmux = <GPIO14_SDIO_DAT0>,
+				<GPIO15_SDIO_DAT1>,
+				<GPIO10_SDIO_DAT2>,
+				<GPIO11_SDIO_DAT3>,
+				<GPIO12_SDIO_CMD>,
+				<GPIO13_SDIO_CLK>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+};
+
+&sdio {
+	status = "okay";
+	pinctrl-0 = <&sdio_default>;
+	pinctrl-names = "default";	
+};

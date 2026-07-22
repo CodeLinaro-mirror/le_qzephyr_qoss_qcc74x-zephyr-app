@@ -1,0 +1,15 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* Parameters for 24LC16B-I/P (https://www.microchipdirect.com/product/24LC16B-I/P).
+ * Can be taken in use e.g. by EXTRA_DTC_OVERLAY_FILE=some_other.overlay;eeprom_24lc16b.overlay. */
+&eeprom0 {
+	compatible = "atmel,at24";
+	size = <DT_SIZE_K(2)>;
+	pagesize = <16>;
+	address-width = <8>;
+	timeout = <5>;
+};

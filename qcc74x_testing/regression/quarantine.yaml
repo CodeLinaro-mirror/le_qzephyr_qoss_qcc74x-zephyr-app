@@ -1,0 +1,249 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Twister quarantine test cases for QCC7xx
+#
+# Please always use full board name in this file: `qcc743m_evk/qcc743`, `qcc744m_evk/qcc744`, `qcc748m_evk/qcc748` or `qcc75xm_evk/qcc755`
+#
+- scenarios:
+# Directory: qcc7xx_samples/samples:
+    - qcc7xx.sample.drivers.counter.alarm_gpio_clk_src
+    - qcc7xx.sample.drivers.psram
+    - qcc7xx.sample.drivers.watchdog_gpio_clk_src
+# Directory: zephyr/samples/basic:
+    - libraries.hash_map.newlib.cxx_unordered_map.djb2
+# Directory: zephyr/samples/cpp:
+    - sample.cpp.helloworld
+    - sample.cpp.synchronization
+    - sample.cpp.synchronization.picolibc
+# Directory: zephyr/samples/drivers:
+    - sample.drivers.flash.shell  # shell harness not supported by testing setup
+    - sample.drivers.ir.nec
+    - sample.drivers.ir.rc5
+    - sample.drivers.led.led_pwm
+# Directory: zephyr/samples/sensor:
+    - sample.sensor.shell.pytest
+    - sample.sensor.shell.pytest.test_sensor_shell_info
+# Directory: zephyr/samples/subsys:
+    - harness.shell.vt100_colors_off
+    - sample.bindesc
+    - sample.harness.shell
+    - sample.harness.shell.test_shell_harness
+    - sample.harness.shell.vt100_colors_off
+    - sample.harness.shell.vt100_colors_off.test_shell_harness
+    - sample.perf
+    - sample.perf.test_shell_perf
+    - sample.pytest.shell
+    - sample.pytest.shell.test_shell_print_help
+    - sample.pytest.shell.vt100_colors_off
+    - sample.pytest.shell.vt100_colors_off.test_shell_print_help
+    - sample.shell.shell_module
+    - sample.shell.shell_module.test_shell_harness
+    - sample.task_wdt
+    - sample.tracing.gpio
+    - sample.tracing.user
+# Directory: zephyr/samples/userspace:
+    - sample.userspace.prod_consumer
+# Directory: zephyr/tests/application_development:
+    - sbom.spdx
+# Directory: zephyr/tests/arch:
+    - arch.common.ramfunc
+    - arch.interrupt
+    - arch.interrupt.gen_isr_table.riscv_direct
+    - arch.interrupt.gen_isr_table.riscv_no_direct
+    - arch.interrupt.minimallibc
+    - arch.riscv.fpu_sharing
+# Directory: zephyr/tests/benchmarks:
+    - benchmark.kernel.application.user
+    - benchmark.kernel.application.user.objcore.stats
+    - benchmark.kernel.application.user.timeslicing
+# Directory: zephyr/tests/crypto:
+    - crypto.mbedtls
+    - crypto.secp256r1.tinycrypt
+    - crypto.tinycrypt
+    - crypto.tinycrypt.hmac_prng
+# Directory: zephyr/tests/drivers:
+    - drivers.i2s  # Significant changes to the driver are needed
+    - drivers.i2s.speed  # Significant changes to the driver are needed
+    - drivers.i2s.gpio_loopback  # Significant changes to the driver are needed
+# Directory: zephyr/tests/kernel:
+    - arch.shared_interrupt
+    - kernel.common
+    - kernel.common.minimallibc
+    - kernel.common.misra
+    - kernel.common.nano32
+    - kernel.common.nano64
+    - kernel.common.picolibc
+    - kernel.common.stack_protection
+    - kernel.common.tls
+    - kernel.condvar
+    - kernel.context
+    - kernel.context.minimallibc
+    - kernel.device
+    - kernel.device.minimallibc
+    - kernel.device.pm
+    - kernel.fpu_sharing.generic.riscv32
+    - kernel.memory_protection
+    - kernel.memory_protection.syscalls
+    - kernel.mutex.error
+    - kernel.mutex.system
+    - kernel.scheduler
+    - kernel.scheduler.dumb_timeslicing
+    - kernel.scheduler.metairq
+    - kernel.scheduler.multiq
+    - kernel.scheduler.slice_perthread
+    - kernel.threads.error.case
+    - kernel.threads.thread_stack
+    - kernel.threads.tls.userspace
+    - kernel.tickless.concept
+    - kernel.timer
+    - kernel.timer.timer
+    - kernel.usage
+    - kernel.workqueue.api
+# Directory: zephyr/tests/lib:
+    - cpp.libcxx.glibcxx.newlib
+    - cpp.libcxx.glibcxx.newlib_nano
+    - cpp.libcxx.glibcxx.picolibc
+    - cpp.main.minimal
+    - cpp.main.newlib
+    - cpp.main.newlib_nano
+    - cpp.main.picolibc
+    - libraries.hash_map.cxx.djb2
+    - libraries.multi_heap
+    - libraries.p4wq
+# Directory: zephyr/tests/net:
+    - net.mqtt.client
+    - net.mqtt.client.preempt
+    - net.mqtt.packet
+    - net.socket.get_name_info
+    - net.socket.mgmt
+    - net.socket.mgmt.preempt
+    - net.socket.misc.userspace
+    - net.socket.misc.v4_mapping_to_v6_disabled
+    - net.socket.misc.v4_mapping_to_v6_enabled
+    - net.socket.reuseaddr_reuseport.userspace
+    - net.wifi
+# Directory: zephyr/tests/subsys:
+    - debug.coredump.logging_backend
+    - logging.mipi_syst
+    - mgmt.mcumgr.fs.mgmt.hash.supported.all
+    - mgmt.mcumgr.fs.mgmt.hash.supported.crc32
+    - mgmt.mcumgr.fs.mgmt.hash.supported.sha256
+    - mgmt.mcumgr.os.echo
+    - mgmt.mcumgr.os.info
+    - mgmt.mcumgr.os.info.build_date
+    - mgmt.mcumgr.os.info.limited_size
+    - mgmt.mcumgr.os.info.net
+    - mgmt.mcumgr.os.info.no_hooks
+    - mgmt.mcumgr.smp.version
+    - mgmt.mcumgr.smp.version_no_legacy
+    - zdsp.basicmath
+    - zdsp.basicmath.fpu
+    - zdsp.utils
+# Directory: zephyr/tests/ztest:
+    - testing.ztest.error_hook
+  platforms:
+    - all
+  comment: "Test cases failing for all boards."
+
+- scenarios:
+# Directory: zephyr/samples/kernel:
+    - sample.kernel.bootargs.tokenization
+# Directory: zephyr/samples/subsys:
+    - sample.zbus.benchmark_sync
+    - sample.zbus.msg_subscriber_dynamic_isolated_too_small
+# Directory: zephyr/tests/arch:
+    - arch.common.stack_unwind.riscv_fp
+# Directory: zephyr/tests/crypto:
+    - crypto.secp256r1.mbedtls
+# Directory: zephyr/tests/drivers:
+    - drivers.uart.async_rx
+# Directory: zephyr/tests/kernel:
+    - kernel.threads.dynamic
+    - kernel.timer.timepoints
+# Directory: zephyr/tests/net:
+    - net.ethernet_mgmt
+    - net.ipv6.privacy_extension.prefer_temporary
+    - net.offloaded_netdev
+    - net.socket.af_packet
+    - net.socket.tcp
+    - net.socket.tcp.preempt
+  platforms:
+    - qcc743m_evk/qcc743
+  comment: "Test cases failing for qcc743m_evk only"
+
+- scenarios:
+# Directory: zephyr/samples/drivers:
+    - sample.drivers.spi.flash
+    - sample.drivers.video.capture
+    - sample.drivers.video.capture_to_lvgl
+# Directory: zephyr/tests/integration/kernel:
+    - integration.kernel
+# Directory: zephyr/tests/drivers:
+    - drivers.spi.opal_spi_dma.loopback
+    - drivers.usb.udc
+# Directory: zephyr/tests/kernel:
+    - kernel.objects
+    - kernel.objects.minimallibc
+# Directory: zephyr/tests/lib/newlib:
+    - libraries.libc.newlib.heap_listener
+    - libraries.libc.newlib.thread_safety
+# Directory: zephyr/tests/net:
+    - net.arp
+    - net.tcp.variable_buf_size
+# Directory: zephyr/tests/subsys:
+    - usb.device_next
+  platforms:
+    - qcc744m_evk/qcc744
+    - qcc748m_evk/qcc748
+  comment: "Test cases failing for qcc744m_evk and qcc748m_evk."
+
+- scenarios:
+# Directory: qcc7xx_samples/samples/drivers:
+    - qcc7xx.sample.drivers.i2c.eeprom.async
+    - qcc7xx.sample.drivers.i2c.eeprom.async_dma
+# Directory: zephyr/samples/subsys/bindesc:
+    - sample.bindesc.read_bindesc
+# Directory: zephyr/benchmarks/kernel/footprints:
+    - benchmark.kernel.footprints.pm
+# Directory: zephyr/tests/lib/cpp/cxx_tests:
+    - cpp.main.*
+  platforms:
+    - all
+  comment: "Test cases failing on build for all boards"
+
+- scenarios:
+# Directory: qcc7xx_samples/samples/drivers:
+    - qcc7xx.drivers.jpeg
+# Directory: zephyr/samples/net:
+    - sample.net.sockets.echo_server.usbnet
+    - sample.net.wpan.serial
+    - sample.net.zperf.netusb_ecm
+    - sample.net.zperf.netusb_eem
+    - sample.net.zperf.netusb_rndis
+# Directory: zephyr/samples/subsys/logging:
+    - sample.logger.basic.dictionary
+    - sample.logger.basic.dictionary.fpu
+    - sample.logger.basic.dictionary.fpu.long_double
+    - sample.logger.basic.dictionary.uart_int_frontend
+# Directory: zephyr/samples/subsys/shell:
+    - sample.shell.shell_module.usb
+  platforms:
+    - qcc744m_evk/qcc744
+    - qcc748m_evk/qcc748
+  comment: "Test cases failing on build for qcc744m_evk and qcc748m_evk."
+
+- scenarios:
+    - drivers.dac.api
+    - drivers.eeprom.api.build
+  platforms:
+    - qcc748m_evk/qcc748
+  comment: "Test cases failing to build for qcc748m_evk."
+
+- scenarios:
+    - drivers.pwm.gpio_loopback.*
+    - drivers.counter.seconds
+    - sample.zbus.msg_subscriber_dynamic_isolated
+  platforms:
+    - qcc75xm_evk/qcc75x
+  comment: "Test cases failing to build for qcc75xm_evk."

@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+&comparator0 {
+	status = "okay";
+	mux_enable;
+	pos_chan_sel = "AON_ACOMP_CHAN_ADC2";
+	neg_chan_sel = "AON_ACOMP_CHAN_VIO_X_SCALING_FACTOR_1";
+	scaling_factor = "AON_ACOMP_SCALING_FACTOR_1";
+	bias_prog = "AON_ACOMP_BIAS_POWER_MODE1";
+	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+};
+
+&comparator1 {
+	status = "okay";
+	mux_enable;
+	pos_chan_sel = "AON_ACOMP_CHAN_ADC2";
+	neg_chan_sel = "AON_ACOMP_CHAN_VIO_X_SCALING_FACTOR_1";
+	scaling_factor = "AON_ACOMP_SCALING_FACTOR_1";
+	bias_prog = "AON_ACOMP_BIAS_POWER_MODE1";
+	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+};

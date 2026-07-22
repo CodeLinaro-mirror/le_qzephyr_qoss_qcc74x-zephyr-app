@@ -1,0 +1,35 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+common:
+  build_only: true
+  depends_on: i2c
+  tags:
+    - drivers
+    - i2c
+    - eeprom
+  extra_dtc_overlay_files:
+    - "boards/${BOARD}.overlay"
+    # - "eeprom_24lc16b.overlay" # Uncomment if connected EEPROM is 24LC16B-I/P
+  platform_allow:
+    - qcc743m_evk
+    - qcc744m_evk
+    - qcc748m_evk
+    - qcc75xm_evk
+
+tests:
+  qcc7xx.sample.drivers.i2c.eeprom: {}
+  qcc7xx.sample.drivers.i2c.eeprom.dma:
+    extra_dtc_overlay_files:
+      - "i2c_dma.overlay"
+    extra_configs:
+      - CONFIG_I2C_QCC74X_DMA=y
+  qcc7xx.sample.drivers.i2c.eeprom.async:
+    extra_configs:
+      - CONFIG_EEPROM_USE_I2C_CALLBACK=y
+  qcc7xx.sample.drivers.i2c.eeprom.async_dma:
+    extra_dtc_overlay_files:
+      - "i2c_dma.overlay"
+    extra_configs:
+      - CONFIG_I2C_QCC74X_DMA=y
+      - CONFIG_EEPROM_USE_I2C_CALLBACK=y

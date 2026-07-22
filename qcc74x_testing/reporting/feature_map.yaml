@@ -1,0 +1,95 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Explicit test suite overrides for feature coverage.
+# Only needed for tests that have no matching tags or depends_on in their testcase.yaml.
+# Values are the test identifier (last path component of the suite name in twister.json).
+
+dma:
+  - drivers.dma.basic        # uart_dma standalone JSON; path not resolvable (Windows path)
+
+adc:
+  - qcc7xx.sample.drivers.audio.adc_dac_loopback
+
+dac:
+  - qcc7xx.sample.drivers.audio_dac
+  - qcc7xx.sample.drivers.audio.adc_dac_loopback
+
+gpio:
+  - sample.basic.blinky
+
+ir: 
+  - sample.drivers.ir.nec
+
+pwm:
+  - sample.basic.blinky_pwm
+
+watchdog:
+  - sample.drivers.watchdog
+
+counter:
+  - sample.drivers.counter.alarm
+
+crypto:
+  - sample.drivers.crypto.mbedtls
+
+mipi_dbi:
+  - qcc7xx.sample.drivers.display
+
+wifi:
+  - sample.net.wifi.qcc7xx_evk
+
+net:
+  - sample.net.wifi.qcc7xx_evk
+  - qcc7xx.sample.net.ethernet
+
+ethernet:
+  - qcc7xx.sample.net.ethernet
+
+netif:eth:
+  - qcc7xx.sample.net.ethernet
+
+netif:wifi:
+  - sample.net.wifi.qcc7xx_evk
+
+sdhc:
+  - qcc7xx.sample.filesystem.sdhc   # manual SDHC filesystem sample
+  - drivers.sdhc.sdhc_api           # manual Zephyr SDHC driver API test
+  - sdmmc                            # manual Zephyr SD/MMC subsystem test
+
+# serial, usart, and uart are aliases for the same subsystem (zephyr/drivers/serial/).
+# Tests are tagged 'uart' only, so map them explicitly.
+uart:
+  - drivers.console.uart
+  - drivers.uart.async_api
+  - drivers.uart.async_rx
+  - drivers.uart.uart_elementary
+  - drivers.uart.uart_mix_poll
+  - drivers.uart.uart_mix_poll_fifo
+  - sample.drivers.uart.async_api   # Zephyr uart async sample (manual path prefix issue)
+
+serial:
+  - drivers.console.uart
+  - drivers.uart.async_api
+  - drivers.uart.async_rx
+  - drivers.uart.uart_elementary
+  - drivers.uart.uart_mix_poll
+  - drivers.uart.uart_mix_poll_fifo
+
+usart:
+  - drivers.console.uart
+  - drivers.uart.async_api
+  - drivers.uart.async_rx
+  - drivers.uart.uart_elementary
+  - drivers.uart.uart_mix_poll
+  - drivers.uart.uart_mix_poll_fifo
+  - sample.drivers.uart.async_api
+
+# Features not in any board's supported: list, tracked separately
+custom_features:
+  benchi:
+    - qcc7xx.sample.benchi
+  jpeg:
+    - qcc7xx.drivers.jpeg
+  ieee802154:
+    - sample.net.openthread.shell

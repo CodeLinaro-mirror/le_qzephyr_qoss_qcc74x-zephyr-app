@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+
+	aliases {
+		eeprom0 = &eeprom0;
+	};
+
+	chosen {
+		zephyr,eeprom = &eeprom0;
+	};
+};
+
+&pinctrl {
+	status = "okay";
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <GPIO30_I2C0_SCL>,
+				 <GPIO29_I2C0_SDA>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+	eeprom0: eeprom@50 {
+		compatible = "atmel,at24";
+		reg = <0x50>;
+		status = "okay";
+		size = <DT_SIZE_K(32)>;
+		pagesize = <64>;
+		address-width = <16>;
+		timeout = <5>;
+	};
+};

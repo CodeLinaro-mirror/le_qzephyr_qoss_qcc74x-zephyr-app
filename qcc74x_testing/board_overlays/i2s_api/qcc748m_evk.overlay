@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * No qcc748m_evk.{conf,overlay} exist for this test in the v4.1 QCC74x
+ * fork (only qcc743m_evk/qcc744m_evk are present there) -- this file
+ * ports the qcc744m_evk pinmux (BCLK/FS/DI/DO all exist as named symbols
+ * for qcc748m_evk too) since it's the closer match; qcc743m_evk uses a
+ * different DI/DO pin pair.
+ */
+
+#include "qcc74xm_evk_common.dtsi"
+
+&pinctrl {
+	i2s0_default: i2s0_default {
+		group1 {
+			pinmux = <GPIO16_I2S_BCLK>,
+				 <GPIO17_I2S_FS>,
+				 <GPIO34_I2S_DI>,
+				 <GPIO31_I2S_DO>;
+			input-enable;
+		};
+	};
+};
