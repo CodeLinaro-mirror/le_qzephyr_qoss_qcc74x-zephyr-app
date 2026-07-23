@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <bshg/messages.h>
 
 #include <jsmn-extended.h>
 
-#include <mbedtls/md5.h>
-#include <mbedtls/sha256.h>
+#include <mbedtls/private/md5.h>
+#include <mbedtls/private/sha256.h>
 
 result_t process_msg_calculate_hashsum(const jsmn_json_t *json, json_msg *reply)
 {

@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/tests/drivers/uart/uart_mix_fifo_poll.
+ * Reuses the uart1 pin group already ported for uart_elementary
+ * (board_overlays/uart_elementary/qcc748m_evk.overlay: GPIO27/28/29/30 with
+ * hw-flow-control) as the `dut:` node required by the vanilla test's
+ * `DT_NODELABEL(dut)` lookup, and enables `timer0` as `counter_dev:` for the
+ * test's COUNTER_NODE fallback (`DT_NODELABEL(counter_dev)` else
+ * `DT_NODELABEL(timer0)`).
+ *
+ * Test requires a physical loopback wire on uart1 (TX<->RX per the
+ * source comment "RX and TX pins have to be connected together").
+ * Without the wire, expect a build pass but a runtime failure/hang.
+ *
+ * The base scenario has a Nordic-only platform_allow allowlist, so
+ * `west twister` static-filters qcc748m_evk out. Inject via west build
+ * (which ignores platform_allow):
+ *   west build -p always -b qcc748m_evk/qcc748 -d C:/b17 \
+ *     zephyr/tests/drivers/uart/uart_mix_fifo_poll \
+ *     -- -DDTC_OVERLAY_FILE=<abs>/board_overlays/uart_mix_fifo_poll/qcc748m_evk.overlay
+ */
+
+&pinctrl {
+	uart1_default: uart1_default {
+		group1 {
+			pinmux = <GPIO30_UART1_RXD>,
+				<GPIO29_UART1_TXD>,
+				<GPIO28_UART1_CTS>,
+				<GPIO27_UART1_RTS>;
+			bias-pull-up;
+			input-schmitt-enable;
+			input-enable;
+			drive-strength = <1>;
+		};
+	};
+};
+
+/*
+ * The driver binding requires both "default" and "sleep" pinctrl states.
+ * As in uart_elementary's overlay, point "sleep" at the same default pin
+ * group since this test never actually enters the sleep state.
+ */
+dut: &uart1 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart1_default>;
+	pinctrl-1 = <&uart1_default>;
+	pinctrl-names = "default", "sleep";
+	hw-flow-control;
+};
+
+counter_dev: &timer0 {
+	status = "okay";
+	counter-mode = <1>;
+	preload-id = <0>;
+	comp0-val = <1000000>;
+	comp1-val = <10000000>;
+	comp2-val = <0xFFFFFFFF>;
+	preload-val = <0>;
+};

@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <zephyr/net/http/client.h>
 #include <zephyr/net/socket.h>
+#include <zephyr/posix/netdb.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 

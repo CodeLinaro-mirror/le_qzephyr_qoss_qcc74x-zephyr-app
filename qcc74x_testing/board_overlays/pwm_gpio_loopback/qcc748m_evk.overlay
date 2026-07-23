@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/tests/drivers/pwm/pwm_gpio_loopback.
+ *
+ * This test has no per-vendor scenario for qcc7xx boards in testcase.yaml
+ * (only esp/nrf/silabs/ifx/mchp `platform_allow`-gated entries exist), so
+ * `west build -D` (bypassing twister's static filter) was used per Task 1's
+ * triage (Bucket B). The common `harness_config.fixture: gpio_loopback`
+ * matches this project's existing convention of PWM-out-to-GPIO-in jumper
+ * wiring (see board_overlays/gpio_basic_api's GPIO20<->GPIO16 jumper note).
+ *
+ * The test's main.c reads its PWM/GPIO pairs from a `zephyr,user` node's
+ * `pwms`/`gpios` properties (LISTIFY over DT_PROP_LEN), which qcc748m_evk.dts
+ * does not define, and &pwm0 is disabled by default. This overlay enables
+ * &pwm0 on GPIO4 channel 0 (same pin choice as board_overlays/blinky_pwm and
+ * board_overlays/pwm_api, for a single documented "PWM test pin" across the
+ * project) and defines a single PWM/GPIO pair:
+ *   - PWM out: &pwm0 channel 0 on GPIO4 (pinmux GPIO4_PWM0_CH0P)
+ *   - GPIO in: GPIO5 (plain GPIO, no fixed function on this board)
+ *
+ * Requires a physical jumper wire between GPIO4 and GPIO5 on the qcc748m_evk
+ * board for the test to PASS (measures PWM output timing via GPIO edge
+ * interrupts). Without the jumper, expect build-clean but a runtime FAIL/
+ * timeout, per this project's established "build-clean now, hardware-verify
+ * later" policy for jumper-dependent tests.
+ *
+ * Inject with:
+ *   west build -p always -b qcc748m_evk/qcc748 -d C:/b12 \
+ *     zephyr/tests/drivers/pwm/pwm_gpio_loopback \
+ *     -- -DDTC_OVERLAY_FILE=<abs>/board_overlays/pwm_gpio_loopback/qcc748m_evk.overlay
+ */
+
+/ {
+	zephyr,user {
+		pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+		gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&pinctrl {
+	pwm0_default: pwm0_default {
+		group1 {
+			pinmux = <GPIO4_PWM0_CH0P>;
+		};
+	};
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-names = "default";
+	divider = <40000>;
+};

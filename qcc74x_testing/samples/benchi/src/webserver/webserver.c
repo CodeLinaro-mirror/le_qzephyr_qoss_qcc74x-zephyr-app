@@ -76,7 +76,7 @@ static struct http_resource_detail_static main_js_gz_resource_detail = {
 /*******************************************************************************
  * uptime handler
  ******************************************************************************/
-static int uptime_handler(struct http_client_ctx *client, enum http_data_status status,
+static int uptime_handler(struct http_client_ctx *client, enum http_transaction_status status,
 			  const struct http_request_ctx *request_ctx,
 			  struct http_response_ctx *response_ctx, void *user_data)
 {
@@ -88,7 +88,7 @@ static int uptime_handler(struct http_client_ctx *client, enum http_data_status 
 	/* A payload is not expected with the GET request. Ignore any data and wait until
 	 * final callback before sending response
 	 */
-	if (status == HTTP_SERVER_DATA_FINAL) {
+	if (status == HTTP_SERVER_REQUEST_DATA_FINAL) {
 		ret = snprintf(uptime_buf, sizeof(uptime_buf), "%" PRId64, k_uptime_get());
 		if (ret < 0) {
 			LOG_ERR("Failed to snprintf uptime, err %d", ret);
@@ -140,7 +140,7 @@ static void parse_led_post(uint8_t *buf, size_t len)
 	}
 }
 
-static int led_handler(struct http_client_ctx *client, enum http_data_status status,
+static int led_handler(struct http_client_ctx *client, enum http_transaction_status status,
 		       const struct http_request_ctx *request_ctx,
 		       struct http_response_ctx *response_ctx, void *user_data)
 {
@@ -149,7 +149,7 @@ static int led_handler(struct http_client_ctx *client, enum http_data_status sta
 
 	LOG_DBG("LED handler status %d, size %zu", status, request_ctx->data_len);
 
-	if (status == HTTP_SERVER_DATA_ABORTED) {
+	if (status == HTTP_SERVER_TRANSACTION_ABORTED) {
 		cursor = 0;
 		return 0;
 	}
@@ -166,7 +166,7 @@ static int led_handler(struct http_client_ctx *client, enum http_data_status sta
 	memcpy(post_payload_buf + cursor, request_ctx->data, request_ctx->data_len);
 	cursor += request_ctx->data_len;
 
-	if (status == HTTP_SERVER_DATA_FINAL) {
+	if (status == HTTP_SERVER_REQUEST_DATA_FINAL) {
 		parse_led_post(post_payload_buf, cursor);
 		cursor = 0;
 	}
@@ -244,7 +244,7 @@ struct http_resource_detail_websocket ws_netstats_resource_detail = {
  ******************************************************************************/
 #if defined(CONFIG_NET_SAMPLE_HTTP_SERVICE)
 static uint16_t test_http_service_port = CONFIG_NET_SAMPLE_HTTP_SERVER_SERVICE_PORT;
-HTTP_SERVICE_DEFINE(test_http_service, NULL, &test_http_service_port, 1, 10, NULL, NULL);
+HTTP_SERVICE_DEFINE(test_http_service, NULL, &test_http_service_port, 1, 10, NULL, NULL, NULL);
 
 // Static Resources
 HTTP_RESOURCE_DEFINE(index_html_gz_resource, test_http_service, "/",
@@ -281,7 +281,7 @@ static const sec_tag_t sec_tag_list_verify_none[] = {
 };
 
 static uint16_t test_https_service_port = CONFIG_NET_SAMPLE_HTTPS_SERVER_SERVICE_PORT;
-HTTPS_SERVICE_DEFINE(test_https_service, NULL, &test_https_service_port, 1, 10, NULL, NULL,
+HTTPS_SERVICE_DEFINE(test_https_service, NULL, &test_https_service_port, 1, 10, NULL, NULL, NULL,
 		     sec_tag_list_verify_none, sizeof(sec_tag_list_verify_none));
 
 // Static Resources

@@ -1,0 +1,13 @@
+common:
+  tags:
+    - dac
+    - drivers
+  depends_on:
+    - dac
+    - adc
+  harness: ztest
+  harness_config:
+    fixture: dac_adc_loopback
+tests:
+  drivers.dac.loopback:
+    filter: dt_node_has_prop("/zephyr,user", "io-channels")

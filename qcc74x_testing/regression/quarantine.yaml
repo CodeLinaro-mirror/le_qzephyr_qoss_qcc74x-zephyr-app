@@ -1,9 +1,16 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: Apache-2.0
 
 # Twister quarantine test cases for QCC7xx
 #
 # Please always use full board name in this file: `qcc743m_evk/qcc743`, `qcc744m_evk/qcc744`, `qcc748m_evk/qcc748` or `qcc75xm_evk/qcc755`
+#
+# NOTE: `uart_mix_poll` and `reset/basic_api` are permanently out of scope
+# for this project but have NO scenario entries below, because they have
+# no buildable source at all (no vanilla zephyr/ test and no project-owned
+# port exist for either name -- a Twister quarantine entry requires an
+# actual scenario ID that Twister recognizes, which neither has). They are
+# tracked instead in qcc74x_testing/docs/results_2026-07-21_batch7.md.
 #
 - scenarios:
 # Directory: qcc7xx_samples/samples:

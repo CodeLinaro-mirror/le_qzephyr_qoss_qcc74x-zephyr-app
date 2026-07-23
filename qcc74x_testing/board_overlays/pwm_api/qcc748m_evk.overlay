@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/tests/drivers/pwm/pwm_api.
+ *
+ * The test's base scenario key `drivers.pwm` has no platform_allow
+ * restriction (confirmed in Task 1's corrected triage), but its C source
+ * (src/test_pwm.c line 32-36) requires a `pwm-test` alias pointing at an
+ * enabled PWM node:
+ *
+ *   #if DT_NODE_HAS_STATUS_OKAY(DT_ALIAS(pwm_test))
+ *   #define PWM_DEV_NODE DT_ALIAS(pwm_test)
+ *   #else
+ *   #error "Test requires a pwm-test alias in DTS"
+ *   #endif
+ *
+ * qcc748m_evk.dts defines no `pwm-test` alias, and the SoC's &pwm0 node
+ * is disabled by default (qcc74x.dtsi). This overlay enables &pwm0 on
+ * GPIO4 channel 0 (same pin/pinmux/divider choice as the blinky_pwm
+ * overlay in this same directory tree) and adds the `pwm-test` alias
+ * pointing at it.
+ *
+ * GPIO4 was chosen for consistency with board_overlays/blinky_pwm/
+ * qcc748m_evk.overlay, which already uses this pin/channel for &pwm0 —
+ * no other board_overlays file uses PWM on this board, so there is no
+ * conflict, and it keeps a single documented "PWM test pin" across the
+ * project's PWM-related overlays.
+ *
+ * Inject with twister:
+ *   west twister -p qcc748m_evk/qcc748 -T zephyr/tests/drivers/pwm/pwm_api \
+ *     --build-only -O C:/b11 \
+ *     -x DTC_OVERLAY_FILE=<abs>/board_overlays/pwm_api/qcc748m_evk.overlay
+ */
+
+&pinctrl {
+	pwm0_default: pwm0_default {
+		group1 {
+			pinmux = <GPIO4_PWM0_CH0P>;
+		};
+	};
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-names = "default";
+	divider = <40000>;
+};
+
+/ {
+	aliases {
+		pwm-test = &pwm0;
+	};
+};

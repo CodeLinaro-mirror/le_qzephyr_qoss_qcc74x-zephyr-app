@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/samples/basic/blinky_pwm.
+ *
+ * The sample's `sample.basic.blink_led` scenario filter requires
+ * `dt_alias_exists("pwm-led0") and dt_compat_enabled("pwm-leds")`, and
+ * qcc748m_evk.dts defines neither an alias nor a "pwm-leds" node, plus
+ * the board's &pwm0 node is disabled by default in the SoC dtsi. This
+ * overlay enables &pwm0 on GPIO4 (channel 0) and adds a "pwm-leds"
+ * child node + pwm-led0 alias so the sample's filter and PWM_DT_SPEC_GET
+ * are satisfied.
+ *
+ * Inject with west (twister -x or west build -- -DDTC_OVERLAY_FILE=<abs>):
+ *   west twister -p qcc748m_evk/qcc748 -T zephyr/samples/basic/blinky_pwm \
+ *     --build-only -O C:/b3 \
+ *     -x DTC_OVERLAY_FILE=<abs>/board_overlays/blinky_pwm/qcc748m_evk.overlay
+ */
+
+/ {
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	aliases {
+		pwm-led0 = &pwm_led0;
+	};
+};
+
+&pinctrl {
+	pwm0_default: pwm0_default {
+		group1 {
+			pinmux = <GPIO4_PWM0_CH0P>;
+		};
+	};
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-names = "default";
+	divider = <40000>;
+};

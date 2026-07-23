@@ -21,25 +21,25 @@ levels:
     description: "Quick health check, SW tests only (<=15 min)"
     dirs:
       - zephyr/tests/drivers/adc/adc_api
+      - zephyr/tests/drivers/can/shell
       - zephyr/tests/drivers/console/hello_world
-      - zephyr/tests/drivers/counter/counter_seconds
-      - zephyr/tests/drivers/counter/counter_basic_api
       - zephyr/tests/drivers/dac/dac_api
-      - zephyr/tests/drivers/dac/dac_loopback
       - zephyr/tests/drivers/eeprom/shell
       - zephyr/tests/drivers/entropy/api
       - zephyr/tests/drivers/flash/common
+      - zephyr/tests/drivers/gnss/gnss_nmea0183
+      - zephyr/tests/drivers/gnss/gnss_parse
       - zephyr/tests/drivers/gpio/gpio_get_direction
       - zephyr/tests/drivers/gpio/gpio_api_1pin
       - zephyr/tests/drivers/gpio/gpio_basic_api
       - zephyr/tests/drivers/hwinfo/api
       - zephyr/tests/drivers/ipm
-      - zephyr/tests/drivers/pinctrl/qcom
       - zephyr/tests/drivers/pwm/pwm_api
-      - zephyr/tests/drivers/reset/basic_api
       - zephyr/tests/drivers/rtc/rtc_utils
       - zephyr/tests/drivers/spi/dt_spec
       - zephyr/samples/hello_world
+      - zephyr/samples/basic/sys_heap
+      - zephyr/samples/subsys/kvss/nvs
       - qapp/qcc74x/qcc74x_testing/samples/drivers/l1cache
       - qapp/qcc74x/qcc74x_testing/samples/drivers/crypto
       - qapp/qcc74x/qcc74x_testing/samples/drivers/memory

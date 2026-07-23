@@ -4,6 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/ {
+	aliases {
+		rtc-0 = &timer0;
+	};
+};
+
 &timer0 {
 	status = "okay";
 	clock-div = <99>;
