@@ -20,7 +20,6 @@
 #include <qc7xx_lp.h>
 
 #if defined(CONFIG_WIFI_SHELL_LOWPOWER_VALIDATION)
-
 static uint64_t lp_pds_ms_to_us(uint32_t ms)
 {
 	return (uint64_t)ms * USEC_PER_MSEC;
@@ -376,6 +375,7 @@ static int cmd_lp_pds_auto(const struct shell *sh, size_t argc, char *argv[])
 	struct qcc74x_pm_pds15_status status;
 	uint32_t duration_ms = 0U;
 	bool enable;
+	bool release_pending = false;
 	int rc;
 
 	if ((argc < 2U) || (argc > 3U)) {
@@ -429,10 +429,9 @@ static int cmd_lp_pds_auto(const struct shell *sh, size_t argc, char *argv[])
 			    "lp_pds auto: usage lp_pds auto <on [duration_ms]|off|show>");
 		return -EINVAL;
 	}
-
 	if (enable && (duration_ms != 0U)) {
-		rc = qcc74x_pm_pds15_auto_enable_for(
-			lp_pds_ms_to_us(duration_ms));
+		rc = qcc74x_pm_pds15_auto_arm_for(
+			lp_pds_ms_to_us(duration_ms), &release_pending);
 	} else {
 		rc = qcc74x_pm_pds15_auto_enable(enable);
 	}
@@ -449,6 +448,10 @@ static int cmd_lp_pds_auto(const struct shell *sh, size_t argc, char *argv[])
 		    status.policy_lock_active,
 		    status.auto_deadline_active ? duration_ms : 0U,
 		    (unsigned long long)lp_pds_auto_remaining_us(&status));
+
+	if (release_pending) {
+		qcc74x_pm_pds15_auto_release_pending_lock();
+	}
 
 	return 0;
 }
