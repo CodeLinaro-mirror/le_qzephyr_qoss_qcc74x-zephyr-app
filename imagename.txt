@@ -1,0 +1,3 @@
+build/wifishell/zephyr/zephyr.bin
+build/wifishell/zephyr/zephyr.elf
+build/wifishell/zephyr/zephyr.bin.hash
