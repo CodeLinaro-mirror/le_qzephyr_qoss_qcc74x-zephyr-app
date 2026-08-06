@@ -26,11 +26,14 @@ FILES=(
     lib/libqcc743_phyrf4mfg.a
     lib/libcsi_xt900p32f_dsp.a
     tool/QConn_Secure-ubuntu
+    tool/QConn_Secure.exe
     tool/openocd-linux
+    tool/openocd.exe
     tool/QConn_Flash-ubuntu
+    tool/QConn_Flash.exe
     tool/QConn_Flash_Cmd-ubuntu
+    tool/QConn_Flash_Cmd.exe
 )
-
 # ─────────────────────────────────────────
 # check src file exist
 # ─────────────────────────────────────────
