@@ -2,12 +2,26 @@
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
  * SPDX-License-Identifier: Apache-2.0
  *
- * Requires a physical loopback wire between UART1 TX and UART1 RX to
- * actually PASS on hardware (harness_config.fixture: gpio_loopback).
+ * Requires a physical loopback wire between UART1 TX (GPIO29) and UART1 RX (GPIO30)
+ * to actually PASS on hardware (harness_config.fixture: gpio_loopback).
+ *
+ * DMA channels 0 (TX) and 1 (RX) are assigned to uart1 for async API support.
  */
+
+#include <zephyr/dt-bindings/dma/qcc74x_dma.h>
+#include <zephyr/dt-bindings/pinctrl/qc7xx-qcc74x-pinctrl.h>
 
 &dma {
 	status = "okay";
+};
+
+&pinctrl {
+	uart1_async_default: uart1_async_default {
+		group1 {
+			pinmux = <UART1_RXD_GPIO30>,
+				 <UART1_TXD_GPIO29>;
+		};
+	};
 };
 
 &uart0 {
@@ -16,4 +30,11 @@
 
 dut: &uart1 {
 	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart1_async_default>;
+	pinctrl-1 = <&uart1_async_default>;
+	pinctrl-names = "default", "sleep";
+	dmas = <&dma 0 DMA_REQUEST_UART1_TX DMA_ADDR_UART1_TDR>,
+	       <&dma 1 DMA_REQUEST_UART1_RX DMA_ADDR_UART1_RDR>;
+	dma-names = "tx", "rx";
 };

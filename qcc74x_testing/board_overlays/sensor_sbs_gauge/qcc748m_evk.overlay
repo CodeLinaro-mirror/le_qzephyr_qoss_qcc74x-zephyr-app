@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * SBS Smart Battery Gauge on i2c0 (GPIO18=SCL, GPIO19=SDA).
+ * Address 0x0b is the standard SBS gauge SMBus address.
+ * This test is build_only=true; no physical SBS gauge is required on the EVK.
+ */
+
+#include <zephyr/dt-bindings/pinctrl/qc7xx-qcc74x-pinctrl.h>
+
+&pinctrl {
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SCL_GPIO18>,
+				 <I2C0_SDA_GPIO19>;
+		};
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+
+	smartbattery0: smartbattery@b {
+		compatible = "sbs,sbs-gauge";
+		reg = <0x0b>;
+		status = "okay";
+	};
+};

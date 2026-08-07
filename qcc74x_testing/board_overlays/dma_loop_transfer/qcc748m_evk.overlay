@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * qcc748m_evk board overlay for zephyr/tests/drivers/dma/loop_transfer.
+ * The qcc74x.dtsi `dma` node (co-labeled `tst_dma0`, see qcc74x_zephyr
+ * commit adding the co-label) ships with status = "disabled" by default,
+ * so the test's DEVICE_DT_GET(DT_NODELABEL(tst_dma0)) has no bound device
+ * to resolve without this override.
+ *
+ * Inject with west (bypasses the test's lack of a qcc74x default overlay):
+ *   west build -p always -b qcc748m_evk/qcc748 -d C:/bdma1 \
+ *     zephyr/tests/drivers/dma/loop_transfer \
+ *     -- -DDTC_OVERLAY_FILE=<abs>/board_overlays/dma_loop_transfer/qcc748m_evk.overlay
+ */
+
+&dma {
+	status = "okay";
+};

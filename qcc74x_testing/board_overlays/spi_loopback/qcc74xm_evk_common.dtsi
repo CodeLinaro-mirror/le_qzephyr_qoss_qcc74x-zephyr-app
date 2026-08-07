@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 &pinctrl {
 	status = "okay";
 	spi0_default: spi0_default {
 		group1 {
-			pinmux = <GPIO29_SPI_SCLK>,
-				<GPIO34_SPI_MISO>,
-				<GPIO31_SPI_MOSI>;
+			pinmux = <SPI0_SCLK_GPIO29>,
+				<SPI0_MISO_GPIO34>,
+				<SPI0_MOSI_GPIO31>;
 			bias-pull-up;
 			drive-strength = <1>;
 			input-schmitt-enable;
