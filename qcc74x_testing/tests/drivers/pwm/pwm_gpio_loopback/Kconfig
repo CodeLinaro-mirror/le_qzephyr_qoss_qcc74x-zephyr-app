@@ -1,0 +1,19 @@
+# Copyright (c) 2024 Espressif Systems (Shanghai) Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+mainmenu "PWM GPIO loopback test"
+
+source "Kconfig.zephyr"
+
+config SAMPLING_TIME
+	int "Sampling wait time (ms)"
+	default 50
+
+config SKIP_EDGE_NUM
+	int "Number of edges to skip before sampling PWM"
+	default 2
+
+config ALLOWED_DEVIATION
+	int "Allowed deviation (%) for PWM timing checks"
+	default 5
+	range 0 100

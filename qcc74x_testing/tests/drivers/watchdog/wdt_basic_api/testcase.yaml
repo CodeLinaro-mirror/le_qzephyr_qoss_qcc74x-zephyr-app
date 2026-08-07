@@ -1,0 +1,14 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: Apache-2.0
+
+common:
+  depends_on: watchdog
+  expect_reboot: true
+  tags:
+    - drivers
+    - watchdog
+  platform_allow:
+    - qcc748m_evk
+
+tests:
+  qcc7xx.drivers.watchdog: {}

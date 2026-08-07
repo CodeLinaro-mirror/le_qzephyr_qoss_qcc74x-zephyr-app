@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * qcc748m_evk overlay for qcc74x_testing-owned gpio_basic_api
+ * (scenario qcc7xx.drivers.gpio.2pin). Pin numbers match the final
+ * corrected values from the v4.1 QCC74x fork's
+ * tests/drivers/gpio/gpio_basic_api/boards/qcc7xxm_evk_common.dtsi
+ * (out=GPIO20, in=GPIO16) -- same as the already-verified
+ * qapp/qcc74x/qcc74x_testing/board_overlays/gpio_basic_api/qcc748m_evk.overlay.
+ *
+ * Needs a physical jumper wire between GPIO20 (out) and GPIO16 (in) to
+ * PASS on hardware.
+ */
+
+/ {
+	resources {
+		compatible = "test-gpio-basic-api";
+		status = "okay";
+		out-gpios = <&gpio0 20 0>; /* GPIO pin 20 */
+		in-gpios = <&gpio0 16 0>;  /* GPIO pin 16 */
+	};
+};

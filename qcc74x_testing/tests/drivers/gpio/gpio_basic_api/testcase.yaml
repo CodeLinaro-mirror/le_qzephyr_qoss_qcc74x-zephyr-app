@@ -1,0 +1,12 @@
+common:
+  tags:
+    - drivers
+    - gpio
+  depends_on: gpio
+  harness: ztest
+tests:
+  qcc7xx.drivers.gpio.2pin:
+    filter: dt_compat_enabled("test-gpio-basic-api") and not dt_compat_enabled("arduino-header-r3")
+    platform_allow:
+      - qcc744m_evk
+      - qcc748m_evk
