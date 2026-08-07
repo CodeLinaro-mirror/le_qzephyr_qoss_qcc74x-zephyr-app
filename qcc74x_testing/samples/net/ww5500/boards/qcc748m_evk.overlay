@@ -18,10 +18,10 @@
 	status = "okay";
 	spi0_default: spi0_default {
 		group1 {
-			pinmux = <GPIO13_SPI_SCLK>,
-				<GPIO10_SPI_MISO>,
-				<GPIO11_SPI_MOSI>,
-				<GPIO12_SPI_SS>;
+			pinmux = <SPI0_SCLK_GPIO13>,
+				<SPI0_MISO_GPIO10>,
+				<SPI0_MOSI_GPIO11>,
+				<SPI0_SS_GPIO12>;
 			bias-pull-up;
 			drive-strength = <2>;
 			input-schmitt-enable;
