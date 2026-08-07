@@ -8,8 +8,8 @@
 	status = "okay";
 	i2c0_default: i2c0_default {
 	group1 {
-		pinmux = <GPIO18_I2C0_SCL>,
-			<GPIO19_I2C0_SDA>;
+		pinmux = <I2C0_SCL_GPIO18>,
+			<I2C0_SDA_GPIO19>;
 			bias-pull-up;
 			drive-strength = <1>;
 			input-schmitt-enable;

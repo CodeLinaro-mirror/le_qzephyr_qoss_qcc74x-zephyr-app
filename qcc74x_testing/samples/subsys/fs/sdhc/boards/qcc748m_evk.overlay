@@ -4,11 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/ {
+};
+
 &sdhc0 {
 	status = "okay";
 	bus-width = <4>;
-	max-bus-freq = <48000000>;
-	power-delay-ms = <500>;
+	min-bus-freq = <400000>;
+	max-bus-freq = <25000000>;
+	power-delay-ms = <1000>;
 	pinctrl-0 = <&sdhc0_default>;
 	pinctrl-names = "default";
 
@@ -22,12 +26,12 @@
 &pinctrl {
 	sdhc0_default: sdhc0_default {
 		group1 {
-			pinmux = <GPIO10_SDH_DAT1>,
-				<GPIO11_SDH_DAT0>,
-				<GPIO12_SDH_CLK>,
-				<GPIO13_SDH_CMD>,
-				<GPIO14_SDH_DAT3>,
-				<GPIO15_SDH_DAT2>;
+			pinmux = <SDH_DAT1_GPIO10>,
+				<SDH_DAT0_GPIO11>,
+				<SDH_CLK_GPIO12>,
+				<SDH_CMD_GPIO13>,
+				<SDH_DAT3_GPIO14>,
+				<SDH_DAT2_GPIO15>;
 			bias-pull-up;
 			input-schmitt-enable;
 			drive-strength = <2>;

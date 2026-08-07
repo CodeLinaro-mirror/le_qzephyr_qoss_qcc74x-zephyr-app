@@ -12,7 +12,6 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/sys/printk.h>
-#include <zephyr/drivers/pwm.h>
 #include <stdbool.h>
 
 #define WDT_FEED_TRIES 5
@@ -40,8 +39,6 @@
 #define WDT_OPT WDT_OPT_PAUSE_HALTED_BY_DBG
 #endif
 
-static const struct pwm_dt_spec pwm0_spec = PWM_DT_SPEC_GET(DT_PATH(zephyr_user));
-
 #if WDT_ALLOW_CALLBACK
 static void wdt_callback(const struct device *wdt_dev, int channel_id)
 {
@@ -58,27 +55,6 @@ static void wdt_callback(const struct device *wdt_dev, int channel_id)
 }
 #endif /* WDT_ALLOW_CALLBACK */
 
-void start_pwm(void)
-{
-	int ret;
-
-	/* 2. Safety check: is the device ready? */
-	if (!pwm_is_ready_dt(&pwm0_spec)) {
-		printk("Error: PWM device %s is not ready\n", pwm0_spec.dev->name);
-		return;
-	}
-
-	/* 3. Set the PWM: 1kHz frequency (1ms period), 50% duty cycle */
-	/* Period and Pulse are in nanoseconds */
-	ret = pwm_set_dt(&pwm0_spec, PWM_MSEC(1), PWM_MSEC(1) / 2);
-
-	if (ret) {
-		printk("Error %d: failed to set PWM\n", ret);
-	} else {
-		printk("PWM started on GPIO 2 (PWM0_CH2P)\n");
-	}
-}
-
 int main(void)
 {
 	int err;
@@ -91,8 +67,6 @@ int main(void)
 		printk("%s: device not ready.\n", wdt->name);
 		return 0;
 	}
-
-	start_pwm();
 
 	struct wdt_timeout_cfg wdt_config = {
 		/* Reset SoC when watchdog timer expires. */
@@ -144,10 +118,8 @@ int main(void)
 
 	/* Waiting for the SoC reset. */
 	printk("Waiting for reset...\n");
-	k_msleep(5000);
-	printk("Uh-oh, Where's my reset?\n");
-	while(1) {
-		k_msleep(INT32_MAX);
+	while (1) {
+		k_yield();
 	}
 	return 0;
 }

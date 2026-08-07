@@ -1,0 +1,17 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: Apache-2.0
+
+common:
+  tags:
+    - drivers
+    - pinctrl
+  harness: ztest
+  extra_dtc_overlay_files:
+    - "boards/${BOARD}.overlay"
+  platform_allow:
+    - qcc743m_evk
+    - qcc744m_evk
+    - qcc748m_evk
+
+tests:
+  drivers.pinctrl.qcom: {}

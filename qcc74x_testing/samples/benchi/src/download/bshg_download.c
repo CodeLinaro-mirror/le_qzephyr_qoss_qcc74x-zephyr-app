@@ -176,9 +176,7 @@ int bshg_start_download(const jsmn_json_t *url, const jsmn_json_t *dst)
 	}
 
 	char url_null_terminated[256] = {0};
-	size_t url_copy_len = MIN(url->length, sizeof(url_null_terminated) - 1);
-	memcpy(url_null_terminated, url->data, url_copy_len);
-	url_null_terminated[url_copy_len] = '\0';
+	strlcpy(url_null_terminated, url->data, sizeof(url_null_terminated));
 
 	// Separate the protocol (http://) from the rest of the URL
 	char *host = NULL;
