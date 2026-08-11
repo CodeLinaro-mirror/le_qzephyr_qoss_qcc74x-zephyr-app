@@ -22,3 +22,26 @@ tests:
         - ".*CTR mode ENCRYPT - Match"
         - ".*CTR mode DECRYPT - Match"
     timeout: 60
+  qcc7xx.sample.drivers.crypto.mbedtls:
+    extra_args: EXTRA_CONF_FILE=prj_mtls_shim.conf
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk
+    tags:
+      - crypto
+    harness: console
+    harness_config:
+      type: multi_line
+      regex:
+        - ".*Cipher Sample"
+        - ".*ECB mode ENCRYPT - Match"
+        - ".*ECB mode DECRYPT - Match"
+        - ".*CBC mode ENCRYPT - Match"
+        - ".*CBC mode DECRYPT - Match"
+        - ".*CCM mode ENCRYPT - Match"
+        - ".*CCM mode DECRYPT - Match"
+        - ".*GCM mode ENCRYPT - Match"
+        - ".*GCM mode DECRYPT - Match"
+    timeout: 60
