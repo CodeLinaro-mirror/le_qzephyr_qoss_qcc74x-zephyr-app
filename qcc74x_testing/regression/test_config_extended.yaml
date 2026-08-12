@@ -31,7 +31,7 @@ levels:
       - zephyr/tests/drivers/gnss/gnss_parse
       - zephyr/tests/drivers/gpio/gpio_get_direction
       - zephyr/tests/drivers/gpio/gpio_api_1pin
-      - zephyr/tests/drivers/gpio/gpio_basic_api
+      - qapp/qcc74x/qcc74x_testing/tests/drivers/gpio/gpio_basic_api
       - zephyr/tests/drivers/hwinfo/api
       - zephyr/tests/drivers/ipm
       - zephyr/tests/drivers/pwm/pwm_api
