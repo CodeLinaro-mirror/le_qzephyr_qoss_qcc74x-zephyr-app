@@ -9,19 +9,19 @@ common:
   harness_config:
     fixture: spi_loopback
 tests:
-  qcc7xx.drivers.spi.loopback.opal_spi_polling:
+  qcc7xx.drivers.spi.loopback.qcc74x_spi_polling:
     extra_args: EXTRA_CONF_FILE="overlay-qcc74x-spi-polling.conf"
     platform_allow:
       - qcc743m_evk
       - qcc744m_evk
       - qcc748m_evk
-  qcc7xx.drivers.spi.loopback.opal_spi_dma:
+  qcc7xx.drivers.spi.loopback.qcc74x_spi_dma:
     extra_args: EXTRA_CONF_FILE="overlay-qcc74x-spi-dma.conf"
     platform_allow:
       - qcc743m_evk
       - qcc744m_evk
       - qcc748m_evk
-  qcc7xx.drivers.spi.loopback.opal_spi_interrupt:
+  qcc7xx.drivers.spi.loopback.qcc74x_spi_interrupt:
     extra_args: EXTRA_CONF_FILE="overlay-qcc74x-spi-interrupt.conf"
     platform_allow:
       - qcc743m_evk
