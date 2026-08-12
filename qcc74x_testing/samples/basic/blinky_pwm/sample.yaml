@@ -11,5 +11,10 @@ common:
 
 tests:
   sample.basic.blinky_pwm:
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "PWM-based blinky"
     platform_allow:
       - qcc748m_evk

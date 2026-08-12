@@ -107,6 +107,6 @@ tests:
       type: multi_line
       ordered: true
       regex:
-        - "Booting Zephyr OS"
         - "wifi_mgmr_set_country_code"
+        - "Booting Zephyr OS"
         - "qcc74x:~\\$"
