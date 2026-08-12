@@ -1,0 +1,26 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+sample:
+  name: Counter alarm sample for QCC74x (project-owned copy)
+common:
+  tags:
+    - counter
+  timeout: 120
+  harness: console
+  harness_config:
+    type: multi_line
+    ordered: true
+    regex:
+      - "Counter alarm sample"
+      - "Set alarm in 2 sec"
+      - "!!! Alarm !!!"
+      - "Set alarm in 4 sec"
+      - "!!! Alarm !!!"
+tests:
+  qcc7xx.sample.drivers.counter.alarm:
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+      - qcc75xm_evk
