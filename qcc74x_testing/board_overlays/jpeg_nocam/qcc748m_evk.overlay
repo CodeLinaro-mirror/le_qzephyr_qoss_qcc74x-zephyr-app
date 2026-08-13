@@ -8,13 +8,6 @@
 	status = "okay";
 };
 
-/* PSRAM execution mode: large image buffers in PSRAM instead of internal SRAM */
 &psram {
 	status = "okay";
-};
-
-/ {
-	chosen {
-		zephyr,sram = &psram;
-	};
 };
