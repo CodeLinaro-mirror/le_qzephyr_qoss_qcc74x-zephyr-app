@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	chosen {
+		zephyr,display = &st7796s;
+		/* zephyr,camera is set by weact_ov2640_cam_module shield overlay */
+	};
+};
+
+&pinctrl {
+	status = "okay";
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SCL_GPIO18>,
+				 <I2C0_SDA_GPIO19>,
+				 <CLKOUT_GPIO23>;
+		};
+	};
+	cam_default: cam_default {
+		group1 {
+			pinmux = <CAM0_DAT0_GPIO24>,
+				 <CAM0_DAT1_GPIO25>,
+				 <CAM0_DAT2_GPIO26>,
+				 <CAM0_DAT3_GPIO27>,
+				 <CAM0_HSYNC_GPIO28>,
+				 <CAM0_VSYNC_GPIO29>,
+				 <CAM0_CLK_GPIO30>,
+				 <CAM0_DAT4_GPIO31>,
+				 <CAM0_DAT5_GPIO32>,
+				 <CAM0_DAT6_GPIO33>,
+				 <CAM0_DAT7_GPIO34>;
+		};
+	};
+	/* DBI typeC 4wire mode — drive-strength=2 + pull-up + SMT (matches old project) */
+	mipi_dbi0_typeC_4wire_default: mipi_dbi0_typeC_4wire_default {
+		group1 {
+			pinmux = <DBI_C_SCL_GPIO12_DS2>,
+				 <DBI_C_CSn_GPIO13_DS2>,
+				 <DBI_C_SDA0_GPIO14_DS2>,
+				 <DBI_C_DCn_GPIO15_DS2>;
+		};
+	};    
+};
+
+/* i2c0 pinctrl — ov2640@30 node is added by the shield overlay;
+ * board-specific properties are merged in here. */
+&i2c0 {
+	status = "okay";
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+	ov2640: ov2640@30 {
+		reset-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+		clock-rate-control = <0x00>;
+	};
+};
+
+/* cam pinctrl — port/endpoint added by the shield overlay */
+&cam {
+	status = "okay";
+	pinctrl-0 = <&cam_default>;
+	pinctrl-names = "default";
+	source = <&ov2640>;
+};
+
+&dma {
+	status = "okay";
+};
+
+&mipi_dbi0 {
+	status = "okay";
+	dmas = <&dma 3  DMA_REQUEST_DBI_TX  DMA_ADDR_DBI_TDR>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&mipi_dbi0_typeC_4wire_default>;
+	mipi-mode = "MIPI_DBI_MODE_SPI_4WIRE";
+	clock-frequency = <30000000>;
+	reset-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+
+	st7796s: st7796s@0 {
+		compatible = "sitronix,st7796s";
+		status = "okay";
+		mipi-mode = "MIPI_DBI_MODE_SPI_4WIRE";
+		mipi-max-frequency = <25000000>;
+		reg = <0>;
+		height = <288>;
+		width = <352>;
+		invert-mode = "1-dot";
+		color-invert;
+		frmctl1 = [80 10];
+		bpc = [1F 50 00 20];
+		dfc = [8A 07 3B];
+		pwr1 = [80 64];
+		pwr2 = <0x13>;
+		pwr3 = <0xA7>;
+		vcmpctl = <0x09>;
+		doca = [40 8A 00 00 29 19 A5 38];
+		pgc = [F0 06 0B 07 06 05 2E 33 47 3A 17 16 2E 31];
+		ngc = [F0 09 0D 09 08 23 2E 33 46 38 13 13 2C 32];
+		madctl = <0x28>;
+	};
+};
