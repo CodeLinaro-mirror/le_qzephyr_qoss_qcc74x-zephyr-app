@@ -22,13 +22,7 @@
 #include <zephyr/linker/linker-devnull.h>
 
 #define ROMABLE_REGION rom
-#ifdef CONFIG_PSRAM
-#define RAMABLE_REGION ram_psram
-#define DATA_REGION ram_psram
-#else
 #define RAMABLE_REGION ram
-#define DATA_REGION ram
-#endif
 #define NONECACHE_RAM_REGION ram_nocache
 #define WIFI_RAM_REGION ram_wifi
 
@@ -43,10 +37,7 @@
 /* 4M */
 #define CONFIG_PSRAM_ADDRESS 0xA8000000
 #ifndef CONFIG_PSRAM_LENGTH
-#define CONFIG_PSRAM_LENGTH 0x400000
-#endif
-#ifndef CONFIG_PSRAM_REGION_FLASH_SHADOW_SIZE
-#define CONFIG_PSRAM_REGION_FLASH_SHADOW_SIZE 0x200000
+#define CONFIG_PSRAM_LENGTH 4096 * 1024
 #endif
 
 #define CONFIG_WRAM_LENGTH 160 * 1024
@@ -115,15 +106,7 @@ ENTRY(CONFIG_KERNEL_ENTRY)
 
 MEMORY
 {
-#ifdef CONFIG_PSRAM
-    fw_header  (rx)   : ORIGIN = CONFIG_PSRAM_ADDRESS - 0x1000,                                        LENGTH = 4K
-    rom_header (rx)   : ORIGIN = CONFIG_PSRAM_ADDRESS,                                                  LENGTH = 6K
-    rom (rx)          : ORIGIN = CONFIG_PSRAM_ADDRESS + 0x1800,                                         LENGTH = CONFIG_PSRAM_REGION_FLASH_SHADOW_SIZE - 0x1800
-    ram_psram  (wxa)  : ORIGIN = CONFIG_PSRAM_ADDRESS + CONFIG_PSRAM_REGION_FLASH_SHADOW_SIZE,          LENGTH = CONFIG_PSRAM_LENGTH - CONFIG_PSRAM_REGION_FLASH_SHADOW_SIZE
-
-    ram_nocache (!rx) : ORIGIN = (RAM_ADDRESS) & 0x2FFFFFFF,                                            LENGTH = RAM_LENGTH
-    ram  (!rx)        : ORIGIN = RAM_ADDRESS,                                                            LENGTH = RAM_LENGTH
-#elif CONFIG_FLASH_XIP_ADDRESS
+#if CONFIG_FLASH_XIP_ADDRESS
     fw_header  (rx)   : ORIGIN = CONFIG_FLASH_XIP_ADDRESS - 0x1000, LENGTH = 4K
     rom_header (rx)   : ORIGIN = CONFIG_FLASH_XIP_ADDRESS,          LENGTH = 6K
     rom (rx)          : ORIGIN = CONFIG_FLASH_XIP_ADDRESS + 0x1800, LENGTH = CONFIG_FLASH_XIP_LENGTH
@@ -138,6 +121,9 @@ MEMORY
     ram  (!rx)        : ORIGIN = RAM_ADDRESS + 6K,                  LENGTH = RAM_LENGTH - 6K
 #endif
 
+#ifdef CONFIG_PSRAM
+    ram_psram  (wxa)  : ORIGIN = CONFIG_PSRAM_ADDRESS,              LENGTH = CONFIG_PSRAM_LENGTH
+#endif
     ram_wifi  (wxa)   : ORIGIN = CONFIG_WRAM_ADDRESS,               LENGTH = CONFIG_WRAM_LENGTH - __EM_SIZE
     hbn_memory (rx)   : ORIGIN = 0x20010000,                        LENGTH = 4K
 
@@ -273,11 +259,9 @@ SECTIONS
         . = ALIGN(32);
     } > ram
 
-#ifndef CONFIG_PSRAM
     _image_ram_start = .;
     __data_region_start = .;
     __data_start = .;
-#endif
 
     QCC_SECTION_DATA_PROLOGUE(itcm, ,)
     {
@@ -304,9 +288,7 @@ SECTIONS
 
         *_udivdi3*.o*(.text*)
 
-#ifndef CONFIG_PSRAM
         PROVIDE( __global_pointer$ = . + 0x800 );
-#endif
 
         /* ram_data has a section alignment of 8 (forced by a uint64_t
          * field inside struct bt_dev in one of its input sections). When
@@ -318,11 +300,7 @@ SECTIONS
          * See docs/zephyr_sdk_beacon_no_log_debug.md §8 for details.
          */
         . = ALIGN(8);
-#ifdef CONFIG_PSRAM
-    } > rom
-#else
     } > ram AT > rom
-#endif
 
     QCC_SECTION_DATA_PROLOGUE(dtcm, ,)
     {
@@ -340,26 +318,14 @@ SECTIONS
          * See docs/zephyr_sdk_beacon_no_log_debug.md §8.
          */
         . = ALIGN(8);
-#ifdef CONFIG_PSRAM
-    } > rom
-#else
     } > ram AT > rom
-#endif
 
     QCC_SECTION_DATA_PROLOGUE(ram_data, ,)
     {
         . = ALIGN(4);
-#ifdef CONFIG_PSRAM
-        _image_ram_start = .;
-        __data_region_start = .;
-        __data_start = .;
-#endif
 
         *(.data)
         *(.data.*)
-#ifdef CONFIG_PSRAM
-        PROVIDE( __global_pointer$ = . + 0x800 );
-#endif
         *(.sdata)
         *(.sdata.*)
         *(.sdata2)
@@ -383,15 +349,10 @@ SECTIONS
 #endif
 
         __data_end = .;
-    } > DATA_REGION AT > rom
+    } > ram AT > rom
     __data_size = __data_end - __data_start;
-#ifdef CONFIG_PSRAM
-    __data_load_start = LOADADDR(ram_data);
-    __data_region_load_start = LOADADDR(ram_data);
-#else
     __data_load_start = LOADADDR(itcm);
     __data_region_load_start = LOADADDR(itcm);
-#endif
 
 #include <zephyr/linker/common-ram.ld>
 #include <zephyr/linker/kobject-data.ld>
