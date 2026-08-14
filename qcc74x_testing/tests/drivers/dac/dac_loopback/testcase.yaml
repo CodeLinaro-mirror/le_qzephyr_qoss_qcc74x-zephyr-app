@@ -11,6 +11,13 @@ common:
 tests:
   drivers.dac.loopback:
     filter: dt_node_has_prop("/zephyr,user", "io-channels")
+  drivers.dac.loopback.qcc74x:
+    platform_allow:
+      - qcc743m_evk
+      - qcc744m_evk
+      - qcc748m_evk
+    integration_platforms:
+      - qcc748m_evk
   drivers.dac.loopback.xg2x:
     extra_args:
       - EXTRA_DTC_OVERLAY_FILE="xg2x.overlay"

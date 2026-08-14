@@ -13,14 +13,14 @@
 &pinctrl {
 	adc_default: adc_default {
 		group1 {
-			pinmux = <GPIO1_ADC_CH8>;
+			pinmux = <ADC_CH8_GPIO1>;
 			input-enable;
 			input-schmitt-enable;
 		};
 	};
 	dac_default: dac_default {
 		group2 {
-			pinmux = <GPIO3_ADC_CH3>;
+			pinmux = <ADC_CH3_GPIO3>;
 		};
 	};
 };
