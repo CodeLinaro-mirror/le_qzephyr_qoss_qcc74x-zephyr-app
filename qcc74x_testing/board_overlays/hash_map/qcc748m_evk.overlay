@@ -1,0 +1,53 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Force hash_map sample to use internal SRAM heap instead of the board
+ * default PSRAM.
+ *
+ * Background:
+ *   The upstream sys_hashmap_oa_lp rehash path (allocate new bucket array
+ *   -> memcpy -> free old bucket array) crashes inside newlib's _free_r
+ *   when the heap lives in PSRAM (observed on qcc748m_evk with:
+ *     mepc: a000ef98    (== _free_r)
+ *     call trace: main -> sys_hashmap_oa_lp_insert
+ *                      -> sys_hashmap_oa_lp_rehash
+ *                      -> sys_hashmap_default_allocator
+ *                      -> _free_r
+ *     ZEPHYR FATAL ERROR 0: CPU exception on CPU 0)
+ *
+ *   The separate_chaining variant, which only ever alloc/free small entries
+ *   one at a time, does NOT exhibit this on the same PSRAM heap.
+ *
+ * Root cause (suspected, pending JTAG-level investigation):
+ *   Likely a dcache/PSRAM coherency window on the "alloc large, memcpy,
+ *   immediately free old large block" pattern -- _free_r reads the chunk
+ *   header ahead of the freed block and gets a stale/uncommitted value
+ *   from the write-back dcache instead of what _malloc_r/rehash actually
+ *   wrote. Separate_chaining's tiny per-entry allocations don't cross a
+ *   cache line in a way that exposes this.
+ *
+ * Verified-passing baseline (2026-08-11 log C:/qcc74x_test/hashmap_djb2):
+ *   CONFIG_SRAM_BASE_ADDRESS=0x62fc0000, CONFIG_PSRAM not set --
+ *   i.e. exactly the configuration this overlay restores.
+ *
+ * Scope of this workaround:
+ *   Applied only to sample.libraries.hash_map.newlib.* scenarios via
+ *   -x DTC_OVERLAY_FILE=. Does NOT touch the board's PSRAM baseline
+ *   (qcc748m_evk.dts remains zephyr,sram = &psram; per commit 29253c1),
+ *   does NOT touch qcc74x-zephyr/soc/qcom/qcc74x/common.ld, and does
+ *   NOT modify any upstream zephyr/samples/basic/hash_map file.
+ *   Any other test that wants to opt out of PSRAM the same way can
+ *   reuse this overlay.
+ */
+
+/ {
+	chosen {
+		zephyr,sram = &sram0;
+	};
+};
+
+&psram {
+	status = "disabled";
+};
