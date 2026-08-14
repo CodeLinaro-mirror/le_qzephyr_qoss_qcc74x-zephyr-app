@@ -87,25 +87,12 @@ static struct wdt_timeout_cfg m_cfg_wdt1;
 #define DATATYPE uint32_t
 #endif
 
-/* Place cross-reboot state in .wifi_ram.test_wdt (wifiram @ 0x23010000).
- * start_load.c skips qc7xx_wifi_bss_zero() when HBN SRAM magic is present,
- * so wifiram content (including these variables) survives WDT cold reset.
- * TIMER_WSR (0x2000A570) only works for WDG_MODE_INTERRUPT path; HBN SRAM
- * magic works for both WDG_MODE_RESET and WDG_MODE_INTERRUPT.
+/* Place cross-reboot state in WDT_NOINIT memory region (0x2302ff00).
+ * Use the Zephyr memory-region section name "WDT_NOINIT" (uppercase, no
+ * leading dot) so the symbol lands in the auto-generated
+ * *(SORT_BY_ALIGNMENT(WDT_NOINIT)) output section and survives WDT resets.
  */
-#if DT_NODE_HAS_STATUS_OKAY(DT_CHOSEN(zephyr_dtcm))
-#define NOINIT_SECTION ".dtcm_noinit.test_wdt"
-#elif DT_NODE_HAS_STATUS_OKAY(DT_CHOSEN(zephyr_nocache))
-#define NOINIT_SECTION ".wifi_ram.test_wdt"
-#else
-#define NOINIT_SECTION ".noinit.test_wdt"
-#endif
-
-/* HBN SRAM magic: written before arming WDT so start_load.c can
- * detect WDT reset and skip qc7xx_wifi_bss_zero(). */
-#define WDT_SKIP_WIFIBSS_ADDR  ((volatile uint32_t *)0x200103F0UL)
-#define WDT_SKIP_WIFIBSS_CHK   ((volatile uint32_t *)0x200103F4UL)
-#define WDT_SKIP_WIFIBSS_MAGIC 0x5A5A5A5AUL
+#define NOINIT_SECTION "WDT_NOINIT"
 
 volatile DATATYPE m_state __attribute__((section(NOINIT_SECTION)));
 volatile DATATYPE m_testcase_index __attribute__((section(NOINIT_SECTION)));
@@ -177,10 +164,6 @@ static int test_wdt_no_callback(void)
 
 	m_testvalue = 0U;
 	m_state = WDT_TEST_STATE_CHECK_NORESET;
-
-	/* Write HBN SRAM magic so start_load.c skips wifi BSS zero on reboot */
-	*WDT_SKIP_WIFIBSS_ADDR = WDT_SKIP_WIFIBSS_MAGIC;
-	*WDT_SKIP_WIFIBSS_CHK  = ~WDT_SKIP_WIFIBSS_MAGIC;
 
 	for (int i = 0; i < 30; i++) {
 		k_msleep(100);
@@ -263,10 +246,6 @@ static int test_wdt_callback_1(void)
 	m_testvalue = 0U;
 	m_state = WDT_TEST_STATE_CHECK_NORESET;
 
-	/* Write HBN SRAM magic so start_load.c skips wifi BSS zero on reboot */
-	*WDT_SKIP_WIFIBSS_ADDR = WDT_SKIP_WIFIBSS_MAGIC;
-	*WDT_SKIP_WIFIBSS_CHK  = ~WDT_SKIP_WIFIBSS_MAGIC;
-
 	for (int i = 0; i < 30; i++) {
 		k_msleep(100);
 		TC_PRINT("Feeding watchdog...\n");
@@ -345,10 +324,6 @@ static int test_wdt_callback_2(void)
 	TC_PRINT("Waiting to restart MCU\n");
 	m_testvalue = 0U;
 	m_state = WDT_TEST_STATE_CHECK_RESET;
-
-	/* Write HBN SRAM magic so start_load.c skips wifi BSS zero on reboot */
-	*WDT_SKIP_WIFIBSS_ADDR = WDT_SKIP_WIFIBSS_MAGIC;
-	*WDT_SKIP_WIFIBSS_CHK  = ~WDT_SKIP_WIFIBSS_MAGIC;
 
 	while (1) {
 		wdt_feed(wdt, 0);

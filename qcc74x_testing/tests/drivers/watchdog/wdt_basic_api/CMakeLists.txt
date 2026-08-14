@@ -8,3 +8,6 @@ project(wdt_basic_api)
 
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
+
+zephyr_linker_sources(SECTIONS linker/wdt_noinit.ld)
+zephyr_linker_sources(ROM_SECTIONS linker/heap_limit.ld)

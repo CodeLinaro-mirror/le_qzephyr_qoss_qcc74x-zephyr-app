@@ -1,1 +1,9 @@
 #include "qcc7xxm_evk_common.dtsi"
+
+/ {
+	wdt_noinit_region: memory@2302ff00 {
+		compatible = "zephyr,memory-region";
+		reg = <0x2302ff00 0x100>;
+		zephyr,memory-region = "WDT_NOINIT";
+	};
+};
