@@ -7,7 +7,3 @@
 &jpeg {
 	status = "okay";
 };
-
-&psram {
-	status = "okay";
-};
