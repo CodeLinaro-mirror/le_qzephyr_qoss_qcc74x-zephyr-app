@@ -16,8 +16,10 @@
 #include "qc7xx_efuse.h"
 #include "qc7xx_flash.h"
 #include "qcc74x_sec_dbg.h"
-#include "wireless_api.h"
 #include "lhal_version.h"
+#endif
+#if CONFIG_WIFI
+#include "wireless_api.h"
 #endif
 
 static const char *str_or_unknown(const char *s)
@@ -101,7 +103,9 @@ static int cmd_platform_version(const struct shell *sh, size_t argc, char **argv
 #else
     shell_print(sh, "PSRAM: disabled");
 #endif
+#ifdef CONFIG_WIFI
     shell_print(sh, "Wi-Fi Host Rev: %s", WIRELESS_VERSION);
+#endif
     shell_print(sh, "LHAL Version: %s", LHAL_VERSION);
 #else /* !CONFIG_SOC_SERIES_QCC74X */
     shell_print(sh, "MAC address: unknown");
