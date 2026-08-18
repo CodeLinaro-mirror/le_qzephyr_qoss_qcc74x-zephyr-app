@@ -1,0 +1,23 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: Apache-2.0
+#
+# Wrapper testcase for upstream zephyr/samples/bluetooth/beacon.
+# Uses harness: console so device-testing is supported without a BT harness.
+
+tests:
+  qcc7xx.sample.bluetooth.beacon:
+    tags:
+      - bluetooth
+    depends_on: bluetooth
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "Beacon started, advertising as"
+    platform_allow:
+      - qcc748m_evk/qcc748
+      - qcc744m_evk/qcc744
+      - qcc743m_evk/qcc743
+    integration_platforms:
+      - qcc748m_evk/qcc748
+    timeout: 60
