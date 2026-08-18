@@ -220,8 +220,6 @@
   comment: "Test cases failing on build for all boards"
 
 - scenarios:
-# Directory: qcc7xx_samples/samples/drivers:
-    - qcc7xx.drivers.jpeg
 # Directory: zephyr/samples/net:
     - sample.net.sockets.echo_server.usbnet
     - sample.net.wpan.serial
