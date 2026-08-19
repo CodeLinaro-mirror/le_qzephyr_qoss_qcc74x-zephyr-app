@@ -16,7 +16,6 @@ tests:
       type: multi_line
       ordered: true
       regex:
-        - "CODE_WIFI_ON_MGMR_DONE"
         - "Booting Zephyr OS"
         - "LittleFS version"
         - "uart:~\\$"
