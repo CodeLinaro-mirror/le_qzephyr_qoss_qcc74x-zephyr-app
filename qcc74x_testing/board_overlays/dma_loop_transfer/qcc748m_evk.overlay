@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * qcc748m_evk board overlay for zephyr/tests/drivers/dma/loop_transfer.
  * The qcc74x.dtsi `dma` node (co-labeled `tst_dma0`, see qcc74x_zephyr

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Requires a physical loopback wire between UART1 TX (GPIO29) and UART1 RX (GPIO30)
  * to actually PASS on hardware (harness_config.fixture: gpio_loopback).

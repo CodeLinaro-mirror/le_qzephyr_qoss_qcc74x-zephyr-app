@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * No qcc748m_evk.{conf,overlay} exist for this test in the v4.1 QCC74x
  * fork (only qcc743m_evk/qcc744m_evk are present there) -- this file

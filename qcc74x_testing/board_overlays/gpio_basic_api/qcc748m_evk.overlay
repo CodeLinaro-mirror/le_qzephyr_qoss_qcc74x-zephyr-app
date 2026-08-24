@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * qcc748m_evk board overlay for zephyr/tests/drivers/gpio/gpio_basic_api
  * (scenario drivers.gpio.2pin). Ported from the v4.1 QCC74x fork's

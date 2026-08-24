@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Cap the wifi heap so it cannot grow into WDT_NOINIT.
  * ADDR(wifi_bss) + SIZEOF(wifi_bss) = _heap_wifi_start (actual heap start,

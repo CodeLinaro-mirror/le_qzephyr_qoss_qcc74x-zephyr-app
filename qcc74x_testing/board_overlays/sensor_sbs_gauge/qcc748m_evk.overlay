@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * SBS Smart Battery Gauge on i2c0 (GPIO18=SCL, GPIO19=SDA).
  * Address 0x0b is the standard SBS gauge SMBus address.

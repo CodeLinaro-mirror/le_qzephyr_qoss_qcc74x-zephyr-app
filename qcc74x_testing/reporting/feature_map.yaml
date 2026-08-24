@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 # Explicit test suite overrides for feature coverage.
 # Only needed for tests that have no matching tags or depends_on in their testcase.yaml.

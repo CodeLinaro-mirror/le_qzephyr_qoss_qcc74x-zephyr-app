@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-3-Clause
 #
 # Wrapper testcase for upstream zephyr/samples/bluetooth/beacon.
 # Uses harness: console so device-testing is supported without a BT harness.
