@@ -7,6 +7,7 @@ if(NOT CONFIG_SOC_FAMILY_QCOM_QCC7XX)
 endif()
 
 add_subdirectory_ifdef(CONFIG_SHELL shell)
+add_subdirectory_ifdef(CONFIG_QCC74X_UART_EDL_TRIGGER uart_edl)
 
 function(gen_crm_number)
     set(CRM_NUMBER 999)
