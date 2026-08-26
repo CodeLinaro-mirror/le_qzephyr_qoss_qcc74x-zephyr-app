@@ -1,0 +1,20 @@
+sample:
+  name: Blinky using PWM
+  description: Blink an LED using PWM
+
+common:
+  tags:
+    - pwm
+    - LED
+  filter: dt_alias_exists("pwm-led0") and dt_compat_enabled("pwm-leds")
+  depends_on: pwm
+
+tests:
+  sample.basic.blinky_pwm:
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "PWM-based blinky"
+    platform_allow:
+      - qcc748m_evk

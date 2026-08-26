@@ -1,0 +1,27 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Wrapper for upstream zephyr/samples/drivers/uart/async_api.
+# Uses harness: console instead of harness: keyboard so the test is
+# runnable on device via twister --device-testing.
+
+tests:
+  qcc7xx.sample.drivers.uart.async_api:
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: false
+      regex:
+        - "Loop (.*) Sending (.*)"
+        - "RX is now enabled"
+        - "RX is now disabled"
+    platform_allow:
+      - qcc748m_evk/qcc748
+      - qcc744m_evk/qcc744
+    integration_platforms:
+      - qcc748m_evk/qcc748
+    depends_on: uart
+    timeout: 30
+    tags:
+      - drivers
+      - uart

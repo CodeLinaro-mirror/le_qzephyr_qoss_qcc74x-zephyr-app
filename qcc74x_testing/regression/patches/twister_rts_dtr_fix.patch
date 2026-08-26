@@ -1,0 +1,71 @@
+--- a/scripts/pylib/twister/twisterlib/handlers.py
++++ b/scripts/pylib/twister/twisterlib/handlers.py
+@@ -435,7 +435,7 @@
+             timeout += 120
+         return timeout
+ 
+-    def monitor_serial(self, ser, halt_event, harness):
++    def monitor_serial(self, ser, halt_event, harness, reset_input_buffer=True):
+         if self.options.enable_coverage:
+             # Set capture_coverage to True to indicate that right after
+             # test results we should get coverage data, otherwise we exit
+@@ -447,7 +447,8 @@
+             time.sleep(0.1)
+ 
+         # Clear serial leftover.
+-        ser.reset_input_buffer()
++        if reset_input_buffer:
++            ser.reset_input_buffer()
+ 
+         with open(self.log, "w", encoding="utf-8") as log_out_fp:
+             while ser.isOpen():
+@@ -708,9 +709,13 @@
+ 
+         halt_monitor_evt = threading.Event()
+ 
++        # For qcc74x (qconn_flash with flash_before), preserve the boot banner
++        # already buffered in CH347 by skipping reset_input_buffer in monitor_serial.
++        reset_buf = not (hardware.flash_before and runner == "qconn_flash")
++
++        start_time = time.time()
+         t = threading.Thread(target=self.monitor_serial, daemon=True,
+-                             args=(ser, halt_monitor_evt, harness))
+-        start_time = time.time()
++                             args=(ser, halt_monitor_evt, harness, reset_buf))
+         t.start()
+ 
+         d_log = f"{self.instance.build_dir}/device.log"
+@@ -760,7 +765,32 @@
+                 logger.debug(f"Attach serial device {serial_device} @ {hardware.serial_baud} baud")
+                 ser.port = serial_device
+ 
+-                if serial_pty:
++                if runner == "qconn_flash":
++                    # Use a throwaway serial connection to pulse RTS/DTR reset so
++                    # the board boots and its banner lands in CH347's buffer.
++                    # monitor_serial was started with reset_input_buffer=False so
++                    # nothing will be wiped when it wakes up.
++                    with serial.Serial(serial_device, baudrate=hardware.serial_baud,
++                                       timeout=0.05) as rst:
++                        rst.dtr = True
++                        rst.rts = False
++                        with contextlib.suppress(serial.SerialException):
++                            rst.reset_input_buffer()
++                        rst.rts = True
++                        time.sleep(0.1)
++                        rst.dtr = True
++                        time.sleep(0.1)
++                        rst.rts = False
++                        time.sleep(0.5)
++
++                    ser.port = serial_device
++                    ser.baudrate = hardware.serial_baud
++                    ser.timeout = 0.05
++                    ser.dtr = True
++                    ser.rts = False
++                    ser.open()
++                    logger.debug(f"QCC74x capture open: DTR={ser.dtr}, RTS={ser.rts}")
++                elif serial_pty:
+                     ser_pty_process = self._start_serial_pty(serial_pty, ser_pty_master)
+                     ser.open()
+                 elif runner == "esp32":

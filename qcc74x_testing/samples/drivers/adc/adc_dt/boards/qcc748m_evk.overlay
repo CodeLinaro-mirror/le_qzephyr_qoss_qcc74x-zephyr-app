@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * qcc748m_evk board overlay for the project-owned adc_dt DMA wrapper
+ * (scenario qcc7xx.sample.drivers.adc.adc_dt.dma_74x). Provides the
+ * /zephyr,user io-channels the devicetree ADC sample requires, a 3-channel
+ * ADC config, and the QCC74x DMA wiring for the ADC DMA path. Pair with
+ * qcc748m_evk.conf (CONFIG_ADC_QCC74X_DMA=y).
+ *
+ * Based on qapp/qcc74x/qcc74x_testing/board_overlays/adc_dt/qcc748m_evk.overlay
+ * (polling version) with &dma + the adc `dmas` property added, matching the
+ * adc_sequence DMA overlay. DMA_REQUEST_ADC / DMA_ADDR_ADC_RDR come from
+ * <zephyr/dt-bindings/dma/qcc74x_dma.h>, already included by qcc74x.dtsi.
+ */
+
+/ {
+	zephyr,user {
+		io-channels = <&adc 0>, <&adc 1>, <&adc 2>;
+	};
+	aliases {
+		adc0 = &adc;
+	};
+};
+
+&pinctrl {
+	adc_default: adc_default {
+		group1 {
+			pinmux = <GPIO27_ADC_CH10>,
+				 <GPIO20_ADC_CH0>;
+			input-enable;
+			input-schmitt-enable;
+		};
+	};
+};
+
+&dma {
+	status = "okay";
+};
+
+&adc {
+	status = "okay";
+	pinctrl-0 = <&adc_default>;
+	pinctrl-names = "default";
+	dmas = <&dma 0  DMA_REQUEST_ADC  DMA_ADDR_ADC_RDR>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_GND>;
+		zephyr,input-negative = <ADC_CHANNEL_10>;
+		zephyr,resolution = <16>;
+	};
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_10>;
+		zephyr,resolution = <14>;
+	};
+
+	channel@2 {
+		reg = <2>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <ADC_CHANNEL_0>;
+		zephyr,resolution = <16>;
+	};
+};

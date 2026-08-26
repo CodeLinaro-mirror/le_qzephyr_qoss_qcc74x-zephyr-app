@@ -1,6 +1,6 @@
 @echo off
 REM Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-REM SPDX-License-Identifier: Apache-2.0
+REM SPDX-License-Identifier: BSD-3-Clause
 REM
 REM Windows CMD equivalent of env.sh. Run this AFTER activating the
 REM workspace .venv, from any CMD shell:

@@ -29,8 +29,8 @@
 	pinctrl-0 = <&mdio0_default>;
 	pinctrl-names = "default";
 
-	phy0: ethernet-phy@5 {
-	reg = <5>;  /* PHY 5 - AR8032, 1 - LAN8720 */
+	phy0: ethernet-phy@1 {
+	reg = <1>;  /* PHY 1 - LAN8720, 5 - AR8032 */
 	compatible = "ethernet-phy";
 	};
 };
@@ -38,14 +38,14 @@
 &pinctrl {
 	emac0_default: emac0_default {
 	group1 {
-		pinmux = <GPIO25_RMII_REF_CLK>,
-			<GPIO26_RMII_TXD0>,
-			<GPIO27_RMII_TXD1>,
-			<GPIO28_RMII_RXD0>,
-			<GPIO29_RMII_RXD1>,
-			<GPIO30_RMII_RXERR>,
-			<GPIO31_RMII_TX_EN>,
-			<GPIO32_RMII_RX_DV>;
+		pinmux = <EMAC_REF_CLK_GPIO25>,
+			<EMAC_TXD0_GPIO26>,
+			<EMAC_TXD1_GPIO27>,
+			<EMAC_RXD0_GPIO28>,
+			<EMAC_RXD1_GPIO29>,
+			<EMAC_RXERR_GPIO30>,
+			<EMAC_TX_EN_GPIO31>,
+			<EMAC_RX_DV_GPIO32>;
 			bias-pull-up;
 			input-schmitt-enable;
 			drive-strength = <1>;
@@ -54,8 +54,8 @@
 	};
 	mdio0_default: mdio0_default {
 	group1 {
-		pinmux = <GPIO33_RMII_MDC>,
-			<GPIO34_RMII_MDIO>;
+		pinmux = <EMAC_MDC_GPIO33>,
+			<EMAC_MDIO_GPIO34>;
 			bias-pull-up;
 			input-schmitt-enable;
 			drive-strength = <1>;

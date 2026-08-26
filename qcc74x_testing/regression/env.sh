@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 #!/usr/bin/env bash
-# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
 #
 # Source this AFTER activating the workspace .venv, from anywhere:
 #

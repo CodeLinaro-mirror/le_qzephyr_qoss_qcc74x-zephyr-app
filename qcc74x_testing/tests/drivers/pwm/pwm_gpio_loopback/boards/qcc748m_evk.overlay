@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * PWM loopback test for qcc748m_evk:
+ *   PWM out : GPIO20  (pinmux GPIO20_PWM0_CH0P, LED pin)
+ *   GPIO in : GPIO15  (standard domain, adjacent to GPIO16 on header)
+ *
+ * Requires jumper wire: GPIO20 <-> GPIO15
+ *
+ * GPIO16/17: HBN domain — edge interrupt does not route through GPIO_INT0_IRQn.
+ * GPIO15: standard domain, right next to GPIO16 physically.
+ *
+ * gpio1 shares GPIO_INT0_IRQn with gpio0 — disable it so gpio0 ISR handles
+ * GPIO0-31 edge interrupts correctly.
+ */
+
+/ {
+	zephyr,user {
+		pwms = <&pwm0 0 PWM_MSEC(10) PWM_POLARITY_NORMAL>;
+		gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&pinctrl {
+	pwm0_default: pwm0_default {
+		group1 {
+			pinmux = <PWM0_CH0P_GPIO20>;
+		};
+	};
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-names = "default";
+	divider = <100>;
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-names = "default";
+	divider = <100>;
+};

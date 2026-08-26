@@ -1,0 +1,9 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&pwm0 {
+	clocks = <&clock0 QC7XX_PERIPHERAL_PWM0 QC7XX_PWM_CLK_BCLK>;
+};

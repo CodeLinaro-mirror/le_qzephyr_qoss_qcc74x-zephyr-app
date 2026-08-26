@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * LM75 temperature sensor on i2c0 (GPIO18=SCL, GPIO19=SDA).
+ * Address 0x48 = A2:A1:A0 all pulled low (default EVK state).
+ *
+ * The test uses SENSOR_CHAN_AMBIENT_TEMP and optionally SENSOR_TRIG_THRESHOLD.
+ * Trigger support requires int-gpios; omitting it causes the trigger sub-test
+ * to skip gracefully (-ENOTSUP path in test_trigger).
+ */
+
+#include <zephyr/dt-bindings/pinctrl/qc7xx-qcc74x-pinctrl.h>
+
+&pinctrl {
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SCL_GPIO18>,
+				 <I2C0_SDA_GPIO19>;
+		};
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+
+	temp_sensor: lm75@48 {
+		compatible = "lm75";
+		reg = <0x48>;
+		status = "okay";
+	};
+};

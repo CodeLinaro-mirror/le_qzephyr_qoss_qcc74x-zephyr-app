@@ -90,9 +90,7 @@ int generate_file(const jsmn_json_t *path, uint32_t size)
 {
 	// ensure a null-terminated string
 	char path_null_terminated[256] = {0};
-	size_t path_copy_len = MIN(path->length, sizeof(path_null_terminated) - 1);
-	memcpy(path_null_terminated, path->data, path_copy_len);
-	path_null_terminated[path_copy_len] = '\0';
+	strlcpy(path_null_terminated, path->data, sizeof(path_null_terminated));
 
 	struct fs_file_t file;
 	fs_file_t_init(&file);
@@ -157,9 +155,7 @@ int write_file(const jsmn_json_t *path, const jsmn_json_t *content)
 
 	// ensure a null-terminated string
 	char path_null_terminated[256] = {0};
-	size_t path_copy_len = MIN(path->length, sizeof(path_null_terminated) - 1);
-	memcpy(path_null_terminated, path->data, path_copy_len);
-	path_null_terminated[path_copy_len] = '\0';
+	strlcpy(path_null_terminated, path->data, sizeof(path_null_terminated));
 
 	int ret = 0;
 
@@ -188,9 +184,7 @@ int append_file(const jsmn_json_t *path, const jsmn_json_t *content)
 
 	// ensure a null-terminated string
 	char path_null_terminated[256] = {0};
-	size_t path_copy_len = MIN(path->length, sizeof(path_null_terminated) - 1);
-	memcpy(path_null_terminated, path->data, path_copy_len);
-	path_null_terminated[path_copy_len] = '\0';
+	strlcpy(path_null_terminated, path->data, sizeof(path_null_terminated));
 
 	uint32_t filesize = get_filesize(path_null_terminated);
 	if (filesize < 0) {
@@ -229,9 +223,7 @@ int read_file(const jsmn_json_t *path, jsmn_json_t *result)
 
 	// ensure a null-terminated string
 	char path_null_terminated[256] = {0};
-	size_t path_copy_len = MIN(path->length, sizeof(path_null_terminated) - 1);
-	memcpy(path_null_terminated, path->data, path_copy_len);
-	path_null_terminated[path_copy_len] = '\0';
+	strlcpy(path_null_terminated, path->data, sizeof(path_null_terminated));
 
 	uint32_t filesize = get_filesize(path_null_terminated);
 	if (filesize <= 0) {
@@ -272,9 +264,7 @@ int remove_file(const jsmn_json_t *path)
 {
 	// ensure a null-terminated string
 	char path_null_terminated[256] = {0};
-	size_t path_copy_len = MIN(path->length, sizeof(path_null_terminated) - 1);
-	memcpy(path_null_terminated, path->data, path_copy_len);
-	path_null_terminated[path_copy_len] = '\0';
+	strlcpy(path_null_terminated, path->data, sizeof(path_null_terminated));
 	int retval = 0;
 
 	if (get_filesize(path_null_terminated) > 0) {

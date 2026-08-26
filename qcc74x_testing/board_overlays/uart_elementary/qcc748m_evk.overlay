@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * qcc748m_evk board overlay for zephyr/tests/drivers/uart/uart_elementary.
  * Ported from the v4.1 QCC74x fork's boards/qcc7xxm_evk_common.dtsi
@@ -23,14 +22,10 @@
 &pinctrl {
 	uart1_default: uart1_default {
 		group1 {
-			pinmux = <GPIO30_UART1_RXD>,
-				<GPIO29_UART1_TXD>,
-				<GPIO28_UART1_CTS>,
-				<GPIO27_UART1_RTS>;
-			bias-pull-up;
-			input-schmitt-enable;
-			input-enable;
-			drive-strength = <1>;
+			pinmux = <UART1_RXD_GPIO30>,
+				<UART1_TXD_GPIO29>,
+				<UART1_CTS_GPIO28>,
+				<UART1_RTS_GPIO27>;
 		};
 	};
 };

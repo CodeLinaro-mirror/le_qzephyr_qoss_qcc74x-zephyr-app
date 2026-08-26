@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <zephyr/kernel.h>
@@ -34,7 +34,17 @@ int main(void)
 		return ret;
 	}
 
-	LOG_INF("Ethernet interface up (ret=%d)", ret);
+	if (ret == -EALREADY) {
+		LOG_INF("Ethernet interface up (ret=-EALREADY: already started by AUTO_START)");
+	} else {
+		LOG_INF("Ethernet interface up (ret=0: brought up now)");
+	}
+
+	bool carrier = net_if_is_carrier_ok(iface);
+	bool admin   = net_if_is_admin_up(iface);
+	LOG_INF("Interface state: admin=%s carrier=%s",
+		admin   ? "UP" : "DOWN",
+		carrier ? "ON" : "OFF");
 
 	net_dhcpv4_start(iface);
 	LOG_INF("DHCPv4 client started");

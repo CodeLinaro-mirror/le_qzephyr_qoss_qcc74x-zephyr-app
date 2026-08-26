@@ -1,0 +1,31 @@
+common:
+  tags:
+    - drivers
+    - gpio
+  depends_on: gpio
+  harness: ztest
+  harness_config:
+    fixture: gpio_loopback
+tests:
+  # Shares the same patched src/ as drivers.gpio.2pin.qcc below (the upstream
+  # zephyr/tests/drivers/gpio/gpio_basic_api both-edge callback timing fix is
+  # already applied here -- see src/test_callback_trigger.c).
+  drivers.gpio.2pin:
+    min_flash: 34
+    filter: >
+      dt_compat_enabled("test-gpio-basic-api")
+      and not dt_compat_enabled("arduino-header-r3")
+    platform_allow:
+      - qcc748m_evk
+    integration_platforms:
+      - qcc748m_evk
+
+  drivers.gpio.2pin.qcc:
+    min_flash: 34
+    filter: >
+      dt_compat_enabled("test-gpio-basic-api")
+      and not dt_compat_enabled("arduino-header-r3")
+    platform_allow:
+      - qcc748m_evk
+    integration_platforms:
+      - qcc748m_evk

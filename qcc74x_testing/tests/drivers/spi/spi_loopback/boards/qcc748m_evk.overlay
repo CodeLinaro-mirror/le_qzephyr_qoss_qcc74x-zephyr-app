@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Ported into qcc74x_testing/tests/drivers/spi/spi_loopback/ (see
+ * log_doc/spi_loopback_port_record.md for the full rationale/provenance).
+ * Content matches qapp/qcc74x/qcc74x_testing/board_overlays/spi_loopback/
+ * qcc74xm_evk_common.dtsi (already verified working on this bench).
+ */
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <SPI0_SCLK_GPIO29>,
+				<SPI0_MISO_GPIO34>,
+				<SPI0_MOSI_GPIO31>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+	slow@0 {
+		compatible = "test-spi-loopback-slow";
+		reg = <0>;
+		spi-max-frequency = <500000>;
+	};
+	fast@0 {
+		compatible = "test-spi-loopback-fast";
+		reg = <0>;
+		spi-max-frequency = <16000000>;
+	};
+};
+
+&dma {
+	status = "okay";
+};

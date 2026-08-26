@@ -1,0 +1,26 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Wrapper testcase for upstream zephyr/samples/basic/blinky.
+# Uses harness: console (not harness: led) so device-testing is supported.
+
+tests:
+  qcc7xx.sample.basic.blinky:
+    tags:
+      - LED
+      - gpio
+    depends_on: gpio
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: false
+      regex:
+        - "LED state: ON"
+        - "LED state: OFF"
+    platform_allow:
+      - qcc748m_evk/qcc748
+      - qcc744m_evk/qcc744
+      - qcc743m_evk/qcc743
+    integration_platforms:
+      - qcc748m_evk/qcc748
+    timeout: 30

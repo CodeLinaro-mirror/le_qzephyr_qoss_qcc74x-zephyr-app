@@ -9,10 +9,10 @@
 &pinctrl {
 	i2s0_default: i2s0_default {
 		group1 {
-			pinmux = <GPIO16_I2S_BCLK>,
-				 <GPIO17_I2S_FS>,
-				 <GPIO34_I2S_DI>,
-				 <GPIO31_I2S_DO>;
+			pinmux = <I2S0_BCLK_GPIO16>,
+				 <I2S0_FS_GPIO17>,
+				 <I2S0_DI_GPIO34>,
+				 <I2S0_DO_GPIO31>;
 			input-enable;
 		};
 	};

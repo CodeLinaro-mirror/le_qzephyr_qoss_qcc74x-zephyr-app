@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <zephyr/drivers/audio/audio_dac.h>
 
 #define AUDIO_BUFFER_SIZE (16 * 2500)
 
-static __aligned(32) uint8_t audio_buffer[AUDIO_BUFFER_SIZE] = {
+static const __aligned(32) uint8_t audio_buffer[AUDIO_BUFFER_SIZE] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2682,7 +2682,7 @@ int main(void)
 		return 0;
 	}
 
-	struct audio_dac_cfg dac_cfg = {.buffer = audio_buffer,
+	struct audio_dac_cfg dac_cfg = {.buffer = (void *)audio_buffer,
 					.buffer_size = AUDIO_BUFFER_SIZE,
 					.sampling_rate = AUDIO_PCM_RATE_44P1K,
 					.sample_width = AUDIO_PCM_WIDTH_16_BITS};

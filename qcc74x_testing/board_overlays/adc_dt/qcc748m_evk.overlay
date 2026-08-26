@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * qcc748m_evk board overlay for zephyr/samples/drivers/adc/adc_dt.
  * Ported from the v4.1 QCC74x fork's boards/qcc748m_evk.overlay +

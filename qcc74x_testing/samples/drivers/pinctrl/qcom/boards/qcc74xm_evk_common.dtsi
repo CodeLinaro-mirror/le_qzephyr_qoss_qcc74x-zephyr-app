@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	test_device: test_device {
+		compatible = "vnd,pinctrl-device";
+		pinctrl-0 = <&test_device_default>;
+		pinctrl-names = "default";
+	};
+};
+
+&pinctrl {
+	test_device_default: test_device_default {
+		/* For driver testing purposes — not intended to be real configurations.
+		 * Uses V44 two-argument QC7XX_PINMUX macros compatible with
+		 * pinctrl_qc7xx.c and soc/qcom/qcc74x/pinctrl_soc.h.
+		 */
+
+		/* Group1: I2C0 on GPIO30 (SCL) and GPIO29 (SDA) */
+		group1 {
+			pinmux = <I2C0_SCL_GPIO30>, <I2C0_SDA_GPIO29>;
+		};
+
+		/* Group2: UART0 RXD on GPIO22, TXD on GPIO21 — bias-pull-up */
+		group2 {
+			pinmux = <UART0_RXD_GPIO22>, <UART0_TXD_GPIO21>;
+			bias-pull-up;
+		};
+
+		/* Group3: UART1 RXD on GPIO29, TXD on GPIO28 — bias-pull-down */
+		group3 {
+			pinmux = <UART1_RXD_GPIO29>, <UART1_TXD_GPIO28>;
+			bias-pull-down;
+		};
+
+		/* Group4: ADC analog on GPIO2 */
+		group4 {
+			pinmux = <ADC_CH2_GPIO2>;
+		};
+
+		/* Group5: GPIO9 configured as IR receive (ir_flag=1 in V44 pinmux bits[28:24]) */
+		group5 {
+			pinmux = <IR_RX_GPIO9>;
+		};
+
+		/* Group6: PWM0 CH1P on GPIO1 — input-enable + output-enable */
+		group6 {
+			pinmux = <PWM0_CH1P_GPIO1>;
+			input-enable;
+			output-enable;
+		};
+
+		/* Group7: PWM0 CH0N on GPIO1 — output-high */
+		group7 {
+			pinmux = <PWM0_CH0N_GPIO1>;
+			output-high;
+		};
+	};
+};

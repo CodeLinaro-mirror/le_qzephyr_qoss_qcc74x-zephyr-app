@@ -1,0 +1,10 @@
+common:
+  tags:
+    - drivers
+    - clock_control
+
+tests:
+  qcc7xx.drivers.clock.clock_control_api:
+    platform_allow:
+      - qcc748m_evk
+    timeout: 120

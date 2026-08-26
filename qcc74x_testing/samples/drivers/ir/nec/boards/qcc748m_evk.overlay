@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+&pinctrl {
+	status = "okay";
+	ir_default: ir_default {
+		group1 {
+			pinmux = <IR_RX_GPIO10>;
+		};
+	};
+};
+
+&ir {
+	status = "okay";
+	rx_mode = "IR_RX_NEC";
+	input_inverse;
+	pinctrl-0 = <&ir_default>;
+	pinctrl-names = "default";
+};

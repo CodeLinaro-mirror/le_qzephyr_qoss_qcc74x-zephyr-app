@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 # Twister quarantine test cases for QCC7xx
 #
@@ -220,8 +220,6 @@
   comment: "Test cases failing on build for all boards"
 
 - scenarios:
-# Directory: qcc7xx_samples/samples/drivers:
-    - qcc7xx.drivers.jpeg
 # Directory: zephyr/samples/net:
     - sample.net.sockets.echo_server.usbnet
     - sample.net.wpan.serial
@@ -254,3 +252,20 @@
   platforms:
     - qcc75xm_evk/qcc75x
   comment: "Test cases failing to build for qcc75xm_evk."
+
+# NOTE: drivers.gpio.2pin was quarantined here (qcc748m_evk/qcc748) until
+# 2026-08-12. It used to guard the upstream zephyr/tests/drivers/gpio/gpio_basic_api
+# copy of drivers.gpio.2pin (test_gpio_callback_variants fails "double edge not
+# detected" for GPIO_INT_EDGE_BOTH on QCC748M hardware -- confirmed pre-existing
+# on 2026-08-04/2026-08-05 runs). As of 2026-08-12, drivers.gpio.2pin is defined
+# in the project-owned qapp/qcc74x/qcc74x_testing/tests/drivers/gpio/gpio_basic_api/testcase.yaml
+# instead, sharing the same patched src/test_callback_trigger.c as
+# drivers.gpio.2pin.qcc (both-edge callback timing fix ported from the v4.1
+# QCC74x vendor tree, delaying the second transition to thread context instead
+# of firing it from inside the ISR). Both scenarios pass on hardware now, so
+# the quarantine entry was removed rather than left with a stale rationale.
+# DO NOT re-add a quarantine entry for "drivers.gpio.2pin" without first
+# checking whether it would match the project-owned scenario (should pass) or
+# the untouched upstream zephyr/tests/... copy (only reachable via manual
+# -x DTC_OVERLAY_FILE=.../board_overlays/gpio_basic_api/qcc748m_evk.overlay
+# injection, which still has the unfixed source and would still fail).

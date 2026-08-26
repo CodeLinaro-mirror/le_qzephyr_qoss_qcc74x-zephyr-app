@@ -3,10 +3,6 @@
 
 #!/usr/bin/env python3
 
-# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
-#
-
 """
 Generate an enhanced single-file HTML test report from Zephyr Twister results.
 """

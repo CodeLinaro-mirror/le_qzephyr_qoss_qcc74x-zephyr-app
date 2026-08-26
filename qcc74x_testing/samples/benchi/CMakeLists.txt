@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
@@ -276,3 +276,19 @@ target_link_libraries(app PRIVATE
         ${PROJECT_NAME}.stress
         ${PROJECT_NAME}.tracing
 )
+
+foreach(_lib
+        ${PROJECT_NAME}.threads
+        ${PROJECT_NAME}.download
+        ${PROJECT_NAME}.zbus.helper
+        ${PROJECT_NAME}.zbus.trigger
+        ${PROJECT_NAME}.webserver
+        ${PROJECT_NAME}.messages
+        ${PROJECT_NAME}.flash
+        ${PROJECT_NAME}.spi
+        ${PROJECT_NAME}.stress
+        ${PROJECT_NAME}.tracing)
+    if(TARGET ${_lib})
+        add_dependencies(${_lib} heap_constants offsets_h)
+    endif()
+endforeach()

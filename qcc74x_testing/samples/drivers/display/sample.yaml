@@ -1,9 +1,13 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 tests:
   qcc7xx.sample.drivers.display:
-    build_only: true
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "Color gradient1 written to display"
     platform_allow:
       - qcc744m_evk
       - qcc748m_evk

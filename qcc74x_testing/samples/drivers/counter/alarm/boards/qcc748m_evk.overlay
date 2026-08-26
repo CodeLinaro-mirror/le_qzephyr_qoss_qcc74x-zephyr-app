@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Matches the reference workspace's boards/qcc748m_evk.overlay for
+ * zephyr/samples/drivers/counter/alarm (default XTAL clock source via
+ * timer0's devicetree defaults) -- no external wiring required.
+ */
+
+&timer0 {
+	status = "okay";
+};

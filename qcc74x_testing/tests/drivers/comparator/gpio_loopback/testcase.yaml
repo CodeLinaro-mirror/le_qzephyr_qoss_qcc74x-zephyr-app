@@ -1,0 +1,11 @@
+tests:
+  qcc7xx.drivers.comparator.gpio_loopback:
+    tags:
+      - drivers
+      - comparator
+    depends_on:
+      - comparator
+      - gpio
+    platform_allow:
+      - qcc748m_evk
+    timeout: 60

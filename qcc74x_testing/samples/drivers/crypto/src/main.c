@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <string.h>
@@ -12,14 +12,25 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
 
-#if DT_HAS_COMPAT_STATUS_OKAY(qcom_qcc74x_crypto)
+#ifdef CONFIG_CRYPTO_MBEDTLS_SHIM
+#define CRYPTO_DRV_NAME CONFIG_CRYPTO_MBEDTLS_SHIM_DRV_NAME
+#elif DT_HAS_COMPAT_STATUS_OKAY(qcom_qcc74x_crypto)
 #define CRYPTO_DEV_COMPAT qcom_qcc74x_crypto
 #else
 #error "You need to enable one crypto device"
 #endif
 
-/* Some crypto drivers require IO buffers to be aligned. */
+/* Some crypto drivers require IO buffers to be aligned. Hardware crypto needs
+ * 32-byte alignment to match this SoC's cache line size (CONFIG_DCACHE_LINE_SIZE);
+ * the mbedtls software shim has no such requirement and a smaller alignment avoids
+ * a link-time itcm/ram_data section-layout issue on this toolchain (see
+ * docs/2026-07-30-crypto-zero-output-debugging-log.md section 2.8).
+ */
+#ifdef CONFIG_CRYPTO_MBEDTLS_SHIM
+#define IO_ALIGNMENT_BYTES 4
+#else
 #define IO_ALIGNMENT_BYTES 32
+#endif
 
 const static uint8_t key[16]
 	__aligned(IO_ALIGNMENT_BYTES) = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,

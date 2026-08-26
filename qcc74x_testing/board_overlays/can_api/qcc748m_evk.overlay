@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 / {
@@ -12,13 +11,9 @@
 
 &pinctrl {
 	can0_default: can0_default {
-	group1 {
-		pinmux = <GPIO20_ISO11898_TXD>,
-			<GPIO16_ISO11898_RXD>;
-		bias-pull-up;
-		drive-strength = <1>;
-		input-schmitt-enable;
-		input-enable;
+		group1 {
+			pinmux = <ISO11898_TXD_GPIO20>,
+				<ISO11898_RXD_GPIO16>;
 		};
 	};
 };

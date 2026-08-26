@@ -12,7 +12,7 @@ cd ../..
 basedirs="$(pwd)"
 if [ ! -f SRC-IOE-SDK.tar.gz ]; then
     tar --exclude=.git --exclude=.gitignore -czpf SRC-IOE-SDK.tar.gz west-manifest modules/hal/qcom/qcc74x qcc74x-zephyr \
-    qapp/qcc74x prop/qcc74x-bin modules/lib/hostap zephyr modules/fs/littlefs modules/crypto/mbedtls modules/debug/segger modules/lib/zcbor modules/hal/cmsis_6 modules/fs/fatfs modules/lib/gui/lvgl modules/crypto/tf-psa-crypto 
+    qapp/qcc74x prop/qcc74x-bin zephyr modules/fs/littlefs modules/crypto/mbedtls modules/lib/zcbor modules/fs/fatfs modules/lib/gui/lvgl modules/crypto/tf-psa-crypto
 fi
 cd zephyr
 git update-ref refs/heads/manifest-rev $(git rev-parse HEAD)

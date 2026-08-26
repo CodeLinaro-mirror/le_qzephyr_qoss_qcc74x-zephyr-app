@@ -1,0 +1,8 @@
+common:
+  tags:
+    - drivers
+    - reset
+tests:
+  drivers.reset.basic_api:
+    platform_allow:
+      - qcc748m_evk

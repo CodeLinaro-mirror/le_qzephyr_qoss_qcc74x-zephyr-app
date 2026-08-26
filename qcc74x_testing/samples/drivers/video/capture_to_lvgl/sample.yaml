@@ -1,0 +1,22 @@
+sample:
+  name: Video capture to LVGL (QCC748M)
+tests:
+  qcc7xx.sample.video.capture_to_lvgl.shield.weact_ov2640_cam_module:
+    tags:
+      - video
+      - shield
+      - samples
+    extra_args: SHIELD=weact_ov2640_cam_module
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Device name"
+        - "Format"
+        - "Capture started"
+    platform_allow:
+      - qcc748m_evk/qcc748
+    depends_on: video
+    integration_platforms:
+      - qcc748m_evk/qcc748

@@ -1,11 +1,17 @@
 # Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 sample:
   name: QCC7xx MJPEG encoder sample
 tests:
   qcc7xx.drivers.jpeg:
-    build_only: true
     platform_allow:
       - qcc744m_evk
       - qcc748m_evk
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Encoding"
+        - "JPEG encoded OK"
