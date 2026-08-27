@@ -1,0 +1,32 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause
+
+config QCC74X_UART_EDL_TRIGGER
+	bool "QCC74x lightweight UART EDL trigger"
+	depends on UART_INTERRUPT_DRIVEN
+	depends on !SHELL
+	help
+	  Enables a minimal interrupt-driven UART listener that watches the
+	  console UART for the string "platform reboot --edl\r\n" (23 bytes).
+	  When the full string is matched the chip immediately calls
+	  qc7xx_sys_reset_system_from_interface() to enter Emergency Download
+	  mode, exactly as the shell "platform reboot --edl" command does.
+
+	  Using the same trigger string as the shell command means the host
+	  script (qconn_pre_flash.py) never needs to know whether the running
+	  firmware has CONFIG_SHELL or CONFIG_QCC74X_UART_EDL_TRIGGER – it
+	  always sends the same bytes:
+	    python qconn_pre_flash.py COM7
+
+	  IMPORTANT: This option is mutually exclusive with CONFIG_SHELL.
+	  When CONFIG_SHELL=y the shell backend already owns the console UART
+	  interrupt callback (uart_irq_callback_user_data_set).  Enabling
+	  this option at the same time would silently override that callback,
+	  breaking all shell input/output.
+
+	  This saves approximately 30-50 KB of flash and 4-8 KB of RAM
+	  compared to enabling the full shell subsystem.
+
+	  Host side: send b"platform reboot --edl\r\n" over the serial port.
+	  The same qconn_pre_flash.py script works for both shell and
+	  no-shell firmware, with no extra flags needed.
