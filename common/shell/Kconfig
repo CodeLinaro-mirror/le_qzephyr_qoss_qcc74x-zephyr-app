@@ -1,3 +1,65 @@
-# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-# SPDX-License-Identifier: BSD-3-Clause-Clear
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause
 
+menu "QCOM Platform Shell Modules"
+
+config QCOM_SHELL_ASYNC
+	bool "Async shell command execution (dynamic thread pool)"
+	depends on SHELL && DYNAMIC_THREAD && DYNAMIC_THREAD_ALLOC
+	help
+	  Provides shell_async_submit() to run shell command handlers in
+	  dynamically allocated background threads.  Each submit() allocates
+	  a stack from the system heap; the memory is freed when the next job
+	  is submitted to the same slot (lazy reclaim via k_thread_join +
+	  k_thread_stack_free).  No pre-created threads — idle cost is zero.
+
+config SHELL_ASYNC_WORKERS
+	int "Number of background worker threads"
+	depends on QCOM_SHELL_ASYNC
+	default 4
+	range 1 8
+	help
+	  Each worker has its own dedicated stack (statically allocated).
+	  A submitted job is assigned to the first free worker.
+
+config SHELL_ASYNC_STACK_SIZE
+	int "Per-worker stack size (bytes)"
+	depends on QCOM_SHELL_ASYNC
+	default 2048
+
+config SHELL_ASYNC_PRIORITY
+	int "Worker thread priority"
+	depends on QCOM_SHELL_ASYNC
+	default 5
+
+config QCOM_I2C_EEPROM_SHELL
+	bool "QCOM I2C EEPROM async test shell"
+	depends on QCOM_SHELL_ASYNC && I2C
+	help
+	  Concurrent I2C EEPROM read/write tests via shell_async worker threads.
+	  Target: GT24C02B (or compatible AT24Cxx) EEPROM at configurable address.
+	    eeprom_test write   - write test pattern (background)
+	    eeprom_test read    - read back and verify (background)
+	    eeprom_test stress  - writer + reader concurrently
+	    eeprom_test erase   - fill test area with 0xFF
+
+config QCOM_I2C_SHELL
+	bool "QCOM async I2C shell (replaces built-in CONFIG_I2C_SHELL)"
+	depends on QCOM_SHELL_ASYNC && I2C
+	help
+	  Enhanced i2c shell with read/write running asynchronously via
+	  shell_async worker threads.  All other commands (scan, recover,
+	  speed, ...) remain synchronous.  Mutually exclusive with the
+	  upstream CONFIG_I2C_SHELL — set CONFIG_I2C_SHELL=n when enabling
+	  this option.
+
+config QCOM_I2C_SHELL_BUFFER_SIZE
+	int "I2C shell read/write buffer size (bytes)"
+	depends on QCOM_I2C_SHELL
+	default 128
+	range 16 512
+	help
+	  Size of the per-operation data buffer allocated on the worker
+	  thread stack for i2c read and write commands.
+
+endmenu

@@ -1,0 +1,33 @@
+/*
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+#include <zephyr/dt-bindings/pinctrl/qc7xx-qcc74x-pinctrl.h>
+#include <zephyr/dt-bindings/dma/qcc74x_dma.h>
+/* ------------------------------------------------------------------ */
+/*  Pinctrl states                                                       */
+/* ------------------------------------------------------------------ */
+&pinctrl {
+	/* I2C0: GPIO18=SCL, GPIO19=SDA */
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SCL_GPIO18>, <I2C0_SDA_GPIO19>;
+			bias-pull-up;
+		};
+	};
+};
+
+/* ------------------------------------------------------------------ */
+/*  Peripheral nodes — diagnosis mode: only i2c0 enabled               */
+/* ------------------------------------------------------------------ */
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+};
+
+
