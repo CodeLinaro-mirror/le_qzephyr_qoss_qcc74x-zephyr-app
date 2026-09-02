@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2024 Charles Dias <charlesdias.cd@outlook.com>
- * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Modifications for QCC748M EVK / Zephyr 4.4 / LVGL v9:
  *  - LV_COLOR_FORMAT_RGB565_SWAPPED: OV2640 outputs big-endian RGB565

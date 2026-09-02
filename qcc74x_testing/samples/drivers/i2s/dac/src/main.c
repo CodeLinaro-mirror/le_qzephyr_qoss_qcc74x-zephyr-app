@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/*
- * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
- */
 #include <zephyr/device.h>
 #include <zephyr/drivers/i2s.h>
 #include <zephyr/kernel.h>
