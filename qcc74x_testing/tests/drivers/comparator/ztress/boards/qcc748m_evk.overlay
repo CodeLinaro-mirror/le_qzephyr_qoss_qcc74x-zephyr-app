@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	aliases {
+		test-comp = &comparator0;
+	};
+
+	zephyr,user {
+		test-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+		acomp-drive-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&comparator0 {
+	status = "okay";
+	mux_enable;
+	pos_chan_sel = "AON_ACOMP_CHAN_ADC0";
+	neg_chan_sel = "AON_ACOMP_CHAN_VIO_X_SCALING_FACTOR_1";
+	scaling_factor = "AON_ACOMP_SCALING_FACTOR_1";
+	bias_prog = "AON_ACOMP_BIAS_POWER_MODE1";
+	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+};
