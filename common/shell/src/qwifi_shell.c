@@ -45,4 +45,4 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_qwifi_commands,
                                              cmd_qwifi_set_tx_power, 3, 0),
                                SHELL_SUBCMD_SET_END);
 
-SHELL_CMD_REGISTER(qwifi, &sub_qwifi_commands, "qwifi commands", NULL);
+SHELL_SUBCMD_ADD((qcom), wifi, &sub_qwifi_commands, "WiFi commands", NULL, 1, 0);

@@ -528,4 +528,4 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_i2c_cmds,
 	SHELL_SUBCMD_SET_END     /* Array terminated. */
 );
 
-SHELL_CMD_REGISTER(i2c, &sub_i2c_cmds, "I2C commands", NULL);
+SHELL_SUBCMD_ADD((qcom), i2c, &sub_i2c_cmds, "I2C commands", NULL, 1, 0);

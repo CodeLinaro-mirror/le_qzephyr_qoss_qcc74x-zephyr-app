@@ -138,4 +138,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_platform_cmds,
                                               cmd_platform_version, 1, 0),
                                 SHELL_SUBCMD_SET_END);
 
-SHELL_CMD_REGISTER(platform, &sub_platform_cmds, "platform commands", NULL);
+SHELL_SUBCMD_SET_CREATE(qcom_root_commands, (qcom));
+SHELL_CMD_REGISTER(qcom, &qcom_root_commands, "qcom root commands", NULL);
+
+SHELL_SUBCMD_ADD((qcom), platform, &sub_platform_cmds, "platform commands", NULL, 1, 0);

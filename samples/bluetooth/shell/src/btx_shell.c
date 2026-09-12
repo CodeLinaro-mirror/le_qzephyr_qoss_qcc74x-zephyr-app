@@ -436,8 +436,4 @@ SHELL_STATIC_SUBCMD_SET_CREATE(btx_cmds,
     SHELL_SUBCMD_SET_END
 );
 
-SHELL_CMD_REGISTER(
-    btx,
-    &btx_cmds,
-    "QCC7XX BT Extension",
-    NULL);
+SHELL_SUBCMD_ADD((qcom), btx, &btx_cmds, "BT commands", NULL, 1, 0);
