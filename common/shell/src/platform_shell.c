@@ -16,12 +16,14 @@
 #include "qc7xx_efuse.h"
 #include "qc7xx_flash.h"
 #include "qcc74x_sec_dbg.h"
-#include "lhal_version.h"
 #endif
 #if CONFIG_WIFI
 #include "wireless_api.h"
 #endif
 
+#if defined(CONFIG_SOC_SERIES_QCC74X)
+extern const char *hal_driver_version(const char ***ctx);
+#endif
 static const char *str_or_unknown(const char *s)
 {
     return (s && *s) ? s : "unknown";
@@ -69,6 +71,8 @@ static int cmd_platform_version(const struct shell *sh, size_t argc, char **argv
     qc7xx_efuse_device_info_type info = { 0 };
     uint8_t mac[8] = { 0 };
     uint8_t serial[8] = { 0 };
+    const char* hal_driver_ver;
+    const char** ctx = NULL;
     uint32_t jedec = qc7xx_flash_get_jedec_id();
     uint32_t flash_size = qc7xx_flash_get_size();
 
@@ -103,10 +107,12 @@ static int cmd_platform_version(const struct shell *sh, size_t argc, char **argv
 #else
     shell_print(sh, "PSRAM: disabled");
 #endif
+    while ((hal_driver_ver = hal_driver_version(&ctx))) {
+        shell_print(sh, "%s", hal_driver_ver);
+    }
 #ifdef CONFIG_WIFI
     shell_print(sh, "Wi-Fi Host Rev: %s", WIRELESS_VERSION);
 #endif
-    shell_print(sh, "LHAL Version: %s", LHAL_VERSION);
 #else /* !CONFIG_SOC_SERIES_QCC74X */
     shell_print(sh, "MAC address: unknown");
     shell_print(sh, "Module Part Number: ");
