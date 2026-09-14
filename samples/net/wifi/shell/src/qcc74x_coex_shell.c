@@ -76,4 +76,4 @@ SHELL_STATIC_SUBCMD_SET_CREATE(qcc74x_coex_cmds,
 	SHELL_SUBCMD_SET_END
 );
 
-SHELL_CMD_REGISTER(qcc74x_coex, &qcc74x_coex_cmds, NULL, NULL);
+SHELL_SUBCMD_ADD((qcom), coex, &qcc74x_coex_cmds, "coex commands", NULL, 1, 0);

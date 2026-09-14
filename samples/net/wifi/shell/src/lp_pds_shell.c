@@ -566,7 +566,6 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      cmd_lp_pds_reset, 1, 0),
 	SHELL_SUBCMD_SET_END);
 
-SHELL_CMD_REGISTER(lp_pds, &sub_lp_pds,
-		   "QCC74x low-power validation commands.", NULL);
+SHELL_SUBCMD_ADD((qcom), pm, &sub_lp_pds, "low-power commands", NULL, 1, 0);
 
 #endif /* CONFIG_WIFI_SHELL_LOWPOWER_VALIDATION */

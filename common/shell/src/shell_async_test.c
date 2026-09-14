@@ -137,5 +137,4 @@ SHELL_STATIC_SUBCMD_SET_CREATE(async_test_cmds,
 	SHELL_SUBCMD_SET_END
 );
 
-SHELL_CMD_REGISTER(async_test, &async_test_cmds,
-		   "shell_async verification commands", NULL);
+SHELL_SUBCMD_ADD((qcom), async_test, &async_test_cmds, "shell_async verification commands", NULL, 1, 0);
