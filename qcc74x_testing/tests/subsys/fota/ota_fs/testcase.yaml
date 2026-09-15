@@ -1,0 +1,11 @@
+tests:
+  qcc74x.fota.ota_fs:
+    tags:
+      - qcc74x
+      - fota
+      - littlefs
+    platform_allow:
+      - qcc748m_evk
+    timeout: 600
+    extra_args:
+      DTC_OVERLAY_FILE="../../../../board_overlays/ota/qcc748m_evk.overlay"

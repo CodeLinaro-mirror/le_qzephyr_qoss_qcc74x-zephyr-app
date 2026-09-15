@@ -1,0 +1,14 @@
+config QCC74X_TCP_OTA
+	bool "QCC74x raw TCP OTA"
+	depends on NETWORKING && NET_TCP && SHELL && MBEDTLS
+	help
+	  Download a QCC74X RAW .ota image, verify it, stage it in the inactive
+	  SBL partition, then explicitly activate it.
+
+config QCC74X_TCP_OTA_SHELL
+	bool "QCC74x TCP OTA shell commands"
+	depends on QCC74X_TCP_OTA
+	default y
+	help
+	  Enable the ota tcp start command and transport-neutral ota status,
+	  ota cancel, ota slot, and ota activate commands.
