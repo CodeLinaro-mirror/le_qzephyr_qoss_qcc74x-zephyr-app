@@ -1,0 +1,43 @@
+/*
+* Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Single-board stress pinmux: SCLK=GPIO29, MOSI=GPIO31, MISO=GPIO34,
+ * SS=GPIO24. Connect MOSI (GPIO31) to MISO (GPIO34) on the board.
+ */
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <SPI0_SCLK_GPIO29>,
+				<SPI0_MISO_GPIO34>,
+				<SPI0_MOSI_GPIO31>,
+				<SPI0_SS_GPIO24>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+	slow@0 {
+		compatible = "test-spi-loopback-slow";
+		reg = <0>;
+		spi-max-frequency = <500000>;
+	};
+	fast@0 {
+		compatible = "test-spi-loopback-fast";
+		reg = <0>;
+		spi-max-frequency = <40000000>;
+	};
+};
+
+&dma {
+	status = "okay";
+};
