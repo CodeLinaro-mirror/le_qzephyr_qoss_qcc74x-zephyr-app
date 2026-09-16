@@ -1,0 +1,83 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Focused Windows L4 SPI shell run. The default matrix intentionally keeps
+# smoke coverage, one explicit interrupt/STO check, and two useful throughput points:
+#   - MOSI at 40 MHz
+#   - MISO at 26 MHz
+
+common:
+  tags: drivers spi shell
+  depends_on: spi
+  platform_allow:
+    - qcc743m_evk
+    - qcc744m_evk
+    - qcc748m_evk
+  min_ram: 32
+  harness: pytest
+
+tests:
+  qcc7xx.drivers.spi.shell.single_board.polling:
+    harness_config:
+      pytest_root: ["scripts/test_spi_shell.py"]
+      pytest_args:
+        - "-m"
+        - "single_board"
+        - "-k"
+        - "test_1_1_command_smoke or test_1_8_transceive_hex_data"
+      pytest_dut_scope: session
+    extra_conf_files: [overlay-spi-polling.conf]
+    extra_args: DTC_OVERLAY_FILE=boards/qcc748m_evk_single.overlay
+    timeout: 300
+
+  qcc7xx.drivers.spi.shell.dual_board.polling:
+    harness_config:
+      pytest_root: ["scripts/test_spi_shell.py"]
+      pytest_args:
+        - "-m"
+        - "dual_board and not interrupt_only and not dma_only"
+        - "-k"
+        - "test_2_1_command_smoke or test_2_2_full_duplex_4B"
+      pytest_dut_scope: session
+    extra_conf_files: [overlay-spi-polling.conf]
+    timeout: 600
+
+  qcc7xx.drivers.spi.shell.dual_board.interrupt_sto:
+    harness_config:
+      pytest_root: ["scripts/test_spi_shell.py"]
+      pytest_args:
+        - "-m"
+        - "dual_board and interrupt_only"
+        - "-k"
+        - "test_2_8_slave_timeout"
+      pytest_dut_scope: session
+    extra_conf_files: [overlay-spi-interrupt.conf]
+    timeout: 600
+
+  qcc7xx.drivers.spi.shell.dual_board.dma_throughput_mosi_40mhz:
+    harness_config:
+      pytest_root: ["scripts/test_spi_shell.py"]
+      pytest_args:
+        - "-m"
+        - "dual_board and dma_only"
+        - "-k"
+        - "test_2_11_board_side_throughput_64k"
+      pytest_dut_scope: session
+    extra_conf_files: [overlay-spi-dma-throughput.conf]
+    extra_args:
+      - DTC_OVERLAY_FILE="boards/qcc748m_evk.overlay;boards/spi-clk-160m.overlay"
+    timeout: 600
+
+  qcc7xx.drivers.spi.shell.dual_board.dma_throughput_miso_26mhz:
+    harness_config:
+      pytest_root: ["scripts/test_spi_shell.py"]
+      pytest_args:
+        - "-m"
+        - "dual_board and dma_only"
+        - "-k"
+        - "test_2_12_board_side_throughput_miso_26mhz"
+      pytest_dut_scope: session
+    extra_conf_files: [overlay-spi-dma-throughput.conf]
+    extra_args:
+      - DTC_OVERLAY_FILE="boards/qcc748m_evk.overlay;boards/spi-clk-160m.overlay"
+    timeout: 600

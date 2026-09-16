@@ -11,11 +11,11 @@ A minimal shell demo application for QCC74x/QCR373 platforms.
 
 ```bash
 # QCR373
-west build -b qcr373_evk/qcr373/ap qapp/qcc74x/app/qcli_app \
+west build -b qcr373_evk/qcr373/ap qapp/qcc74x/qcli_app \
     -d build/qcr373_qcli
 
 # QCC748
-west build -b qcc748m_evk qapp/qcc74x/app/qcli_app \
+west build -b qcc748m_evk qapp/qcc74x/qcli_app \
     -d build/qcc748_qcli
 ```
 

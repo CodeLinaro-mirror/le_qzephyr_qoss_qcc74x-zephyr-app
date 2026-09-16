@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * QCC748M EVK board overlay for SPI shell test
+ * Default (dual-board) pinmux: SCLK=GPIO13, MISO=GPIO10, MOSI=GPIO11, SS=GPIO12
+ * Single-board scenarios override spi0's pinctrl with qcc748m_evk_single.overlay
+ * to use the GPIO29/34/31/24 pin group.
+ */
+
+&pinctrl {
+	status = "okay";
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <SPI0_SCLK_GPIO13>,
+				<SPI0_MISO_GPIO10>,
+				<SPI0_MOSI_GPIO11>,
+				<SPI0_SS_GPIO12>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+};
+
+&dma {
+	status = "okay";
+};

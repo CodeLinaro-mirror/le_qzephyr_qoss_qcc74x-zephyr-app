@@ -30,4 +30,30 @@
 	pinctrl-names = "default";
 };
 
+/* SPI0: GPIO13=SCLK, GPIO10=MISO, GPIO11=MOSI, GPIO12=SS */
+&pinctrl {
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <SPI0_SCLK_GPIO13>,
+				<SPI0_MISO_GPIO10>,
+				<SPI0_MOSI_GPIO11>,
+				<SPI0_SS_GPIO12>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+};
+
+&dma {
+	status = "okay";
+};
+
 
