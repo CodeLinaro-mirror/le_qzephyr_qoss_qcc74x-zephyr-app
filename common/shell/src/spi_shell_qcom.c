@@ -143,6 +143,18 @@ static void bytes_to_hex(const uint8_t *data, size_t len, char *out, size_t out_
 	out[pos] = '\0';
 }
 
+static void append_ellipsis(char *str, size_t str_size)
+{
+	size_t len = strlen(str);
+
+	if (len + 3 < str_size) {
+		str[len] = '.';
+		str[len + 1] = '.';
+		str[len + 2] = '.';
+		str[len + 3] = '\0';
+	}
+}
+
 static void fill_pattern(uint8_t *buf, size_t len, const char *pattern)
 {
 	if (strcmp(pattern, "incr") == 0 || strcmp(pattern, "inc") == 0) {
@@ -378,8 +390,8 @@ static int cmd_spi_transceive(const struct shell *sh, size_t argc, char **argv)
 	} else {
 		bytes_to_hex(tx_buf, 64, tx_hex, sizeof(tx_hex));
 		bytes_to_hex(rx_buf, 64, rx_hex, sizeof(rx_hex));
-		strcat(tx_hex, "...");
-		strcat(rx_hex, "...");
+		append_ellipsis(tx_hex, sizeof(tx_hex));
+		append_ellipsis(rx_hex, sizeof(rx_hex));
 	}
 
 	shell_print(sh, "OK: transceived %u bytes in %u buffer(s)",
@@ -495,7 +507,7 @@ static int cmd_spi_slave_read(const struct shell *sh, size_t argc, char **argv)
 	bytes_to_hex(rx_buf, slave_rx_len, hex_str, sizeof(hex_str));
 	} else {
 		bytes_to_hex(rx_buf, 64, hex_str, sizeof(hex_str));
-		strcat(hex_str, "...");
+		append_ellipsis(hex_str, sizeof(hex_str));
 	}
 
 	shell_print(sh, "OK: slave received %u bytes", (unsigned int)slave_rx_len);
