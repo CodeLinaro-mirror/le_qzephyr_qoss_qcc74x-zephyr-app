@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Raise the SPI clock source so a genuine 40 MHz SCLK is reachable.
+ *
+ * SCLK is derived as spi_clk / (2 * (SPI_PRD_D + 1)).  Even the smallest
+ * divider halves the source clock, so the SoC default source -- xclk, the
+ * 40 MHz crystal -- caps SCLK at 20 MHz.  A 40 MHz request is not rejected in
+ * that configuration; it is silently served at 20 MHz.  Selecting MCU MUXPLL
+ * 160M gives the driver enough headroom to land on a true 40 MHz SCLK, which
+ * doubles the master->slave DMA throughput (16.8 -> 39.6 Mbps).
+ *
+ * This is applied only to the configurations that need a real 40 MHz SCLK.  The
+ * rest stay on the SoC default source on purpose, because that is what an
+ * application gets without an overlay, and running them at an effective 20 MHz
+ * keeps that path covered.
+ */
+
+&spi0 {
+	clocks = <&clock0 QC7XX_PERIPHERAL_SPI0 QC7XX_SPI_CLK_MCU_MUXPLL_160M>;
+};

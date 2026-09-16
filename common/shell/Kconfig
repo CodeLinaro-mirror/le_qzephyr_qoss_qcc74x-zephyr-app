@@ -1,7 +1,14 @@
-# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries.
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 # SPDX-License-Identifier: BSD-3-Clause
 
 menu "QCOM Platform Shell Modules"
+
+config QCOM_SPI_SHELL
+	bool "QCOM SPI shell"
+	depends on SHELL && SPI
+	help
+	  Provides the qcom spi shell commands for configuring and exercising
+	  the SPI controller as master or slave.
 
 config QCOM_SHELL_ASYNC
 	bool "Async shell command execution (dynamic thread pool)"
@@ -61,5 +68,13 @@ config QCOM_I2C_SHELL_BUFFER_SIZE
 	help
 	  Size of the per-operation data buffer allocated on the worker
 	  thread stack for i2c read and write commands.
+
+config QCOM_SPI_SHELL_BUFFER_SIZE
+	int "SPI shell transfer buffer size (bytes)"
+	depends on QCOM_SPI_SHELL
+	default 4096
+	help
+	  Maximum payload size for the generic SPI shell TX/RX buffers.  Larger
+	  values can be selected by applications that need large DMA transfers.
 
 endmenu

@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Single-board pinmux for the GPIO29/34/31/24 wiring.
+ *
+ * The board overlay selects GPIO13/10/11/12 for dual-board wiring by
+ * default.  This overlay only replaces spi0's active pinctrl state for
+ * single-board scenarios; the rest of the board overlay remains unchanged.
+ */
+
+&pinctrl {
+	status = "okay";
+	spi0_single_default: spi0_single_default {
+		group1 {
+			pinmux = <SPI0_SCLK_GPIO29>,
+				<SPI0_MISO_GPIO34>,
+				<SPI0_MOSI_GPIO31>,
+				<SPI0_SS_GPIO24>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_single_default>;
+	pinctrl-names = "default";
+};
+
+&dma {
+	status = "okay";
+};
