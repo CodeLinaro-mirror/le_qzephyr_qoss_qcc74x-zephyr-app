@@ -18,7 +18,7 @@
 #define PT1           0xf000U
 #define PT_MAGIC      0x54504642U
 #define FLASH_BLOCK   4096U
-#define WRITE_BLOCK   16U
+#define WRITE_BLOCK   64U
 #define PROGRESS_STEP (64U * 1024U)
 
 struct __packed pt_header {
@@ -341,6 +341,51 @@ int qcc74x_ota_activate(void)
 
 	if (!rc) {
 		state.staged = false;
+	}
+
+	return rc;
+}
+
+int qcc74x_ota_rollback(void)
+{
+	struct partition_table p, a, b;
+	struct qcc74x_ota_image image;
+	uint32_t destination;
+	int entry, rc;
+
+	/* A staged image has not been activated, so switching slots is not rollback. */
+	if (state.staged) {
+		return -EBUSY;
+	}
+
+	rc = load_partition(&p, &image);
+	if (rc) {
+		return rc;
+	}
+
+	entry = fw_entry(&p);
+	if (entry < 0) {
+		return entry;
+	}
+
+	/* select the other FW slot in a new PT copy. */
+	p.entries[entry].active = !image.active_slot;
+	p.entries[entry].age++;
+	p.header.age++;
+	p.header.crc = crc(&p.header, 12);
+	*entries_crc(&p) = crc(p.entries, p.header.count * sizeof(p.entries[0]));
+
+	if (flash_read(PT0, &a, sizeof(a)) || flash_read(PT1, &b, sizeof(b))) {
+		return -EIO;
+	}
+
+	/* Write the non-selected PT, retaining the selected valid copy until complete. */
+	destination =
+		(!table_valid(&b) || (table_valid(&a) && a.header.age >= b.header.age)) ? PT1 : PT0;
+
+	rc = flash_erase(destination, FLASH_BLOCK);
+	if (!rc) {
+		rc = flash_write(destination, &p, table_length(&p));
 	}
 
 	return rc;
