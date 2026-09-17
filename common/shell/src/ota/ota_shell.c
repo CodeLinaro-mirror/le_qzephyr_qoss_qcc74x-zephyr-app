@@ -141,11 +141,36 @@ static int cmd_ota_activate(const struct shell *shell, size_t argc, char **argv)
 	return rc;
 }
 
+static int cmd_ota_rollback(const struct shell *shell, size_t argc, char **argv)
+{
+	int rc;
+
+	ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
+	if (qcc74x_ota_shell_session_running()) {
+		shell_error(shell, "OTA is still running");
+		return -EBUSY;
+	}
+
+	rc = qcc74x_ota_rollback();
+	if (rc == -EBUSY) {
+		shell_error(shell, "a staged image is awaiting activation; rollback is unavailable");
+	} else if (rc) {
+		shell_error(shell, "OTA rollback failed (%d)", rc);
+	} else {
+		shell_print(shell, "OTA rollback written (0); reboot with qcom platform reboot --por");
+	}
+
+	return rc;
+}
+
 SHELL_SUBCMD_SET_CREATE(ota_commands, (ota));
 
 SHELL_SUBCMD_ADD((ota), status, NULL, "show OTA state", cmd_ota_status, 1, 0);
 SHELL_SUBCMD_ADD((ota), cancel, NULL, "cancel the running OTA", cmd_ota_cancel, 1, 0);
 SHELL_SUBCMD_ADD((ota), slot, NULL, "show active and inactive FW slots", cmd_ota_slot, 1, 0);
 SHELL_SUBCMD_ADD((ota), activate, NULL, "activate verified image", cmd_ota_activate, 1, 0);
+SHELL_SUBCMD_ADD((ota), rollback, NULL, "select the previous FW slot", cmd_ota_rollback, 1, 0);
 
 SHELL_SUBCMD_ADD((qcom), ota, &ota_commands, "QCC74x OTA commands", NULL, 1, 0);
