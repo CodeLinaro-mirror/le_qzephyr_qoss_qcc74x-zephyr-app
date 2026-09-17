@@ -1,0 +1,90 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+menu "QCC74x Coredump Runtime"
+
+config QCC74X_COREDUMP_RUNTIME
+	bool "Enable QCC74x coredump runtime integration"
+	depends on SOC_SERIES_QCC74X && DEBUG_COREDUMP
+	help
+	  Adds QCC74x fatal-path handling around Zephyr coredump generation.
+	  The runtime protects full-memory Flash dumps with a pre-write budget
+	  check, coordinates an enabled watchdog before capture, and emits
+	  serial completion and coverage markers for logging backends.
+
+config QCC74X_COREDUMP_AUTO_RESET
+	bool "Cold-reset after coredump capture"
+	depends on QCC74X_COREDUMP_RUNTIME
+	default y
+	help
+	  Cold-reset the QCC74x SoC after a coredump completes or is rejected
+	  before capture. For logging backends, the runtime first waits for the
+	  console UART transmit FIFO and line state to become idle. Disable this
+	  only when intentionally keeping a faulted target halted for debugger
+	  post-mortem inspection.
+
+if DEBUG_COREDUMP_BACKEND_OTHER
+
+choice QCC74X_COREDUMP_OTHER_TRANSPORT
+	prompt "QCC74x custom coredump transport"
+	default QCC74X_COREDUMP_OTHER_SAFE_SERIAL
+
+config QCC74X_COREDUMP_OTHER_SAFE_SERIAL
+	bool "Use bounded raw UART output"
+	help
+	  Send QCC74x coredump records directly to the selected console UART TX
+	  FIFO. The path does not use the logging subsystem, shell transport,
+	  UART driver locks, interrupts, DMA, or runtime power management.
+
+config QCC74X_COREDUMP_OTHER_SAFE_FLASH
+	bool "Use emergency Flash partition output"
+	depends on FLASH && QCC74X_COREDUMP_FULL_MEMORY
+	help
+	  Store the coredump in the fixed coredump partition using the QCC74x
+	  nonblocking emergency Flash session. The crash path erases only that
+	  partition and never waits on the normal Flash driver semaphore.
+
+endchoice
+
+config QCC74X_COREDUMP_OTHER_UART_POLL_LIMIT
+	int "Maximum FIFO polls per panic UART byte"
+	default 200000
+	range 1 10000000
+	depends on QCC74X_COREDUMP_OTHER_SAFE_SERIAL
+	help
+	  Bound the number of direct FIFO-ready register polls for each coredump
+	  output byte. A timeout aborts the coredump transport rather than waiting
+	  indefinitely in a fatal context.
+
+endif # DEBUG_COREDUMP_BACKEND_OTHER
+
+config QCC74X_COREDUMP_WATCHDOG_COORDINATION
+	bool "Pause watchdog before coredump capture"
+	depends on QCC74X_COREDUMP_RUNTIME && WATCHDOG && WDT_QCC74X
+	default y
+	help
+	  Stops watchdog0 before coredump capture. This prevents watchdog reset
+	  from truncating a long serial full-PSRAM dump. The application remains
+	  responsible for its normal watchdog feeding policy.
+
+config QCC74X_COREDUMP_SHELL
+	bool "Enable QCC74x coredump status shell commands"
+	depends on QCC74X_COREDUMP_RUNTIME && SHELL
+	default y
+	help
+	  Adds safe runtime inspection commands under "qcom coredump". The
+	  commands report backend, RAM coverage, PSRAM ledger state, and Flash
+	  budget. Fault injection commands are intentionally not included.
+
+config QCC74X_COREDUMP_TEST_COMMANDS
+	bool "Enable destructive QCC74x coredump test commands"
+	depends on QCC74X_COREDUMP_SHELL
+	default n
+	help
+	  Add the "qcom coredump panic", "qcom coredump ebreak", and
+	  "qcom coredump illegal" commands.
+	  These commands deliberately stop normal execution and are intended only
+	  for controlled coredump validation. The QCC748M illegal-instruction
+	  probe is diagnostic only: it is not a validated Zephyr coredump path.
+
+endmenu

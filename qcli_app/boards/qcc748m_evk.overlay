@@ -46,6 +46,16 @@
 	};
 };
 
+/* Optional coredump profiles. Default QCLI uses Mode 0 at 115200 baud. */
+
+/* Mode 1 full-dump testing: manually enable UART0 2 Mbaud before building. */
+/*
+&uart0 {
+	current-speed = <2000000>;
+	clocks = <&clock0 QC7XX_PERIPHERAL_UART0 QC7XX_UART_CLK_MUXPLL_160M>;
+};
+*/
+
 &spi0 {
 	status = "okay";
 	pinctrl-0 = <&spi0_default>;
@@ -55,6 +65,29 @@
 &dma {
 	status = "okay";
 };
+
+/* Mode 2: flash_tracked_psram (1.5 MiB coredump slot). */
+/*
+/delete-node/ &coredump_partition;
+
+&flash0 {
+	partitions {
+		coredump_partition: partition@67e000 {
+			label = "coredump-partition";
+			reg = <0x67e000 0x180000>;
+		};
+	};
+};
+*/
+
+/* Mode 3: serial_tracked_psram needs no DeviceTree change. */
+
+/* Optional watchdog coordination when QCLI installs and feeds wdt0. */
+/*
+&wdt0 {
+	status = "okay";
+};
+*/
 
 / {
 	zephyr,user {
@@ -83,5 +116,3 @@
 	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
 	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
 };
-
-

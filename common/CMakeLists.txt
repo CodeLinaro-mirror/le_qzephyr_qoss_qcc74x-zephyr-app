@@ -11,6 +11,7 @@ add_subdirectory_ifdef(CONFIG_QCC74X_TCP_OTA fota)
 if(CONFIG_QCC74X_TCP_OTA)
     zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/fota/include)
 endif()
+add_subdirectory_ifdef(CONFIG_QCC74X_COREDUMP_RUNTIME coredump)
 add_subdirectory_ifdef(CONFIG_QCC74X_UART_EDL_TRIGGER uart_edl)
 
 function(gen_crm_number)
