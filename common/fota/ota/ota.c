@@ -18,7 +18,7 @@
 #define PT1           0xf000U
 #define PT_MAGIC      0x54504642U
 #define FLASH_BLOCK   4096U
-#define WRITE_BLOCK   64U
+#define WRITE_BLOCK   32U
 #define PROGRESS_STEP (64U * 1024U)
 
 struct __packed pt_header {

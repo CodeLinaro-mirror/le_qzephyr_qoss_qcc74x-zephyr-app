@@ -13,13 +13,9 @@
 #include <zephyr/net/socket.h>
 #include <zephyr/sys/atomic.h>
 
-#ifdef CONFIG_PSRAM
-#define TCP_RCVBUF     4096U
-#define TCP_RECV_BLOCK 512U
-#else
-#define TCP_RCVBUF     1024U
-#define TCP_RECV_BLOCK 128U
-#endif
+/* One TCP credit batch is consumed, written, then explicitly returned. */
+#define TCP_RCVBUF     2048U
+#define TCP_RECV_BLOCK TCP_RCVBUF
 
 #define PROGRESS_STEP (64U * 1024U)
 
@@ -128,7 +124,6 @@ int qcc74x_fota_start(const char *ip, uint16_t port)
 		rc = fota_cancelled() ? -ECANCELED : -errno;
 		goto out;
 	}
-
 	for (n = 0; n < QCC74X_OTA_HEADER_SIZE;) {
 		if (fota_cancelled()) {
 			rc = -ECANCELED;
@@ -149,7 +144,8 @@ int qcc74x_fota_start(const char *ip, uint16_t port)
 	}
 
 	qcc74x_ota_stage_begin(&header);
-	printk("OTA: downloading 0/%u bytes\n", header.length);
+	printk("OTA: downloading 0/%u bytes (TCP receive window %u)\n", header.length,
+	       TCP_RCVBUF);
 	transfer_started = true;
 
 	/* Let the Wi-Fi/network threads queue the first immediate-stream payload. */
