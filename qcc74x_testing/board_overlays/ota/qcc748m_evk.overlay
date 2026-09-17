@@ -1,0 +1,18 @@
+/*
+ * OTA-from-LittleFS test fixture storage.
+ *
+ * The existing firmware slots, scratch partition and coredump region end
+ * below 0x00400000. This test-only storage partition uses 2 MiB of the
+ * confirmed 8 MiB external flash and must not be used by a production image.
+ */
+
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		storage_partition: partition@400000 {
+			label = "storage";
+			reg = <0x00400000 DT_SIZE_M(2)>;
+		};
+	};
+};
