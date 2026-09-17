@@ -77,4 +77,12 @@ config QCOM_SPI_SHELL_BUFFER_SIZE
 	  Maximum payload size for the generic SPI shell TX/RX buffers.  Larger
 	  values can be selected by applications that need large DMA transfers.
 
+config QCOM_ACOMP_SHELL
+	bool "QCOM comparator shell"
+	depends on SHELL && COMPARATOR && GPIO
+	help
+	  Enable QCC74x comparator commands under "qcom acomp". Commands run in
+	  a dedicated service thread to serialize comparator and optional
+	  drive-GPIO access.
+
 endmenu
