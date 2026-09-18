@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include "qcc74xm_evk_common.dtsi"
+
+&pinctrl {
+	i2s0_default: i2s0_default {
+		group1 {
+			pinmux = <I2S0_BCLK_GPIO16>,
+				 <I2S0_FS_GPIO17>,
+				 <I2S0_DI_GPIO34>,
+				 <I2S0_DO_GPIO31>;
+			input-enable;
+		};
+	};
+};

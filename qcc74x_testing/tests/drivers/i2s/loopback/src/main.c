@@ -11,7 +11,7 @@
 
 #define I2S_RXTX_NODE DT_ALIAS(i2s_rxtx)
 
-#define SAMPLE_FREQUENCY   44100
+#define SAMPLE_FREQUENCY   48000
 #define SAMPLE_BIT_WIDTH   16
 #define BYTES_PER_SAMPLE   sizeof(int16_t)
 #define NUMBER_OF_CHANNELS 2
@@ -144,6 +144,17 @@ ZTEST(i2s_loopback, test_loopback_transfer)
 			     (SEND_BLOCK_COUNT * SAMPLES_PER_BLOCK - ALLOWED_TX_RX_SAMPLE_OFFSET),
 		     "not enough samples were checked");
 	zassert_true(sample_mismatch_count == 0, "%d samples mismatched", sample_mismatch_count);
+
+	/* Wait for RX DMA to complete current block (state: STOPPING -> READY) */
+	k_sleep(K_MSEC(100));
+
+	ret = i2s_trigger(i2s_dev_rxtx, I2S_DIR_RX, I2S_TRIGGER_START);
+	zassert_ok(ret, "trigger RX stream with cmd %d failed with code %d", I2S_TRIGGER_START, ret);
+
+	k_sleep(K_SECONDS(2));
+
+	ret = i2s_trigger(i2s_dev_rxtx, I2S_DIR_RX, I2S_TRIGGER_STOP);
+	zassert_ok(ret, "trigger RX stream with cmd %d failed with code %d", I2S_TRIGGER_STOP, ret);
 }
 
 ZTEST_SUITE(i2s_loopback, NULL, NULL, NULL, NULL, NULL);
