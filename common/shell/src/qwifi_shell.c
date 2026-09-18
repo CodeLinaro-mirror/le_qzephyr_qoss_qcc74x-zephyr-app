@@ -13,6 +13,12 @@
 #include "wifi_mgmr.h"
 #include "wifi_mgmr_pmk.h"
 #include "wireless_api.h"
+/*
+ * Provides union fhost_rc_rate_ctrl_info (the packed word wifi_mgmr_rate_config()
+ * takes), the FORMATMOD_* codes and, through export/mac/mac.h, the FIRST_*
+ * boundaries of the MAC rate-control table.
+ */
+#include "fhost.h"
 
 /*
  * wifi_mgmr_sta_ap_retry_limit_get() returns a uint32_t whose upper bits are
@@ -64,6 +70,25 @@ static const struct qcom_wifi_phy_mode qcom_wifi_phy_modes[] = {
 	{ "bgn", WIFI_MODE_BGN },
 	{ "bgnax", WIFI_MODE_BGNAX },
 };
+
+/* Sentinel that wifi_mgmr_rate_config() reads as "let rate control pick". */
+#define QCOM_WIFI_RATE_AUTO 0xFFFFU
+
+/* Highest HE GI/LTF selector accepted by gi_and_pre_type_tx. */
+#define QCOM_WIFI_RATE_GI_MAX 2
+
+/*
+ * QCC74x is 2.4 GHz only, so only PHY_CHNL_BW_20MHZ (0) and BW_40MHZ (1) are
+ * reachable; table indices that decode to 80/160 MHz are rejected.
+ */
+#define QCOM_WIFI_RATE_BW_MAX 1
+
+/*
+ * Legacy OFDM occupies mcs_idx 4..11 of the NON_HT format. wifi_mgmr_rate_config()
+ * returns 0 for those but the link keeps its previous rate, measured on hardware,
+ * so the command warns instead of reporting a clean success.
+ */
+#define QCOM_WIFI_RATE_FIRST_OFDM_MCS_IDX 4
 
 static void qcom_wifi_print_mac(const struct shell *sh, const char *label, const uint8_t *mac)
 {
@@ -444,34 +469,342 @@ static int cmd_qcom_wifi_get_phy_mode(const struct shell *sh, size_t argc, char 
 	return 0;
 }
 
+/*
+ * Turn a rate-control table index into the packed word the firmware wants. The
+ * index is the position in the MAC's linear rate table, which enumerates every
+ * format/MCS/bandwidth/GI/NSS/DCM combination in that order, so the arithmetic
+ * below is the same unpacking the vendor `soc_wifi rc -f` command does (see
+ * qcc74x-zephyr/drivers/wifi/qc7xx/src/qc7xx_wifi_shell.c) and the indices from
+ * the 20M and 40M sheets of the vendor rate-control table spreadsheet apply
+ * unchanged. The indices worth using on this part:
+ *
+ *   Mode            BW      MCS / rate            Indices
+ *   --------------- ------- --------------------- ---------------------------
+ *   DSSS/CCK        20 MHz  1, 2, 5.5, 11 Mbps    1, 3, 5, 7
+ *   OFDM            20 MHz  6, 9, 12, 18,         8 - 15
+ *                           24, 36, 48, 54 Mbps
+ *   HT_MF, LGI      20 MHz  MCS0 - MCS7           16, 20, 24, 28, 32, 36, 40,
+ *                                                 44
+ *   HT_MF, LGI      40 MHz  MCS0 - MCS7           18, 22, 26, 30, 34, 38, 42,
+ *                                                 46
+ *   VHT, LGI        20 MHz  MCS0 - MCS8           144, 152, 160, 168, 176,
+ *                                                 184, 192, 200, 208
+ *   VHT, LGI        40 MHz  MCS0 - MCS8           146, 154, 162, 170, 178,
+ *                                                 186, 194, 202, 210
+ *   HE_SU, 1.6us GI 20 MHz  MCS0 - MCS11          785, 797, 809, 821, 833,
+ *                                                 845, 857, 869, 881, 893,
+ *                                                 905, 917
+ *   HE_SU, 1.6us GI 40 MHz  MCS0 - MCS11          788, 800, 812, 824, 836,
+ *                                                 848, 860, 872, 884, 896,
+ *                                                 908, 920
+ *   HE_SU DCM       20 MHz  MCS0, 1, 3, 4         1361, 1373, 1397, 1409
+ *   HE_ER, 1.6us GI 20 MHz  MCS0 - MCS2           3665, 3668, 3671
+ *   HE_ER DCM       20 MHz  MCS0 - MCS1           3683, 3686
+ *
+ * The spreadsheet's 80M sheet does not apply: QCC74x is 2.4 GHz only, so any
+ * index that decodes to more than 40 MHz is rejected below.
+ *
+ * Anything at or past FIRST_HE_MU but below FIRST_HE_ER is multi-user HE, which
+ * a single link cannot be pinned to, hence -ENOTSUP.
+ */
+static int qcom_wifi_rate_idx_to_cfg(int idx, uint16_t *cfg)
+{
+	/*
+	 * mcs_idx is one flat 7-bit field in fhost_rc_rate_ctrl_info; for HT and
+	 * VHT/HE it is really an MCS plus a stream count, so overlay it.
+	 */
+	union qcom_wifi_rate_mcs_index {
+		struct {
+			uint32_t mcs : 3;
+			uint32_t nss : 2;
+		} ht;
+		struct {
+			uint32_t mcs : 4;
+			uint32_t nss : 3;
+		} vht;
+	};
+	/*
+	 * The FIRST_* macros in mac.h are unparenthesised sums, so they must be
+	 * bound to a variable before being subtracted from anything.
+	 */
+	const uint16_t first_ofdm = FIRST_OFDM;
+	const uint16_t first_ht = FIRST_HT;
+	const uint16_t first_vht = FIRST_VHT;
+	const uint16_t first_he_su = FIRST_HE_SU;
+	const uint16_t first_he_mu = FIRST_HE_MU;
+	const uint16_t first_he_er = FIRST_HE_ER;
+	/* Table entries per MCS: bandwidths * GIs, per format. */
+	const uint8_t ht_rates_per_mcs = 2 * 2;
+	const uint8_t vht_rates_per_mcs = 4 * 2;
+	const uint8_t he_su_rates_per_mcs = 4 * 3;
+	const uint8_t he_er_rates_per_mcs = 3;
+	const uint8_t max_vht_mcs = 10;
+	const uint8_t max_he_mcs = 12;
+	union fhost_rc_rate_ctrl_info rc = { .value = 0 };
+	union qcom_wifi_rate_mcs_index *rate = (union qcom_wifi_rate_mcs_index *)&rc;
+
+	if (idx < 0 || idx >= TOT_RATES) {
+		*cfg = QCOM_WIFI_RATE_AUTO;
+		return 0;
+	}
+
+	if (idx < first_ofdm) {
+		/* CCK: the odd index of each pair is the short-preamble variant. */
+		rc.format_mod_tx = FORMATMOD_NON_HT;
+		rc.gi_and_pre_type_tx = (idx & 1) << 1;
+		rc.mcs_idx = idx / 2;
+	} else if (idx < first_ht) {
+		rc.format_mod_tx = FORMATMOD_NON_HT;
+		rc.mcs_idx = idx - N_CCK + QCOM_WIFI_RATE_FIRST_OFDM_MCS_IDX;
+	} else if (idx < first_vht) {
+		int rel = idx - first_ht;
+
+		rc.format_mod_tx = FORMATMOD_HT_MF;
+		rate->ht.nss = rel / (8 * ht_rates_per_mcs);
+		rate->ht.mcs = (rel % (8 * ht_rates_per_mcs)) / ht_rates_per_mcs;
+		rc.bw_tx = ((rel % (8 * ht_rates_per_mcs)) % ht_rates_per_mcs) / 2;
+		rc.gi_and_pre_type_tx = rel & 1;
+	} else if (idx < first_he_su) {
+		int rel = idx - first_vht;
+
+		rc.format_mod_tx = FORMATMOD_VHT;
+		rate->vht.nss = rel / (max_vht_mcs * vht_rates_per_mcs);
+		rate->vht.mcs = (rel % (max_vht_mcs * vht_rates_per_mcs)) / vht_rates_per_mcs;
+		rc.bw_tx = ((rel % (max_vht_mcs * vht_rates_per_mcs)) % vht_rates_per_mcs) / 2;
+		rc.gi_and_pre_type_tx = rel & 1;
+	} else if (idx < first_he_mu) {
+		int rel = idx - first_he_su;
+
+		rc.format_mod_tx = FORMATMOD_HE_SU;
+		rc.dcm_tx = rel / (4 * max_he_mcs * he_su_rates_per_mcs);
+		rate->vht.nss = (rel % (4 * max_he_mcs * he_su_rates_per_mcs)) /
+				(max_he_mcs * he_su_rates_per_mcs);
+		rate->vht.mcs = (rel % (max_he_mcs * he_su_rates_per_mcs)) / he_su_rates_per_mcs;
+		rc.bw_tx = ((rel % (max_he_mcs * he_su_rates_per_mcs)) % he_su_rates_per_mcs) / 3;
+		rc.gi_and_pre_type_tx = rel % 3;
+	} else if (idx < first_he_er) {
+		return -ENOTSUP;
+	} else {
+		int rel = idx - first_he_er;
+
+		rc.format_mod_tx = FORMATMOD_HE_ER;
+		rc.dcm_tx = rel / (2 * 3 * he_er_rates_per_mcs);
+		rc.bw_tx = (rel % (2 * 3 * he_er_rates_per_mcs)) / (3 * he_er_rates_per_mcs);
+		rc.gi_and_pre_type_tx = rel % 3;
+		rate->vht.mcs = (rel % (3 * he_er_rates_per_mcs)) / he_er_rates_per_mcs;
+		rate->vht.nss = 0;
+	}
+
+	if (rc.bw_tx > QCOM_WIFI_RATE_BW_MAX) {
+		return -ENOTSUP;
+	}
+
+	*cfg = (uint16_t)rc.value;
+
+	return 0;
+}
+
+static const char *qcom_wifi_rate_format_name(uint32_t format_mod)
+{
+	switch (format_mod) {
+	case FORMATMOD_NON_HT:
+		return "NON_HT";
+	case FORMATMOD_NON_HT_DUP_OFDM:
+		return "NON_HT_DUP_OFDM";
+	case FORMATMOD_HT_MF:
+		return "HT_MF";
+	case FORMATMOD_HT_GF:
+		return "HT_GF";
+	case FORMATMOD_VHT:
+		return "VHT";
+	case FORMATMOD_HE_SU:
+		return "HE_SU";
+	case FORMATMOD_HE_MU:
+		return "HE_MU";
+	case FORMATMOD_HE_ER:
+		return "HE_ER";
+	default:
+		return "unknown";
+	}
+}
+
+/*
+ * gi_and_pre_type_tx is overloaded per format, and nothing below this shell
+ * validates it. Measured on hardware: an HT rate carrying the HE-only selector 2
+ * (cfg 0x1407) was accepted, then dropped the link and left it stuck in
+ * ASSOCIATING until the chip was reset. So the combination has to be rejected
+ * here.
+ *
+ *   NON_HT    0 = long preamble, 2 = short preamble
+ *   HT, VHT   0 = long GI (0.8 us), 1 = short GI (0.4 us)
+ *   HE        0 = 0.8 us 2xLTF, 1 = 1.6 us 2xLTF, 2 = 3.2 us 4xLTF
+ */
+static const char *qcom_wifi_rate_gi_allowed(uint32_t format_mod)
+{
+	switch (format_mod) {
+	case FORMATMOD_NON_HT:
+	case FORMATMOD_NON_HT_DUP_OFDM:
+		return "0 (long preamble) or 2 (short preamble)";
+	case FORMATMOD_HT_MF:
+	case FORMATMOD_HT_GF:
+	case FORMATMOD_VHT:
+		return "0 (long GI) or 1 (short GI)";
+	default:
+		return "0, 1 or 2";
+	}
+}
+
+static int qcom_wifi_rate_apply_gi(uint16_t *cfg, uint8_t gi)
+{
+	union fhost_rc_rate_ctrl_info rc;
+
+	rc.value = *cfg;
+
+	switch (rc.format_mod_tx) {
+	case FORMATMOD_NON_HT:
+	case FORMATMOD_NON_HT_DUP_OFDM:
+		if (gi != 0U && gi != 2U) {
+			return -EINVAL;
+		}
+		break;
+	case FORMATMOD_HT_MF:
+	case FORMATMOD_HT_GF:
+	case FORMATMOD_VHT:
+		if (gi > 1U) {
+			return -EINVAL;
+		}
+		break;
+	default:
+		if (gi > QCOM_WIFI_RATE_GI_MAX) {
+			return -EINVAL;
+		}
+		break;
+	}
+
+	rc.gi_and_pre_type_tx = gi;
+	*cfg = (uint16_t)rc.value;
+
+	return 0;
+}
+
+/*
+ * Decode the packed word back into something readable. mcs_idx carries the
+ * stream count for HT/VHT/HE, so it is only a plain MCS number for the formats
+ * where nss is known to be zero; print the raw field as well rather than guess.
+ */
+static void qcom_wifi_print_rate_cfg(const struct shell *sh, uint16_t cfg)
+{
+	union fhost_rc_rate_ctrl_info rc;
+	static const char *const bw_names[] = { "20 MHz", "40 MHz", "80 MHz", "160 MHz" };
+
+	rc.value = cfg;
+
+	shell_print(sh, "%-16s 0x%04x", "rate cfg", cfg);
+	shell_print(sh, "%-16s %s", "format", qcom_wifi_rate_format_name(rc.format_mod_tx));
+	shell_print(sh, "%-16s %u", "mcs_idx", rc.mcs_idx);
+	shell_print(sh, "%-16s %s", "bandwidth", bw_names[rc.bw_tx]);
+	shell_print(sh, "%-16s %u", "gi/preamble", rc.gi_and_pre_type_tx);
+	shell_print(sh, "%-16s %s", "dcm", rc.dcm_tx != 0U ? "on" : "off");
+}
+
+/*
+ * The fhost stack exposes no getter for the fixed rate: wifi_mgmr_rate_config()
+ * is write-only and the RC statistics behind CFGRWNX_RC_CMD are not wrapped by
+ * any wifi_mgmr call. get_rate therefore reports what this shell last
+ * programmed, which is not the same as what the link is really transmitting at:
+ * it does not see rates set through `soc_wifi rc`, and a request the firmware
+ * silently ignored (legacy OFDM) still shows up here.
+ */
+static uint16_t qcom_wifi_fixed_rate_cfg = QCOM_WIFI_RATE_AUTO;
+static long qcom_wifi_fixed_rate_idx = -1;
+
+static int cmd_qcom_wifi_get_rate(const struct shell *sh, size_t argc, char **argv)
+{
+	ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
+	if (qcom_wifi_fixed_rate_cfg == QCOM_WIFI_RATE_AUTO) {
+		shell_print(sh, "%-16s automatic (no fixed rate set by this shell)", "rate");
+		return 0;
+	}
+
+	shell_print(sh, "%-16s %ld", "rate index", qcom_wifi_fixed_rate_idx);
+	qcom_wifi_print_rate_cfg(sh, qcom_wifi_fixed_rate_cfg);
+
+	return 0;
+}
+
 static int cmd_qcom_wifi_set_rate(const struct shell *sh, size_t argc, char **argv)
 {
-	unsigned long cfg;
+	const int tot_rates = TOT_RATES;
+	union fhost_rc_rate_ctrl_info rc;
+	uint16_t cfg;
+	long idx = -1;
 	int err = 0;
 	int ret;
 
-	ARG_UNUSED(argc);
-
 	if (strcmp(argv[1], "auto") == 0 || strcmp(argv[1], "off") == 0) {
-		cfg = 0xFFFFUL;
+		cfg = QCOM_WIFI_RATE_AUTO;
 	} else {
-		cfg = shell_strtoul(argv[1], 0, &err);
-		if (err != 0 || cfg > 0xFFFFUL) {
-			shell_error(sh, "Unable to parse <rate_cfg> '%s'", argv[1]);
+		idx = shell_strtol(argv[1], 0, &err);
+		if (err != 0 || idx < -1 || idx >= tot_rates) {
+			shell_error(sh, "Expected <idx> in 0..%d, -1 or auto, got '%s'",
+				    tot_rates - 1, argv[1]);
 			return -EINVAL;
+		}
+
+		ret = qcom_wifi_rate_idx_to_cfg((int)idx, &cfg);
+		if (ret != 0) {
+			shell_error(sh, "Rate index %ld is not supported on this part (%d)",
+				    idx, ret);
+			return ret;
+		}
+
+		/*
+		 * The GI override is checked against the format the index decodes
+		 * to, so it has to come after the conversion.
+		 */
+		if (argc == 3 && cfg != QCOM_WIFI_RATE_AUTO) {
+			long gi_arg = shell_strtol(argv[2], 10, &err);
+
+			if (err != 0 || gi_arg < 0 || gi_arg > QCOM_WIFI_RATE_GI_MAX) {
+				shell_error(sh, "Expected <gi> in 0..%d, got '%s'",
+					    QCOM_WIFI_RATE_GI_MAX, argv[2]);
+				return -EINVAL;
+			}
+
+			if (qcom_wifi_rate_apply_gi(&cfg, (uint8_t)gi_arg) != 0) {
+				rc.value = cfg;
+				shell_error(sh, "GI %ld is not valid for %s; expected %s",
+					    gi_arg,
+					    qcom_wifi_rate_format_name(rc.format_mod_tx),
+					    qcom_wifi_rate_gi_allowed(rc.format_mod_tx));
+				return -EINVAL;
+			}
 		}
 	}
 
-	ret = wifi_mgmr_rate_config((uint16_t)cfg);
+	ret = wifi_mgmr_rate_config(cfg);
 	if (ret != 0) {
-		shell_error(sh, "Unable to set rate config 0x%04lx (%d)", cfg, ret);
+		shell_error(sh, "Unable to set rate config 0x%04x (%d)", cfg, ret);
 		return -EIO;
 	}
 
-	if (cfg == 0xFFFFUL) {
+	qcom_wifi_fixed_rate_cfg = cfg;
+	qcom_wifi_fixed_rate_idx = idx;
+
+	if (cfg == QCOM_WIFI_RATE_AUTO) {
 		shell_print(sh, "Fixed rate disabled");
-	} else {
-		shell_print(sh, "Fixed rate config set to 0x%04lx", cfg);
+		return 0;
+	}
+
+	shell_print(sh, "Fixed rate index %ld set (cfg 0x%04x)", idx, cfg);
+
+	rc.value = cfg;
+	if (rc.format_mod_tx == FORMATMOD_NON_HT &&
+	    rc.mcs_idx >= QCOM_WIFI_RATE_FIRST_OFDM_MCS_IDX) {
+		shell_warn(sh, "Legacy OFDM is accepted but not applied by the firmware; "
+			       "the link keeps its previous rate.");
 	}
 
 	return 0;
@@ -879,10 +1212,29 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_qcom_wifi_commands,
 					     "Usage: qcom wifi get_phy_mode [<sta|ap>]",
 					     cmd_qcom_wifi_get_phy_mode, 1, 1),
 			       SHELL_CMD_ARG(set_rate, NULL,
-					     "Pin the transmit rate.\n"
-					     "Usage: qcom wifi set_rate <auto|rate_cfg>\n"
-					     "<rate_cfg>: fhost fixed rate config word.\n",
-					     cmd_qcom_wifi_set_rate, 2, 0),
+					     "Pin the transmit rate of the connected link.\n"
+					     "Usage: qcom wifi set_rate <auto|-1|idx> [<gi>]\n"
+					     "<idx>: rate-control table index, from the 20M and\n"
+					     "       40M sheets of the vendor rate table.\n"
+					     "       1/3/5/7 CCK,\n"
+					     "       8-15 legacy OFDM, 16-46 HT, 144-210 VHT,\n"
+					     "       785-920 HE SU, 3665-3686 HE ER. Indices\n"
+					     "       above 40 MHz are rejected.\n"
+					     "<gi>:  GI override, meaning depends on format.\n"
+					     "       HE:     0 = 0.8us 2xLTF,\n"
+					     "               1 = 1.6us 2xLTF,\n"
+					     "               2 = 3.2us 4xLTF\n"
+					     "       HT/VHT: 0 = long GI, 1 = short GI\n"
+					     "       CCK:    0 = long, 2 = short preamble\n"
+					     "auto or -1 restores automatic rate control.",
+					     cmd_qcom_wifi_set_rate, 2, 1),
+			       SHELL_CMD_ARG(get_rate, NULL,
+					     "Show the fixed rate last set by set_rate.\n"
+					     "Usage: qcom wifi get_rate\n"
+					     "The stack has no getter, so this is the shell's\n"
+					     "own record: it does not see rates set through\n"
+					     "soc_wifi rc, nor requests the firmware ignored.",
+					     cmd_qcom_wifi_get_rate, 1, 0),
 			       SHELL_CMD_ARG(set_retry_limit, NULL,
 					     "Set the transmit retry limit.\n"
 					     "Usage: qcom wifi set_retry_limit <1-255>",
