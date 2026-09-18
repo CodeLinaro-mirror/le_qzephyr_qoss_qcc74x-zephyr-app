@@ -1,0 +1,9 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause
+
+tests:
+  crypto.psa_hash_qcc74x:
+    tags: crypto psa hash
+    depends_on: crypto
+    platform_allow:
+      - qcc748m_evk

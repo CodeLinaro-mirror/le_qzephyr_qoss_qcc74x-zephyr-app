@@ -85,4 +85,14 @@ config QCOM_ACOMP_SHELL
 	  a dedicated service thread to serialize comparator and optional
 	  drive-GPIO access.
 
+config QCOM_PSA_HASH_SHELL
+	bool "PSA Hash shell commands"
+	depends on SHELL
+	depends on MBEDTLS_PSA_CRYPTO_C
+	help
+	  Enable interactive shell commands for PSA hash computation.
+	  Provides 'hash oneshot/multipart/str-oneshot/str-multipart/list/help'
+	  commands. Works with any active PSA hash backend (HW transparent
+	  driver or SW fallback). Does not depend on a specific driver variant.
+
 endmenu
