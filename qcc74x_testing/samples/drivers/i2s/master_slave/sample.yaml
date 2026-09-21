@@ -1,0 +1,17 @@
+# Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+common:
+  depends_on:
+    - i2s
+    - gpio
+    - dma
+  tags:
+    - drivers
+    - i2s
+  platform_allow:
+    - qcc744m_evk
+    - qcc748m_evk
+
+tests:
+  qcc7xx.sample.drivers.i2s.master_slave: {}
