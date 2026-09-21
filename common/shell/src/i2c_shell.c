@@ -1,11 +1,4 @@
 /*
- * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: BSD-3-Clause
- *
- * Contains code under the following license:
- *
- * Not a contribution.
- *
  * Copyright (c) 2018 Prevas A/S
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -13,6 +6,10 @@
  * Modified: cmd_i2c_read and cmd_i2c_write run in background threads
  * via shell_async so they don't block the shell prompt.
  * All other commands (scan, speed, recover, ...) remain synchronous.
+ *
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
 
 #include <zephyr/drivers/i2c.h>

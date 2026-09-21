@@ -1,13 +1,10 @@
 /*
- * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
- * SPDX-License-Identifier: BSD-3-Clause
- *
- * Contains code under the following license:
- *
- * Not a contribution.
- *
  * Copyright (c) 2020 Libre Solar Technologies GmbH
  * SPDX-License-Identifier: Apache-2.0.
+ *
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
 
 
