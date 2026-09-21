@@ -150,7 +150,7 @@ static void lp_pds_print_diag(const struct shell *sh,
 			      const struct qcc74x_pm_diag_stats *diag)
 {
 	shell_print(sh,
-		    "lp_pds diag: state_set=%u exit_post_ops=%u shallow=%u deep=%u prepare=%u skip=%u last_skip=%s resume_ok=%u resume_fail=%u last_rc=%d wake_reason=0x%08x uart_resume_rc=%d requested_us=%llu elapsed_us=%llu",
+		    "lp_pds diag: state_set=%u exit_post_ops=%u shallow=%u deep=%u prepare=%u skip=%u last_skip=%s resume_ok=%u resume_fail=%u last_rc=%d wake_reason=0x%08x requested_us=%llu elapsed_us=%llu",
 		    diag->state_set_calls,
 		    diag->exit_post_ops_calls,
 		    diag->shallow_idle_calls,
@@ -163,7 +163,6 @@ static void lp_pds_print_diag(const struct shell *sh,
 		    diag->deep_resume_failures,
 		    diag->last_deep_return_code,
 		    diag->last_wake_reason,
-		    diag->last_uart_resume_rc,
 		    (unsigned long long)diag->last_deep_requested_us,
 		    (unsigned long long)diag->last_deep_elapsed_us);
 	shell_print(
@@ -329,10 +328,10 @@ static void lp_pds_print_status(const struct shell *sh)
 	deep_sleep_cycles = status.cycle_count;
 
 	shell_print(sh,
-		    "lp_pds config: lowpower=1 diag=%d pds15=%d uart_resume=%d psram=%d",
+		    "lp_pds config: lowpower=1 diag=%d pds15=%d system_device_pm=%d psram=%d",
 		    IS_ENABLED(CONFIG_QCC74X_PM_DIAGNOSTICS),
 		    IS_ENABLED(CONFIG_QCC74X_PM_PDS15),
-		    IS_ENABLED(CONFIG_QCC74X_PM_PDS15_UART_RESUME),
+		    IS_ENABLED(CONFIG_PM_DEVICE_SYSTEM_MANAGED),
 		    IS_ENABLED(CONFIG_PSRAM));
 	shell_print(sh,
 		    "lp_pds state: initialized=%d init_in_progress=%d init_rc=%d policy_lock=%d current_slice_us=%llu",
