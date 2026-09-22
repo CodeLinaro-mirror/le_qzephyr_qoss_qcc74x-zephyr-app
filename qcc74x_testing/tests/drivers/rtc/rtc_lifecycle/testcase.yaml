@@ -1,0 +1,14 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+tests:
+  qcc7xx.drivers.rtc.lifecycle:
+    tags:
+      - drivers
+      - rtc
+      - l2
+    depends_on: rtc
+    filter: dt_alias_exists("rtc")
+    platform_allow:
+      - qcc748m_evk
+    timeout: 30
