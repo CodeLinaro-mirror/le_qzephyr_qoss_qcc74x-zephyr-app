@@ -9,6 +9,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/flash.h>
+#include <zephyr/drivers/flash/qcc74x_emergency.h>
 #include <zephyr/shell/shell.h>
 #include <zephyr/soc/qualcomm/qcc74x_coredump_memory.h>
 #include <zephyr/sys/crc.h>
@@ -17,6 +18,10 @@
 #include "qcc74x_coredump_flash_format.h"
 
 static const char *qcom_coredump_backend(void) {
+  if (IS_ENABLED(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_FLASH)) {
+    return "qcc74x-safe-flash";
+  }
+
   if (IS_ENABLED(CONFIG_DEBUG_COREDUMP_BACKEND_OTHER)) {
     return "qcc74x-safe-serial";
   }
@@ -101,6 +106,11 @@ static int cmd_qcom_coredump_budget(const struct shell *shell, size_t argc,
   DT_REG_ADDR(DT_NODELABEL(coredump_partition))
 #define QCC74X_COREDUMP_FLASH_SLOT_SIZE                                        \
   DT_REG_SIZE(DT_NODELABEL(coredump_partition))
+#define QCC74X_COREDUMP_FLASH_REGION                                            \
+  ((struct flash_qcc74x_emergency_region){                                     \
+      .offset = QCC74X_COREDUMP_FLASH_SLOT_OFFSET,                              \
+      .size = QCC74X_COREDUMP_FLASH_SLOT_SIZE,                                  \
+  })
 #define QCC74X_COREDUMP_FLASH_PAYLOAD_OFFSET                                  \
   DT_PROP(QCC74X_COREDUMP_FLASH_STORAGE_NODE, write_block_size)
 #define QCC74X_COREDUMP_FLASH_EXPORT_LINE_BYTES 32U
@@ -112,17 +122,24 @@ static char qcc74x_coredump_hex(uint8_t value) {
   return value < 10U ? (char)('0' + value) : (char)('a' + (value - 10U));
 }
 
-static int qcc74x_coredump_flash_read_header(
-    struct qcc74x_coredump_flash_header *header) {
+static int qcc74x_coredump_flash_session_open(
+    struct flash_qcc74x_emergency_session *session) {
   const struct device *flash = DEVICE_DT_GET(QCC74X_COREDUMP_FLASH_DEVICE_NODE);
-  int result;
 
   if (!device_is_ready(flash)) {
     return -ENODEV;
   }
 
-  result = flash_read(flash, QCC74X_COREDUMP_FLASH_SLOT_OFFSET, header,
-                      sizeof(*header));
+  return flash_qcc74x_emergency_try_lock(flash, &QCC74X_COREDUMP_FLASH_REGION,
+                                          session);
+}
+
+static int qcc74x_coredump_flash_read_header(
+    struct flash_qcc74x_emergency_session *session,
+    struct qcc74x_coredump_flash_header *header) {
+  int result;
+
+  result = flash_qcc74x_emergency_read(session, 0, header, sizeof(*header));
   if (result != 0) {
     return result;
   }
@@ -146,12 +163,21 @@ static int qcc74x_coredump_flash_read_header(
 static int cmd_qcom_coredump_flash_status(const struct shell *shell,
                                           size_t argc, char **argv) {
   struct qcc74x_coredump_flash_header header;
+  struct flash_qcc74x_emergency_session session = {0};
+  bool session_locked = false;
   int result;
 
   ARG_UNUSED(argc);
   ARG_UNUSED(argv);
 
-  result = qcc74x_coredump_flash_read_header(&header);
+  result = qcc74x_coredump_flash_session_open(&session);
+  if (result == 0) {
+    session_locked = true;
+    result = qcc74x_coredump_flash_read_header(&session, &header);
+  }
+  if (session_locked) {
+    flash_qcc74x_emergency_unlock(&session);
+  }
   if (result != 0) {
     shell_error(shell, "Flash coredump unavailable: err=%d", result);
     return result;
@@ -164,8 +190,9 @@ static int cmd_qcom_coredump_flash_status(const struct shell *shell,
 
 static int cmd_qcom_coredump_flash_export(const struct shell *shell,
                                           size_t argc, char **argv) {
-  const struct device *flash = DEVICE_DT_GET(QCC74X_COREDUMP_FLASH_DEVICE_NODE);
   struct qcc74x_coredump_flash_header header;
+  struct flash_qcc74x_emergency_session session = {0};
+  bool session_locked = false;
   uint8_t buffer[QCC74X_COREDUMP_FLASH_EXPORT_LINE_BYTES];
   uint32_t crc = 0U;
   size_t offset = 0U;
@@ -174,10 +201,14 @@ static int cmd_qcom_coredump_flash_export(const struct shell *shell,
   ARG_UNUSED(argc);
   ARG_UNUSED(argv);
 
-  result = qcc74x_coredump_flash_read_header(&header);
+  result = qcc74x_coredump_flash_session_open(&session);
+  if (result == 0) {
+    session_locked = true;
+    result = qcc74x_coredump_flash_read_header(&session, &header);
+  }
   if (result != 0) {
     shell_error(shell, "Flash coredump export rejected: err=%d", result);
-    return result;
+    goto out;
   }
 
   shell_print(shell, "#CD:BEGIN#");
@@ -185,13 +216,12 @@ static int cmd_qcom_coredump_flash_export(const struct shell *shell,
     size_t bytes = MIN(sizeof(buffer), header.payload_length - offset);
     size_t line_index = 0U;
 
-    result = flash_read(flash, QCC74X_COREDUMP_FLASH_SLOT_OFFSET +
-                                   QCC74X_COREDUMP_FLASH_PAYLOAD_OFFSET + offset,
-                        buffer, bytes);
+    result = flash_qcc74x_emergency_read(
+        &session, QCC74X_COREDUMP_FLASH_PAYLOAD_OFFSET + offset, buffer, bytes);
     if (result != 0) {
       shell_error(shell, "Flash coredump read failed at %u: err=%d",
                   (unsigned int)offset, result);
-      return result;
+      goto out;
     }
 
     crc = crc32_ieee_update(crc, buffer, bytes);
@@ -215,13 +245,20 @@ static int cmd_qcom_coredump_flash_export(const struct shell *shell,
                 "Flash coredump export rejected: CRC mismatch stored=0x%08x "
                 "calculated=0x%08x",
                 header.payload_crc, crc);
-    return -EBADMSG;
+    result = -EBADMSG;
+    goto out;
   }
 
   shell_print(shell, "#CD:END#");
   shell_print(shell, "Flash coredump export complete: %u bytes",
               header.payload_length);
-  return 0;
+  result = 0;
+
+out:
+  if (session_locked) {
+    flash_qcc74x_emergency_unlock(&session);
+  }
+  return result;
 }
 #endif
 
@@ -279,8 +316,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
               cmd_qcom_coredump_budget),
 #endif
 #if defined(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_FLASH)
-    SHELL_CMD(flash, NULL, "Inspect or export the stored Flash coredump",
-              &sub_qcom_coredump_flash),
+    SHELL_CMD(flash, &sub_qcom_coredump_flash,
+              "Inspect or export the stored Flash coredump", NULL),
 #endif
 #if defined(CONFIG_QCC74X_COREDUMP_TEST_COMMANDS)
     SHELL_CMD(panic, NULL, "Trigger a kernel panic coredump",

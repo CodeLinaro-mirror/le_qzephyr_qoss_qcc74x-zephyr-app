@@ -47,14 +47,14 @@ config QCC74X_COREDUMP_OTHER_SAFE_FLASH
 endchoice
 
 config QCC74X_COREDUMP_OTHER_UART_POLL_LIMIT
-	int "Maximum FIFO polls per panic UART byte"
+	int "Maximum FIFO polls per coredump UART byte"
 	default 200000
 	range 1 10000000
-	depends on QCC74X_COREDUMP_OTHER_SAFE_SERIAL
+	depends on QCC74X_COREDUMP_OTHER_SAFE_SERIAL || QCC74X_COREDUMP_OTHER_SAFE_FLASH
 	help
 	  Bound the number of direct FIFO-ready register polls for each coredump
-	  output byte. A timeout aborts the coredump transport rather than waiting
-	  indefinitely in a fatal context.
+	  output byte. A timeout aborts a raw serial dump or a short safe-Flash
+	  completion marker rather than waiting indefinitely in a fatal context.
 
 endif # DEBUG_COREDUMP_BACKEND_OTHER
 
