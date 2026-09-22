@@ -4,6 +4,10 @@
  * Copyright (c) 2025 Microchip Technology Inc.
  *
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
 
 #include <zephyr/drivers/counter.h>
