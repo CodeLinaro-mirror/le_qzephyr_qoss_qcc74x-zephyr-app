@@ -888,24 +888,24 @@ static int cmd_qcom_wifi_scanlist(const struct shell *sh, size_t argc, char **ar
 		.now = k_uptime_get_32(),
 		.idx = 0U,
 	};
-	uint32_t nums;
+	int ret;
 
 	ARG_UNUSED(argc);
 	ARG_UNUSED(argv);
-
-	nums = wifi_mgmr_sta_scanlist_nums_get();
-	shell_print(sh, "cached scan results: %u", nums);
-
-	if (nums == 0U) {
-		shell_print(sh, "cache is empty; run 'wifi scan' and read back within ~20s");
-		return 0;
-	}
 
 	shell_print(sh, "idx chan bssid             rssi ppm a:r wps ant mode   auth"
 			"              cipher     age(ms) ssid");
 
 	/* Passed as both env and arg: which slot the blob forwards is undocumented. */
-	return wifi_mgmr_scan_ap_all(&ctx, &ctx, qcom_wifi_scanlist_row) == 0 ? 0 : -EIO;
+	ret = wifi_mgmr_scan_ap_all(&ctx, &ctx, qcom_wifi_scanlist_row);
+
+	if (ctx.idx == 0U) {
+		shell_print(sh, "cache is empty; run 'wifi scan' and read back within ~15s");
+	} else {
+		shell_print(sh, "cached scan results: %u", ctx.idx);
+	}
+
+	return ret == 0 ? 0 : -EIO;
 }
 
 /* ------------------------------------------------------------------------- */
