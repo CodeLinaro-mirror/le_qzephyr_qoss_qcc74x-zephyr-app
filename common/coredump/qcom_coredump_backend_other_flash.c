@@ -80,6 +80,31 @@ static int qcom_coredump_flash_write_header(uint32_t state)
 		write_block, sizeof(write_block));
 }
 
+static int qcom_coredump_flash_verify_payload(void)
+{
+	uint32_t crc = 0U;
+	size_t offset = 0U;
+
+	while (offset < coredump_flash_payload_length) {
+		size_t length = MIN(sizeof(coredump_flash_buffer),
+				    coredump_flash_payload_length - offset);
+		int result;
+
+		result = flash_qcc74x_emergency_read(
+			&coredump_flash_session,
+			QCC74X_COREDUMP_FLASH_PAYLOAD_OFFSET + offset,
+			coredump_flash_buffer, length);
+		if (result != 0) {
+			return result;
+		}
+
+		crc = crc32_ieee_update(crc, coredump_flash_buffer, length);
+		offset += length;
+	}
+
+	return crc == coredump_flash_payload_crc ? 0 : -EBADMSG;
+}
+
 static void qcom_coredump_other_flash_start(void)
 {
 	const struct flash_qcc74x_emergency_region region = {
@@ -160,6 +185,9 @@ static void qcom_coredump_other_flash_end(void)
 	if (coredump_flash_error == 0) {
 		coredump_flash_error = qcom_coredump_flash_write_header(
 			QCC74X_COREDUMP_FLASH_STATE_PREPARED);
+	}
+	if (coredump_flash_error == 0) {
+		coredump_flash_error = qcom_coredump_flash_verify_payload();
 	}
 	if (coredump_flash_error == 0) {
 		coredump_flash_error = qcom_coredump_flash_write_header(

@@ -10,11 +10,61 @@
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/kernel.h>
 #include <zephyr/soc/qualcomm/qcc74x_coredump_memory.h>
+#include <zephyr/sys/sys_io.h>
 
 #include <qc7xx_sys.h>
 
+#if defined(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_FLASH)
+#include <hardware/uart_reg.h>
+#endif
+
 #if defined(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_SERIAL)
 int qcom_coredump_backend_other_flush(void);
+#endif
+
+#if defined(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_FLASH)
+#if !DT_NODE_HAS_STATUS(DT_CHOSEN(zephyr_console), okay)
+#error "QCC74x coredump safe Flash backend requires zephyr,console"
+#endif
+
+#define QCC74X_COREDUMP_UART_BASE DT_REG_ADDR(DT_CHOSEN(zephyr_console))
+
+extern struct coredump_backend_api coredump_backend_other;
+
+static void qcom_coredump_flash_marker(const char *marker) {
+  if (marker == NULL) {
+    return;
+  }
+
+  for (const char *character = marker; *character != '\0'; character++) {
+    uint32_t poll;
+
+    for (poll = 0U; poll < CONFIG_QCC74X_COREDUMP_OTHER_UART_POLL_LIMIT;
+         poll++) {
+      if ((sys_read32(QCC74X_COREDUMP_UART_BASE + UART_FIFO_CONFIG_1_OFFSET) &
+           UART_TX_FIFO_CNT_MASK) != 0U) {
+        sys_write8((uint8_t)*character,
+                   QCC74X_COREDUMP_UART_BASE + UART_FIFO_WDATA_OFFSET);
+        break;
+      }
+    }
+
+    if (poll == CONFIG_QCC74X_COREDUMP_OTHER_UART_POLL_LIMIT) {
+      return;
+    }
+  }
+
+  for (uint32_t poll = 0U;
+       poll < CONFIG_QCC74X_COREDUMP_OTHER_UART_POLL_LIMIT; poll++) {
+    uint32_t fifo_count =
+        sys_read32(QCC74X_COREDUMP_UART_BASE + UART_FIFO_CONFIG_1_OFFSET) &
+        UART_TX_FIFO_CNT_MASK;
+
+    if (fifo_count == ((UART_TX_FIFO_CNT_MASK >> 1U) + 1U)) {
+      return;
+    }
+  }
+}
 #endif
 
 #if defined(CONFIG_QCC74X_COREDUMP_WATCHDOG_COORDINATION)
@@ -124,6 +174,9 @@ void __wrap_coredump(unsigned int reason, const struct arch_esf *esf,
            budget.planned_payload_bytes, budget.required_flash_bytes,
            budget.slot_bytes, budget.psram_ledger_overflow ? 1U : 0U);
 #endif
+#if defined(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_FLASH)
+    qcom_coredump_flash_marker("QCC74X_SAFE_FLASH_COREDUMP_REJECT\r\n");
+#endif
     qcom_coredump_finish(reason);
     return;
   }
@@ -149,6 +202,13 @@ void __wrap_coredump(unsigned int reason, const struct arch_esf *esf,
 
 #if defined(CONFIG_DEBUG_COREDUMP_BACKEND_LOGGING)
   qcom_coredump_log_result(reason, true);
+#endif
+#if defined(CONFIG_QCC74X_COREDUMP_OTHER_SAFE_FLASH)
+  if (coredump_backend_other.query(COREDUMP_QUERY_GET_ERROR, NULL) == 0) {
+    qcom_coredump_flash_marker("QCC74X_SAFE_FLASH_COREDUMP_COMPLETE\r\n");
+  } else {
+    qcom_coredump_flash_marker("QCC74X_SAFE_FLASH_COREDUMP_FAILED\r\n");
+  }
 #endif
 
   qcom_coredump_finish(reason);
