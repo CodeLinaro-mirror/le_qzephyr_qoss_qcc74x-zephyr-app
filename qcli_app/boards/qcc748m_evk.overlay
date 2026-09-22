@@ -116,3 +116,7 @@
 	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
 	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
 };
+
+&rtc0 {
+	status = "okay";
+};
