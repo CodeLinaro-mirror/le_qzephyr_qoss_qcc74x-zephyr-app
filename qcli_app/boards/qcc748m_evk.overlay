@@ -46,6 +46,10 @@
 	};
 };
 
+&wdt0 {
+	status = "okay";
+};
+
 /* Optional coredump profiles. Default QCLI uses Mode 0 at 115200 baud. */
 
 /* Mode 1 full-dump testing: manually enable UART0 2 Mbaud before building. */
