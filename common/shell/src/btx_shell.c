@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -436,4 +436,4 @@ SHELL_STATIC_SUBCMD_SET_CREATE(btx_cmds,
     SHELL_SUBCMD_SET_END
 );
 
-SHELL_SUBCMD_ADD((qcom), btx, &btx_cmds, "BT commands", NULL, 1, 0);
+SHELL_SUBCMD_ADD((qcom), bt, &btx_cmds, "BT commands", NULL, 1, 0);
