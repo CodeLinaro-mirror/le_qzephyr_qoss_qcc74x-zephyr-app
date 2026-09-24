@@ -1,0 +1,16 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause
+
+common:
+  tags: usb drivers testusb
+  platform_allow:
+    - qcc748m_evk
+  harness: pytest
+  harness_config:
+    pytest_root: ["scripts"]
+    pytest_dut_scope: session
+  timeout: 1800
+
+tests:
+  qcc7xx.drivers.usb.testusb:
+    extra_args: DTC_OVERLAY_FILE=boards/qcc748m_evk.overlay
