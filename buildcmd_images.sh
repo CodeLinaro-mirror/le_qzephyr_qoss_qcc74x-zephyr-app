@@ -9,4 +9,5 @@
 west build -p always -b qcc748m_evk qcli_app -d build/qcli_app_default
 west build -p always -b qcc748m_evk qcli_app -d build/qcli_app_wifi -- -DEXTRA_CONF_FILE="wifi_overlay.conf"
 west build -p always -b qcc748m_evk qcli_app -d build/qcli_app_bt -- -DEXTRA_CONF_FILE="bt_overlay.conf"
+west build -p always -b qcc748m_evk qcli_app -d build/qcli_app_lp -- -DEXTRA_CONF_FILE="lowpower_overlay.conf"
 west build -p always -b qcc748m_evk samples/subsys/pm/lowpower -d build/sample_lowpower

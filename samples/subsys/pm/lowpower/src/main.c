@@ -20,15 +20,6 @@ LOG_MODULE_REGISTER(qcc74x_pm_demo, LOG_LEVEL_INF);
 #define QCC74X_PM_PDS_SUBSTATE_ID 15U
 #define CONSOLE_SETTLE_US 10000U
 
-/*
- * LPFW references this Wi-Fi export unconditionally.  This radio-free demo
- * has no RX buffer, so provide the link symbol and leave the field null.
- */
-uint32_t *export_get_rx_buffer1_addr(void)
-{
-	return NULL;
-}
-
 int main(void)
 {
 	struct pm_policy_latency_request latency_req = { 0 };
