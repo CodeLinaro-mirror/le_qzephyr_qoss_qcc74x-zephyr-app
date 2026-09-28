@@ -96,3 +96,5 @@ config QCOM_PSA_HASH_SHELL
 	  driver or SW fallback). Does not depend on a specific driver variant.
 
 endmenu
+
+rsource "Kconfig.pm"

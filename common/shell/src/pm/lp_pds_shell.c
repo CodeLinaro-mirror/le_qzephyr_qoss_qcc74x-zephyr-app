@@ -19,7 +19,7 @@
 
 #include <qc7xx_lp.h>
 
-#if defined(CONFIG_WIFI_SHELL_LOWPOWER_VALIDATION)
+#if defined(CONFIG_QCC74X_PM_PDS_VALIDATION)
 static uint64_t lp_pds_ms_to_us(uint32_t ms)
 {
 	return (uint64_t)ms * USEC_PER_MSEC;
@@ -565,6 +565,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      cmd_lp_pds_reset, 1, 0),
 	SHELL_SUBCMD_SET_END);
 
-SHELL_SUBCMD_ADD((qcom), pm, &sub_lp_pds, "low-power commands", NULL, 1, 0);
+SHELL_SUBCMD_ADD((qcom, pm), pds, &sub_lp_pds,
+		 "PDS15 low-power commands", NULL, 1, 0);
 
-#endif /* CONFIG_WIFI_SHELL_LOWPOWER_VALIDATION */
+#endif /* CONFIG_QCC74X_PM_PDS_VALIDATION */

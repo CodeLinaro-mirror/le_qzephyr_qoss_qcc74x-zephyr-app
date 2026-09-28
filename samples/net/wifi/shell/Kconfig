@@ -16,23 +16,3 @@ config WIFI_SHELL_COEX_VALIDATION
 	  sample-level QCC74X Wi-Fi/BLE coexistence runtime.
 
 endmenu
-
-menu "QCC74x Low Power Validation"
-
-config WIFI_SHELL_LOWPOWER_VALIDATION
-	bool "Enable QCC74x low-power PDS15 validation commands"
-	depends on SHELL && PM && QCC74X_PM_PDS15 && QCC74X_PM_PDS15_POLICY
-	depends on QCC74X_PM_DIAGNOSTICS
-	default n
-	help
-	  Enable the lp_pds shell command group used to observe QCC74x
-	  low-power bring-up, run LPFW init, and sanity-check the PDS15
-	  wake path on top of the wifi/shell sample.
-
-config WIFI_SHELL_LOWPOWER_DEFAULT_SLEEP_MS
-	int "Default low-power validation sleep duration in milliseconds"
-	depends on WIFI_SHELL_LOWPOWER_VALIDATION
-	range 1 60000
-	default 200
-
-endmenu
