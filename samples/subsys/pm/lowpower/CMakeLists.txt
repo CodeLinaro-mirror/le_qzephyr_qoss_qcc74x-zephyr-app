@@ -7,5 +7,4 @@ project(qcc74x_pm_demo)
 
 target_sources(app PRIVATE
   src/main.c
-  ${QC7XX_SDK_PATH}/drivers/sys/qcc74x/qcc74x_sys.c
 )

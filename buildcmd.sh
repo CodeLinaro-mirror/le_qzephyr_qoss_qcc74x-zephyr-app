@@ -20,4 +20,4 @@ git update-ref refs/heads/manifest-rev $(git rev-parse HEAD)
 cd ..
 west init -l west-manifest --mf west_qcc740_gerrit_dev.yml
 cd qapp/qcc74x
-west build -b qcc748m_evk samples/net/wifi/shell -d build/wifishell
+bash buildcmd_images.sh

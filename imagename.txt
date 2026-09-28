@@ -1,3 +1,4 @@
-build/wifishell/zephyr/zephyr.bin
-build/wifishell/zephyr/zephyr.elf
-build/wifishell/zephyr/zephyr.bin.hash
+build/qcli_app_default/zephyr/zephyr.bin.hash
+build/qcli_app_wifi/zephyr/zephyr.bin.hash
+build/qcli_app_bt/zephyr/zephyr.bin.hash
+build/sample_lowpower/zephyr/zephyr.bin.hash
