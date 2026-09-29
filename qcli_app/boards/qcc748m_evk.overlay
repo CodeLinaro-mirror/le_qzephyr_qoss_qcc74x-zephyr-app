@@ -124,3 +124,19 @@
 &rtc0 {
 	status = "okay";
 };
+
+/* Secure Storage ITS Partition */
+/ {
+	chosen {
+		secure_storage_its_partition = &storage_its_partition;
+	};
+};
+
+&flash0 {
+	partitions {
+		storage_its_partition: partition@65e000 {
+			label = "storage-its";
+			reg = <0x65e000 0x20000>;
+		};
+	};
+};

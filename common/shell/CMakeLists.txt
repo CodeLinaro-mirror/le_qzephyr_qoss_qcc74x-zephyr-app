@@ -20,3 +20,5 @@ zephyr_sources_ifdef(CONFIG_QCC74X_PM_PDS_VALIDATION src/pm/lp_pds_shell.c)
 if(CONFIG_QCC74X_PM_SHELL AND CONFIG_QCC74X_HBN_SHELL)
   zephyr_sources(src/pm/hbn_shell.c)
 endif()
+
+zephyr_sources_ifdef(CONFIG_SECURE_STORAGE src/its_shell_qcom.c)
