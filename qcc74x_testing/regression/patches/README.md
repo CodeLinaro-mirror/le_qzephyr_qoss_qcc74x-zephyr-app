@@ -8,13 +8,27 @@ running `west twister` with QCC74x hardware.
 Run from the **workspace root**:
 
 **Windows (CMD)**
+
+Original Twister patch:
 ```bat
 git -C zephyr apply --ignore-whitespace ..\qapp\qcc74x\qcc74x_testing\regression\patches\twister_rts_dtr_fix.patch
 ```
 
+Pytest serial fix patch:
+```bat
+git -C zephyr apply --ignore-whitespace ..\qapp\qcc74x\qcc74x_testing\regression\patches\twister_pytest_serial_fix.patch
+```
+
 **Linux / macOS**
+
+Original Twister patch:
 ```sh
 git -C zephyr apply --ignore-whitespace ../qapp/qcc74x/qcc74x_testing/regression/patches/twister_rts_dtr_fix.patch
+```
+
+Pytest serial fix patch:
+```sh
+git -C zephyr apply --ignore-whitespace ../qapp/qcc74x/qcc74x_testing/regression/patches/twister_pytest_serial_fix.patch
 ```
 
 
@@ -34,6 +48,10 @@ git -C zephyr checkout scripts/pylib/twister/twisterlib/handlers.py
 | File | Description |
 |------|-------------|
 | `twister_rts_dtr_fix.patch` | QCC74x EVK (`qcc743m_evk` / `qcc744m_evk` / `qcc748m_evk`): perform RTS/DTR reset pulse and deferred serial open after flashing, so the CH347 boot log is not missed. |
+| `twister_pytest_serial_fix.patch` | QCC74x SPI test support: control RTS/DTR before serial open, preserve the boot banner, handle startup noise safely, and wait for SPI test reset/flash capture correctly. |
+
+> `twister_pytest_serial_fix.patch` includes the Twister reset/serial changes from
+> `twister_rts_dtr_fix.patch`; apply only one of these two patches.
 
 ---
 

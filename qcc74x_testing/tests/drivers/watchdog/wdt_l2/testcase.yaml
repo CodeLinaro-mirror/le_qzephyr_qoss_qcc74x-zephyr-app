@@ -1,0 +1,15 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+common:
+  depends_on: watchdog
+  expect_reboot: true
+  tags:
+    - drivers
+    - watchdog
+    - l2
+  platform_allow:
+    - qcc748m_evk
+
+tests:
+  qcc7xx.drivers.watchdog.l2: {}

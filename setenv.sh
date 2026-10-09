@@ -25,6 +25,7 @@ FILES=(
     lib/libqcc743_lpphyrf.a
     lib/libqcc743_phyrf4mfg.a
     lib/libcsi_xt900p32f_dsp.a
+    lib/liblmac154_qcc743.a
     tool/QConn_Secure-ubuntu
     tool/QConn_Secure.exe
     tool/QConn_Flash-ubuntu

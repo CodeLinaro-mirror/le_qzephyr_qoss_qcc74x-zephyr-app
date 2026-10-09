@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 2019 Intel Corp.
- * Copyright (c) 2025 Qualcomm Technologies, Inc. and/or its subsidiaries
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: Apache-2.0.
+ *
+ * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
-
 #include <zephyr/drivers/counter.h>
 #include <zephyr/ztest.h>
 #include <zephyr/kernel.h>

@@ -1,0 +1,23 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+# SPDX-License-Identifier: BSD-3-Clause
+
+sample:
+  name: QCC74x CLI App
+  description: >
+    Interactive CLI for QCC74x development boards. Provides shell commands
+    for all on-board peripherals (I2C, SPI, CAN, PWM, ADC, DAC, GPIO,
+    WDT, RTC, Counter, Comparator, Crypto, Flash, PSRAM) plus WiFi/Net.
+
+tests:
+  sample.qcli_app:
+    platform_allow:
+      - qcc748m_evk/qcc748
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "qcc74x:~\\$"
+    timeout: 60
+    tags:
+      - shell
+      - qcli_app

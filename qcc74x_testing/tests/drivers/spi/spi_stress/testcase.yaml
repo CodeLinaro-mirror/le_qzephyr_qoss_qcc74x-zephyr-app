@@ -1,0 +1,30 @@
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause
+
+common:
+  # Run from this directory with: west twister -T . --device-testing
+  # The hardware map supplies the board port and spi_loopback fixture.
+  depends_on: spi
+  tags:
+    - drivers
+    - spi
+  filter: dt_compat_enabled("test-spi-loopback-slow") and
+          dt_compat_enabled("test-spi-loopback-fast")
+  harness: ztest
+  harness_config:
+    fixture: spi_loopback
+  timeout: 1800
+
+tests:
+  qcc7xx.drivers.spi.stress.qcc74x_spi_polling:
+    extra_args: EXTRA_CONF_FILE="overlay-qcc74x-spi-polling.conf"
+    platform_allow:
+      - qcc748m_evk
+  qcc7xx.drivers.spi.stress.qcc74x_spi_dma:
+    extra_args: EXTRA_CONF_FILE="overlay-qcc74x-spi-dma.conf"
+    platform_allow:
+      - qcc748m_evk
+  qcc7xx.drivers.spi.stress.qcc74x_spi_interrupt:
+    extra_args: EXTRA_CONF_FILE="overlay-qcc74x-spi-interrupt.conf"
+    platform_allow:
+      - qcc748m_evk

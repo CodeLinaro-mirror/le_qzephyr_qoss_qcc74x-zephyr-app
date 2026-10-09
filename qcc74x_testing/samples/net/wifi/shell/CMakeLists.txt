@@ -8,7 +8,7 @@ project(wifi)
 
 FILE(GLOB app_sources ${ZEPHYR_BASE}/samples/net/wifi/shell/src/*.c)
 target_sources(app PRIVATE ${app_sources})
-target_sources_ifdef(CONFIG_WIFI_SHELL_LOWPOWER_VALIDATION app PRIVATE
+target_sources_ifdef(CONFIG_QCC74X_PM_PDS_VALIDATION app PRIVATE
   src/lp_pds_shell.c
 )
 target_sources_ifdef(CONFIG_WIFI_SHELL_COEX_VALIDATION app PRIVATE

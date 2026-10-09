@@ -1,0 +1,142 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+#include <zephyr/dt-bindings/pinctrl/qc7xx-qcc74x-pinctrl.h>
+#include <zephyr/dt-bindings/dma/qcc74x_dma.h>
+/* ------------------------------------------------------------------ */
+/*  Pinctrl states                                                       */
+/* ------------------------------------------------------------------ */
+&pinctrl {
+	/* I2C0: GPIO18=SCL, GPIO19=SDA */
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SCL_GPIO18>, <I2C0_SDA_GPIO19>;
+			bias-pull-up;
+		};
+	};
+};
+
+/* ------------------------------------------------------------------ */
+/*  Peripheral nodes — diagnosis mode: only i2c0 enabled               */
+/* ------------------------------------------------------------------ */
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+};
+
+/* SPI0: GPIO13=SCLK, GPIO10=MISO, GPIO11=MOSI, GPIO12=SS */
+&pinctrl {
+	spi0_default: spi0_default {
+		group1 {
+			pinmux = <SPI0_SCLK_GPIO13>,
+				<SPI0_MISO_GPIO10>,
+				<SPI0_MOSI_GPIO11>,
+				<SPI0_SS_GPIO12>;
+			bias-pull-up;
+			drive-strength = <1>;
+			input-schmitt-enable;
+			input-enable;
+		};
+	};
+};
+
+&wdt0 {
+	status = "okay";
+};
+
+/* Optional coredump profiles. Default QCLI uses Mode 0 at 115200 baud. */
+
+/* Mode 1 full-dump testing: manually enable UART0 2 Mbaud before building. */
+/*
+&uart0 {
+	current-speed = <2000000>;
+	clocks = <&clock0 QC7XX_PERIPHERAL_UART0 QC7XX_UART_CLK_MUXPLL_160M>;
+};
+*/
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	pinctrl-names = "default";
+};
+
+&dma {
+	status = "okay";
+};
+
+/* Mode 2: flash_tracked_psram (1.5 MiB coredump slot). */
+/*
+/delete-node/ &coredump_partition;
+
+&flash0 {
+	partitions {
+		coredump_partition: partition@67e000 {
+			label = "coredump-partition";
+			reg = <0x67e000 0x180000>;
+		};
+	};
+};
+*/
+
+/* Mode 3: serial_tracked_psram needs no DeviceTree change. */
+
+/* Optional watchdog coordination when QCLI installs and feeds wdt0. */
+/*
+&wdt0 {
+	status = "okay";
+};
+*/
+
+/ {
+	zephyr,user {
+		acomp-drive-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&comparator0 {
+	status = "okay";
+	mux_enable;
+	pos_chan_sel = "AON_ACOMP_CHAN_ADC0";
+	neg_chan_sel = "AON_ACOMP_CHAN_VIO_X_SCALING_FACTOR_1";
+	scaling_factor = "AON_ACOMP_SCALING_FACTOR_1";
+	bias_prog = "AON_ACOMP_BIAS_POWER_MODE1";
+	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+};
+
+&comparator1 {
+	status = "okay";
+	mux_enable;
+	pos_chan_sel = "AON_ACOMP_CHAN_ADC0";
+	neg_chan_sel = "AON_ACOMP_CHAN_VIO_X_SCALING_FACTOR_1";
+	scaling_factor = "AON_ACOMP_SCALING_FACTOR_1";
+	bias_prog = "AON_ACOMP_BIAS_POWER_MODE1";
+	hysteresis_pos_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+	hysteresis_neg_volt = "AON_ACOMP_HYSTERESIS_VOLT_NONE";
+};
+
+&rtc0 {
+	status = "okay";
+};
+
+/* Secure Storage ITS Partition */
+/ {
+	chosen {
+		secure_storage_its_partition = &storage_its_partition;
+	};
+};
+
+&flash0 {
+	partitions {
+		storage_its_partition: partition@65e000 {
+			label = "storage-its";
+			reg = <0x65e000 0x20000>;
+		};
+	};
+};

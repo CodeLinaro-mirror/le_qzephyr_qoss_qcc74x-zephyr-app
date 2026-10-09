@@ -1,0 +1,12 @@
+tests:
+  qcc7xx.drivers.comparator.ztress:
+    tags:
+      - drivers
+      - comparator
+      - ztress
+    depends_on:
+      - comparator
+      - gpio
+    platform_allow:
+      - qcc748m_evk
+    timeout: 120

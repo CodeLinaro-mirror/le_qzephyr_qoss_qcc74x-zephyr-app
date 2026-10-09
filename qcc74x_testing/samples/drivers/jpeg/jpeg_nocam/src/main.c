@@ -23,11 +23,12 @@
 #define HEIGHT1 288
 
 #define JPEG_QUALITY 50
+//#define HEX_DUMP_ALL_DATA
 
 const struct device *jpeg_dev;
 
 __aligned(32) static uint8_t test_buf[WIDTH1 * HEIGHT1 * 2 + 8];
-__aligned(32) static uint8_t jpeg_out[32 * 1024];
+__aligned(32) static uint8_t jpeg_out[256 * 1024];
 
 static void dump_hex(uint8_t *data, uint32_t len)
 {
@@ -38,6 +39,12 @@ static void dump_hex(uint8_t *data, uint32_t len)
 			printk("\r\n");
 		}
 		printk("%02x ", data[i]);
+
+		/* Sleep 100ms every 0x80 bytes */
+		if ((i + 1) % 0x80 == 0) {
+			printk("\r\n");
+			k_sleep(K_MSEC(100));
+		}
 	}
 	printk("\r\n");
 }
@@ -117,8 +124,13 @@ int main(void)
 		if (done) {
 			uint32_t t_out = done->timestamp;
 			uint32_t sz    = done->bytesused;
-			dump_hex(done->buffer, 16);
-			dump_hex((uint8_t *)done->buffer + 800, 16);
+			
+			#ifdef HEX_DUMP_ALL_DATA
+			dump_hex(done->buffer, sz);
+			#else
+            dump_hex(done->buffer, 16);
+            dump_hex((uint8_t *)done->buffer + 800, 16);
+			#endif
 			video_buffer_release(done);
 			/* Dequeue input to get start timestamp for elapsed time */
 			done = &in_ctrl; done->type = VIDEO_BUF_TYPE_INPUT;
@@ -127,6 +139,7 @@ int main(void)
 			if (done) { video_buffer_release(done); }
 			printk("JPEG encoded OK — size = %u bytes, %u ms\n", sz, elapsed);
 			printk("\n\n");
+			k_sleep(K_SECONDS(2));
 		} else {
 			done = &in_ctrl; done->type = VIDEO_BUF_TYPE_INPUT;
 			if (video_dequeue(jpeg_dev, &done, K_FOREVER) == 0 && done) {
@@ -178,15 +191,20 @@ int main(void)
 			uint32_t t_out = done->timestamp;
 			uint32_t sz    = done->bytesused;
 			uint8_t *buf   = done->buffer;
+			#ifdef HEX_DUMP_ALL_DATA
+			dump_hex(buf, sz);
+			#else
+            dump_hex(buf, 16);
+            dump_hex(buf + 800, 16);
+			#endif
 			video_buffer_release(done);
 			done = &in_ctrl; done->type = VIDEO_BUF_TYPE_INPUT;
 			video_dequeue(jpeg_dev, &done, K_FOREVER);
 			uint32_t elapsed = t_out - (done ? done->timestamp : t_out);
 			if (done) { video_buffer_release(done); }
 			printk("JPEG encoded OK — size = %u bytes, %u ms\n", sz, elapsed);
-			dump_hex(buf, 16);
-			dump_hex(buf + 800, 16);
 			printk("\n\n");
+			k_sleep(K_SECONDS(2));
 		} else {
 			done = &in_ctrl; done->type = VIDEO_BUF_TYPE_INPUT;
 			if (video_dequeue(jpeg_dev, &done, K_FOREVER) == 0 && done) {
@@ -244,15 +262,20 @@ int main(void)
 			uint32_t t_out = done->timestamp;
 			uint32_t sz    = done->bytesused;
 			uint8_t *buf   = done->buffer;
+			#ifdef HEX_DUMP_ALL_DATA
+			dump_hex(buf, sz);
+			#else
+            dump_hex(buf, 16);
+            dump_hex(buf + 800, 16);
+			#endif
 			video_buffer_release(done);
 			done = &in_ctrl; done->type = VIDEO_BUF_TYPE_INPUT;
 			video_dequeue(jpeg_dev, &done, K_FOREVER);
 			uint32_t elapsed = t_out - (done ? done->timestamp : t_out);
 			if (done) { video_buffer_release(done); }
 			printk("JPEG encoded OK — size = %u bytes, %u ms\n", sz, elapsed);
-			dump_hex(buf, 16);
-			dump_hex(buf + 800, 16);
 			printk("\n\n");
+			k_sleep(K_SECONDS(2));
 		} else {
 			done = &in_ctrl; done->type = VIDEO_BUF_TYPE_INPUT;
 			if (video_dequeue(jpeg_dev, &done, K_FOREVER) == 0 && done) {
@@ -346,6 +369,13 @@ int main(void)
 				uint32_t t_out   = done->timestamp;
 				uint32_t sz      = done->bytesused;
 				uint8_t *buf     = done->buffer;
+				#ifdef HEX_DUMP_ALL_DATA
+			    dump_hex(buf, sz);
+			    #else
+                dump_hex(buf, 16);
+                dump_hex(buf + 800, 16);
+			    #endif
+                k_sleep(K_SECONDS(1));
 				video_buffer_release(done);
 				/* Get input timestamp for elapsed */
 				done = &inbuf[i]; done->type = VIDEO_BUF_TYPE_INPUT;
@@ -354,8 +384,6 @@ int main(void)
 				if (sret == 0 && done) { video_buffer_release(done); }
 				printk("%d JPEG encoded OK — size = %u bytes, %u ms\n",
 				       i, sz, elapsed);
-				dump_hex(buf, 16);
-				dump_hex(buf + 800, 16);
 				printk("\r\n");
 			} else {
 				done = &inbuf[i]; done->type = VIDEO_BUF_TYPE_INPUT;

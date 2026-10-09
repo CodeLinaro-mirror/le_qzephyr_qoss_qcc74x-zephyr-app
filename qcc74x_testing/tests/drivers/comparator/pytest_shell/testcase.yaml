@@ -1,0 +1,17 @@
+tests:
+  qcc7xx.drivers.comparator.pytest_shell:
+    harness: pytest
+    tags:
+      - comparator
+      - pytest
+      - shell
+      - qcc74x
+    depends_on:
+      - comparator
+      - gpio
+      - serial
+    platform_allow:
+      - qcc748m_evk
+    timeout: 180
+    harness_config:
+      pytest_dut_scope: session

@@ -8,6 +8,7 @@
 #include <zephyr/drivers/comparator.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/pm/device.h>
 #include <zephyr/ztest.h>
 
 static const struct device *test_dev = DEVICE_DT_GET(DT_ALIAS(test_comp));
@@ -126,3 +127,29 @@ ZTEST(comparator_gpio_loopback, test_trigger_callback)
 	zassert_ok(k_sem_take(&test_sem, K_NO_WAIT));
 	zassert_equal(comparator_trigger_is_pending(test_dev), 0);
 }
+
+#ifdef CONFIG_PM_DEVICE
+ZTEST(comparator_gpio_loopback, test_suspend_resume_restores_trigger)
+{
+	enum pm_device_state state;
+
+	zassert_ok(gpio_pin_set_dt(&test_pin, 0));
+	k_msleep(1);
+	zassert_ok(comparator_set_trigger(test_dev, COMPARATOR_TRIGGER_FALLING_EDGE));
+	zassert_ok(pm_device_action_run(test_dev, PM_DEVICE_ACTION_SUSPEND));
+	zassert_ok(pm_device_state_get(test_dev, &state));
+	zassert_equal(state, PM_DEVICE_STATE_SUSPENDED);
+	/* A configuration change while suspended must be applied by resume. */
+	zassert_ok(comparator_set_trigger(test_dev, COMPARATOR_TRIGGER_RISING_EDGE));
+
+	zassert_ok(pm_device_action_run(test_dev, PM_DEVICE_ACTION_RESUME));
+	zassert_ok(pm_device_state_get(test_dev, &state));
+	zassert_equal(state, PM_DEVICE_STATE_ACTIVE);
+	zassert_equal(comparator_trigger_is_pending(test_dev), 0);
+
+	zassert_ok(gpio_pin_set_dt(&test_pin, 1));
+	k_msleep(1);
+	zassert_equal(comparator_get_output(test_dev), 1);
+	zassert_equal(comparator_trigger_is_pending(test_dev), 1);
+}
+#endif /* CONFIG_PM_DEVICE */

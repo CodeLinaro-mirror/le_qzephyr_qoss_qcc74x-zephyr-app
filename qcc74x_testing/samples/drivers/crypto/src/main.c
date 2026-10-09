@@ -1,6 +1,12 @@
 /*
+ * Copyright (c) 2016 Intel Corporation.
+ * Copyright 2025 NXP
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
  * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
 
 #include <string.h>

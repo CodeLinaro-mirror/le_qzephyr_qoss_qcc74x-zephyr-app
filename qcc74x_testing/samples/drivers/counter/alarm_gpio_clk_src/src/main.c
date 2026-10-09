@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 2019 Linaro Limited
- * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
  *
+ * SPDX-License-Identifier: Apache-2.0.
+ *
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
  * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
-
 #include <zephyr/kernel.h>
 
 #include <zephyr/device.h>

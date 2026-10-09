@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include "qcc74xm_evk_common.dtsi"
+
+&pinctrl {
+	i2s0_default: i2s0_default {
+		group1 {
+			pinmux = <I2S0_BCLK_GPIO16>,
+				 <I2S0_FS_GPIO17>,
+				 <I2S0_DI_GPIO34>,
+				 <I2S0_DO_GPIO31>;
+			input-enable;
+		};
+	};
+};

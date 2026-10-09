@@ -3,9 +3,12 @@
  * Copyright (c) 2018 Nordic Semiconductor
  * Copyright (c) 2019 Centaur Analytics, Inc
  * Copyright 2023 NXP
- * Copyright (c) 2026 Qualcomm Technologies, Inc. and/or its subsidiaries
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries
  * SPDX-License-Identifier: BSD-3-Clause
+ * Not a contribution.
  */
 
 #include <zephyr/kernel.h>
